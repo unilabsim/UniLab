@@ -127,6 +127,13 @@ class TrainingLogger:
         self._collector_step_core_ms: float = 0.0
         self._collector_update_state_ms: float = 0.0
         self._collector_reset_done_ms: float = 0.0
+        self._collector_policy_total_ms: float = 0.0
+        self._collector_policy_h2d_ms: float = 0.0
+        self._collector_policy_torch_infer_ms: float = 0.0
+        self._collector_policy_d2h_ms: float = 0.0
+        self._collector_policy_numpy_infer_ms: float = 0.0
+        self._collector_weight_sync_ms: float = 0.0
+        self._collector_infer_backend: str = "torch"
         self._timeout_rate: float = 0.0
         self._terminated_rate: float = 0.0
         self._buffer_utilization: float = 0.0
@@ -246,6 +253,16 @@ class TrainingLogger:
         self._collector_update_state_ms = float(timing_ms.get("update_state_ms", self._collector_update_state_ms))
         self._collector_reset_done_ms = float(timing_ms.get("reset_done_ms", self._collector_reset_done_ms))
 
+    def update_collector_policy_timing(self, timing_ms: dict[str, float], infer_backend: str = "torch"):
+        """Update collector policy path timing (milliseconds)."""
+        self._collector_policy_total_ms = float(timing_ms.get("policy_total_ms", self._collector_policy_total_ms))
+        self._collector_policy_h2d_ms = float(timing_ms.get("h2d_ms", self._collector_policy_h2d_ms))
+        self._collector_policy_torch_infer_ms = float(timing_ms.get("torch_infer_ms", self._collector_policy_torch_infer_ms))
+        self._collector_policy_d2h_ms = float(timing_ms.get("d2h_ms", self._collector_policy_d2h_ms))
+        self._collector_policy_numpy_infer_ms = float(timing_ms.get("numpy_infer_ms", self._collector_policy_numpy_infer_ms))
+        self._collector_weight_sync_ms = float(timing_ms.get("weight_sync_ms", self._collector_weight_sync_ms))
+        self._collector_infer_backend = str(infer_backend)
+
     def update_done_rates(self, timeout_rate: float, terminated_rate: float):
         """Update timeout/terminated ratio among completed episodes in collector window."""
         self._timeout_rate = float(timeout_rate)
@@ -323,8 +340,21 @@ class TrainingLogger:
             w.add_scalar("perf/collector_step_core_ms", self._collector_step_core_ms, global_step)
             w.add_scalar("perf/collector_update_state_ms", self._collector_update_state_ms, global_step)
             w.add_scalar("perf/collector_reset_done_ms", self._collector_reset_done_ms, global_step)
+            w.add_scalar("perf/collector_policy_total_ms", self._collector_policy_total_ms, global_step)
+            w.add_scalar("perf/collector_policy_h2d_ms", self._collector_policy_h2d_ms, global_step)
+            w.add_scalar("perf/collector_policy_torch_infer_ms", self._collector_policy_torch_infer_ms, global_step)
+            w.add_scalar("perf/collector_policy_d2h_ms", self._collector_policy_d2h_ms, global_step)
+            w.add_scalar("perf/collector_policy_numpy_infer_ms", self._collector_policy_numpy_infer_ms, global_step)
+            w.add_scalar("perf/collector_weight_sync_ms", self._collector_weight_sync_ms, global_step)
+            backend_id = 1.0 if self._collector_infer_backend == "numpy" else 0.0
+            w.add_scalar("perf/collector_infer_backend_id", backend_id, global_step)
             w.add_scalar("perf/timeout_rate", self._timeout_rate, global_step)
             w.add_scalar("perf/terminated_rate", self._terminated_rate, global_step)
+            iter_total = collect_time + train_time
+            w.add_scalar("perf/iteration_time_ms", iter_total * 1000, global_step)
+            if iter_total > 0:
+                w.add_scalar("perf/train_loop_samples_per_sec", self.num_envs / iter_total, global_step)
+                w.add_scalar("perf/train_time_ratio", train_time / iter_total, global_step)
             elapsed = time.time() - self._start_time if self._start_time else 0
             if elapsed > 0 and self._total_steps > 0:
                 w.add_scalar("perf/steps_per_sec", self._total_steps / elapsed, global_step)
@@ -349,8 +379,20 @@ class TrainingLogger:
             log_dict["perf/collector_step_core_ms"] = self._collector_step_core_ms
             log_dict["perf/collector_update_state_ms"] = self._collector_update_state_ms
             log_dict["perf/collector_reset_done_ms"] = self._collector_reset_done_ms
+            log_dict["perf/collector_policy_total_ms"] = self._collector_policy_total_ms
+            log_dict["perf/collector_policy_h2d_ms"] = self._collector_policy_h2d_ms
+            log_dict["perf/collector_policy_torch_infer_ms"] = self._collector_policy_torch_infer_ms
+            log_dict["perf/collector_policy_d2h_ms"] = self._collector_policy_d2h_ms
+            log_dict["perf/collector_policy_numpy_infer_ms"] = self._collector_policy_numpy_infer_ms
+            log_dict["perf/collector_weight_sync_ms"] = self._collector_weight_sync_ms
+            log_dict["perf/collector_infer_backend_id"] = 1.0 if self._collector_infer_backend == "numpy" else 0.0
             log_dict["perf/timeout_rate"] = self._timeout_rate
             log_dict["perf/terminated_rate"] = self._terminated_rate
+            iter_total = collect_time + train_time
+            log_dict["perf/iteration_time_ms"] = iter_total * 1000
+            if iter_total > 0:
+                log_dict["perf/train_loop_samples_per_sec"] = self.num_envs / iter_total
+                log_dict["perf/train_time_ratio"] = train_time / iter_total
             elapsed = time.time() - self._start_time if self._start_time else 0
             if elapsed > 0 and self._total_steps > 0:
                 log_dict["perf/steps_per_sec"] = self._total_steps / elapsed
@@ -534,6 +576,18 @@ class TrainingLogger:
         table.add_row(
             "Update", f"{self._collector_update_state_ms:.1f}ms",
             "Reset", f"{self._collector_reset_done_ms:.1f}ms",
+        )
+        table.add_row(
+            "Policy", f"{self._collector_policy_total_ms:.1f}ms",
+            "Backend", self._collector_infer_backend,
+        )
+        table.add_row(
+            "H2D", f"{self._collector_policy_h2d_ms:.1f}ms",
+            "D2H", f"{self._collector_policy_d2h_ms:.1f}ms",
+        )
+        table.add_row(
+            "TorchInfer", f"{self._collector_policy_torch_infer_ms:.1f}ms",
+            "NumpyInfer", f"{self._collector_policy_numpy_infer_ms:.1f}ms",
         )
         table.add_row(
             "Timeout Rate", f"{self._timeout_rate * 100:.1f}%",

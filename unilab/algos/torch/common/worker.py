@@ -12,6 +12,87 @@ import torch
 import numpy as np
 import pkgutil
 import importlib
+
+
+def _silu_np(x: np.ndarray) -> np.ndarray:
+    return x / (1.0 + np.exp(-x))
+
+
+def _layer_norm_np(x: np.ndarray, weight: np.ndarray, bias: np.ndarray, eps: float = 1e-5) -> np.ndarray:
+    mean = np.mean(x, axis=-1, keepdims=True)
+    var = np.var(x, axis=-1, keepdims=True)
+    x_hat = (x - mean) / np.sqrt(var + eps)
+    return x_hat * weight + bias
+
+
+class _NumpySACActor:
+    def __init__(self, action_scale: np.ndarray, action_bias: np.ndarray, use_layer_norm: bool = True):
+        self.use_layer_norm = bool(use_layer_norm)
+        self.action_scale = action_scale.astype(np.float32, copy=True)
+        self.action_bias = action_bias.astype(np.float32, copy=True)
+        self.params: dict[str, np.ndarray] = {}
+
+    @classmethod
+    def from_state_dict(cls, state_dict: dict, use_layer_norm: bool = True) -> "_NumpySACActor":
+        action_scale = state_dict["action_scale"].detach().cpu().numpy()
+        action_bias = state_dict["action_bias"].detach().cpu().numpy()
+        obj = cls(action_scale=action_scale, action_bias=action_bias, use_layer_norm=use_layer_norm)
+        obj.update_from_state_dict(state_dict)
+        return obj
+
+    def update_from_state_dict(self, state_dict: dict) -> None:
+        self.params = {
+            name: tensor.detach().cpu().numpy().astype(np.float32, copy=True)
+            for name, tensor in state_dict.items()
+        }
+
+    def _linear(self, x: np.ndarray, prefix: str) -> np.ndarray:
+        w = self.params[f"{prefix}.weight"]
+        b = self.params[f"{prefix}.bias"]
+        return x @ w.T + b
+
+    def _maybe_ln(self, x: np.ndarray, prefix: str) -> np.ndarray:
+        if not self.use_layer_norm:
+            return x
+        w_name = f"{prefix}.weight"
+        b_name = f"{prefix}.bias"
+        if w_name not in self.params or b_name not in self.params:
+            return x
+        return _layer_norm_np(x, self.params[w_name], self.params[b_name])
+
+    def explore(self, obs: np.ndarray, deterministic: bool = False) -> np.ndarray:
+        x = obs.astype(np.float32, copy=False)
+        x = self._linear(x, "net.0")
+        x = self._maybe_ln(x, "net.1")
+        x = _silu_np(x)
+
+        x = self._linear(x, "net.3")
+        x = self._maybe_ln(x, "net.4")
+        x = _silu_np(x)
+
+        x = self._linear(x, "net.6")
+        x = self._maybe_ln(x, "net.7")
+        x = _silu_np(x)
+
+        mean = self._linear(x, "fc_mu")
+        mean = np.clip(mean, -10.0, 10.0)
+        mean = np.nan_to_num(mean, nan=0.0)
+
+        log_std = self._linear(x, "fc_logstd")
+        log_std = np.tanh(log_std)
+        log_std = -5.0 + 0.5 * (0.0 - (-5.0)) * (log_std + 1.0)
+        log_std = np.nan_to_num(log_std, nan=-5.0)
+
+        if deterministic:
+            raw = mean
+        else:
+            std = np.exp(log_std)
+            noise = np.random.normal(loc=0.0, scale=1.0, size=mean.shape).astype(np.float32)
+            raw = mean + std * noise
+        actions = np.tanh(raw) * self.action_scale + self.action_bias
+        return actions.astype(np.float32, copy=False)
+
+
 def ensure_registries():
     """Import all env modules so they are registered."""
     try:
@@ -63,6 +144,7 @@ def off_policy_collector_fn(
     metrics_queue=None,
     buffer_lock=None,
     weight_sync_lock=None,
+    collector_infer_backend: str = "torch",
     **kwargs,
 ):
     """Entry point for the off-policy collector subprocess."""
@@ -79,6 +161,7 @@ def off_policy_collector_fn(
             exploration_noise=exploration_noise, warmup_steps=warmup_steps,
             metrics_queue=metrics_queue, buffer_lock=buffer_lock,
             weight_sync_lock=weight_sync_lock,
+            collector_infer_backend=collector_infer_backend,
         )
     except Exception as e:
         traceback.print_exc()
@@ -96,7 +179,7 @@ def _run_collector(
     weight_sync_name, weight_param_shapes,
     algo_type, actor_hidden_dim, use_layer_norm, collector_device,
     exploration_noise, warmup_steps, metrics_queue, buffer_lock,
-    weight_sync_lock,
+    weight_sync_lock, collector_infer_backend,
 ):
     from unilab.ipc import SharedReplayBuffer, SharedWeightSync
     from unilab.envs import registry
@@ -115,14 +198,22 @@ def _run_collector(
     # Create environment - use numpy backend for PyTorch algorithms
     env = registry.make(env_name, num_envs=num_envs, sim_backend="mujoco")
 
+    infer_backend = str(collector_infer_backend).strip().lower()
+    if infer_backend not in ("torch", "numpy"):
+        infer_backend = "torch"
+
     # Build actor
-    actor = _build_actor(algo_type, obs_dim, action_dim, actor_hidden_dim, use_layer_norm, collector_device)
+    model_device = collector_device if infer_backend == "torch" else "cpu"
+    actor = _build_actor(algo_type, obs_dim, action_dim, actor_hidden_dim, use_layer_norm, model_device)
     actor.eval()
+    numpy_actor = None
 
     # Load initial weights
     sd = dict(actor.state_dict())
     weight_sync.read_weights_into(sd)
     actor.load_state_dict(sd)
+    if infer_backend == "numpy" and algo_type == "sac":
+        numpy_actor = _NumpySACActor.from_state_dict(sd, use_layer_norm=use_layer_norm)
     local_weight_version = weight_sync.version
 
     total_steps = 0
@@ -134,6 +225,8 @@ def _run_collector(
     ep_reward_components = defaultdict(list)
     timing_accum_ms = defaultdict(float)
     timing_count = 0
+    policy_timing_accum_ms = defaultdict(float)
+    policy_timing_count = 0
     done_count_window = 0
     timeout_count_window = 0
     terminated_count_window = 0
@@ -157,25 +250,50 @@ def _run_collector(
     while not stop_event.is_set():
         # Check for weight updates
         if weight_sync.version > local_weight_version:
+            sync_t0 = _time.perf_counter()
             sd = dict(actor.state_dict())
             local_weight_version = weight_sync.read_weights_into(sd)
             actor.load_state_dict(sd)
+            if numpy_actor is not None:
+                numpy_actor.update_from_state_dict(sd)
+            policy_timing_accum_ms["weight_sync_ms"] += (_time.perf_counter() - sync_t0) * 1000.0
 
         # Select action
-        with torch.no_grad():
-            if total_steps < warmup_steps:
-                actions_np = np.random.uniform(-1, 1, (num_envs, action_dim)).astype(np.float32)
+        if total_steps < warmup_steps:
+            actions_np = np.random.uniform(-1, 1, (num_envs, action_dim)).astype(np.float32)
+        else:
+            infer_t0 = _time.perf_counter()
+            if infer_backend == "numpy" and numpy_actor is not None and algo_type == "sac":
+                numpy_t0 = _time.perf_counter()
+                actions_np = numpy_actor.explore(obs_np, deterministic=False)
+                policy_timing_accum_ms["numpy_infer_ms"] += (_time.perf_counter() - numpy_t0) * 1000.0
+                policy_timing_accum_ms["h2d_ms"] += 0.0
+                policy_timing_accum_ms["d2h_ms"] += 0.0
+                policy_timing_accum_ms["torch_infer_ms"] += 0.0
             else:
-                obs_torch = torch.from_numpy(obs_np).to(collector_device)
-                if algo_type == "sac":
-                    actions_torch = actor.explore(obs_torch)
-                elif algo_type == "td3":
-                    actions_torch = actor(obs_torch)
-                    noise = torch.randn_like(actions_torch) * exploration_noise
-                    actions_torch = (actions_torch + noise).clamp(-1, 1)
-                else:
-                    actions_torch = torch.zeros((num_envs, action_dim), device=collector_device)
-                actions_np = actions_torch.cpu().numpy()
+                with torch.no_grad():
+                    h2d_t0 = _time.perf_counter()
+                    obs_torch = torch.from_numpy(obs_np).to(collector_device)
+                    policy_timing_accum_ms["h2d_ms"] += (_time.perf_counter() - h2d_t0) * 1000.0
+
+                    infer_t1 = _time.perf_counter()
+                    if algo_type == "sac":
+                        actions_torch = actor.explore(obs_torch)
+                    elif algo_type == "td3":
+                        actions_torch = actor(obs_torch)
+                        noise = torch.randn_like(actions_torch) * exploration_noise
+                        actions_torch = (actions_torch + noise).clamp(-1, 1)
+                    else:
+                        actions_torch = torch.zeros((num_envs, action_dim), device=collector_device)
+                    policy_timing_accum_ms["torch_infer_ms"] += (_time.perf_counter() - infer_t1) * 1000.0
+
+                    d2h_t0 = _time.perf_counter()
+                    actions_np = actions_torch.cpu().numpy()
+                    policy_timing_accum_ms["d2h_ms"] += (_time.perf_counter() - d2h_t0) * 1000.0
+                policy_timing_accum_ms["numpy_infer_ms"] += 0.0
+
+            policy_timing_accum_ms["policy_total_ms"] += (_time.perf_counter() - infer_t0) * 1000.0
+            policy_timing_count += 1
 
         # Step environment
         state = env.step(actions_np)
@@ -265,6 +383,14 @@ def _run_collector(
                     }
                     timing_accum_ms.clear()
                     timing_count = 0
+
+                if policy_timing_count > 0:
+                    msg["collector_policy_timing_ms"] = {
+                        k: (v / policy_timing_count) for k, v in policy_timing_accum_ms.items()
+                    }
+                    msg["collector_infer_backend"] = infer_backend
+                    policy_timing_accum_ms.clear()
+                    policy_timing_count = 0
 
                 if done_count_window > 0:
                     msg["timeout_rate"] = timeout_count_window / done_count_window

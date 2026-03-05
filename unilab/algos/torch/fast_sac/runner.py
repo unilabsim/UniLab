@@ -53,6 +53,7 @@ class FastSACRunner(AsyncRunner):
         num_atoms: int = 101,
         exploration_noise: float = 0.1,
         use_layer_norm: bool = True,
+        collector_infer_backend: str = "torch",
         max_grad_norm: float = 0.0,
         **kwargs,
     ):
@@ -73,6 +74,7 @@ class FastSACRunner(AsyncRunner):
         self.policy_frequency = policy_frequency
         self.exploration_noise = exploration_noise
         self.use_layer_norm = use_layer_norm
+        self.collector_infer_backend = collector_infer_backend
 
         # Learner hyperparameters
         self.gamma = gamma
@@ -178,6 +180,7 @@ class FastSACRunner(AsyncRunner):
             "actor_hidden_dim": self.actor_hidden_dim,
             "use_layer_norm": self.use_layer_norm,
             "collector_device": self.collector_device,
+            "collector_infer_backend": self.collector_infer_backend,
             "exploration_noise": self.exploration_noise,
             "warmup_steps": self.warmup_steps,
             "metrics_queue": metrics_queue,
@@ -299,6 +302,12 @@ class FastSACRunner(AsyncRunner):
 
                 if "collector_timing_ms" in m:
                     logger.update_collector_timing(m["collector_timing_ms"])
+
+                if "collector_policy_timing_ms" in m:
+                    logger.update_collector_policy_timing(
+                        m["collector_policy_timing_ms"],
+                        m.get("collector_infer_backend", "torch"),
+                    )
 
                 if "timeout_rate" in m or "terminated_rate" in m:
                     logger.update_done_rates(

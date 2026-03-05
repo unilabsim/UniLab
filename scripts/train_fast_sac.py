@@ -33,6 +33,13 @@ def main():
     parser.add_argument("--num_envs", type=int, default=None, help="Override num_envs from config")
     parser.add_argument("--device", type=str, default=None)
     parser.add_argument("--collector_device", type=str, default=None)
+    parser.add_argument(
+        "--collector_infer_backend",
+        type=str,
+        default="torch",
+        choices=["torch", "numpy"],
+        help="Collector policy inference backend: torch (default) or numpy (host-only MLP).",
+    )
     parser.add_argument("--log_dir", type=str, default=None)
     parser.add_argument("--play_only", action="store_true", help="Play mode only")
     parser.add_argument("--load_run", type=str, default="-1", help="Run ID to load or path")
@@ -81,6 +88,7 @@ def main():
             num_atoms=cfg.num_atoms,
             exploration_noise=cfg.exploration_noise,
             use_layer_norm=cfg.use_layer_norm,
+            collector_infer_backend=args.collector_infer_backend,
         )
 
         try:
