@@ -5,9 +5,9 @@ from typing import Tuple
 import numpy as np
 import gymnasium as gym
 
-from unilab.envs.base import ABEnv, EnvCfg
-from unilab.envs.backend import SimBackend
-from unilab.envs.dtype_config import get_global_dtype
+from .env_base import ABEnv, EnvCfg
+from .backend import SimBackend
+from .dtype_config import get_global_dtype
 
 
 @dataclass
