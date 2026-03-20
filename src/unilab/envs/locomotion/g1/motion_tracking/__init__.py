@@ -1,4 +1,4 @@
-"""Motion tracking environments for Unitree G1."""
+"""Motion tracking module for G1 humanoid."""
 
 from .tracking import G1MotionTrackingCfg, G1MotionTrackingEnv, G1MotionTrackingEnvCfg
 
