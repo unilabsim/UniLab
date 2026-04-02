@@ -68,17 +68,16 @@ def test_g1_joystick_ppo_obs_groups_spec_dims():
     """obs_groups_spec total dim must match what _compute_obs actually produces.
 
     G1JoystickPPO._compute_obs outputs (G1 has 29 DoF):
-        actor: gyro(3) + gravity(3) + diff(29) + dof_vel(29)
-            + last_actions(29) + command(3) + gait_phase(2) = 98
-        privileged: linvel(3)
+        obs: linvel(3) + gyro(3) + gravity(3) + diff(29) + dof_vel(29)
+            + last_actions(29) + command(3) + gait_phase(2) = 101
     """
     from unilab.envs.locomotion.g1.joystick import G1JoystickPPO
 
     # obs_groups_spec is a @property; access via descriptor protocol
     spec = G1JoystickPPO.obs_groups_spec.fget(None)  # type: ignore[union-attr]
     assert spec is not None
-    assert spec["obs"] == 98
-    assert spec["privileged"] == 3
+    assert spec["obs"] == 101
+    assert "privileged" not in spec
 
 
 # ---------------------------------------------------------------------------

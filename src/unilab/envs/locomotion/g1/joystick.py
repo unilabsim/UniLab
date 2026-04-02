@@ -215,8 +215,8 @@ class G1JoystickPPO(G1BaseEnv):
 
     @property
     def obs_groups_spec(self) -> dict[str, int]:
-        # gyro(3) + gravity(3) + diff(29) + dof_vel(29) + action(29) + cmd(3) + phase(2) = 98
-        return {"obs": 98, "privileged": 3}
+        # linvel(3) + gyro(3) + gravity(3) + diff(29) + dof_vel(29) + action(29) + cmd(3) + phase(2) = 101
+        return {"obs": 101}
 
     def _init_reward_functions(self):
         self._reward_fns = {
@@ -268,11 +268,11 @@ class G1JoystickPPO(G1BaseEnv):
         last_actions = info.get("current_actions", np.zeros_like(diff))
         gait_phase = info.get("gait_phase", np.zeros((self._num_envs, 2), dtype=get_global_dtype()))
         actor = np.concatenate(
-            [gyro, -gravity, diff, dof_vel, last_actions, command, gait_phase],
+            [linvel, gyro, -gravity, diff, dof_vel, last_actions, command, gait_phase],
             axis=1,
             dtype=get_global_dtype(),
         )
-        return {"obs": actor, "privileged": linvel}
+        return {"obs": actor}
 
     def get_policy_obs(self, obs: dict[str, np.ndarray]) -> np.ndarray:
         if self._use_legacy_motrix_baseline() and "privileged" in obs:
@@ -280,13 +280,9 @@ class G1JoystickPPO(G1BaseEnv):
         return np.concatenate(list(obs.values()), axis=1)
 
     def get_obs_structure(self) -> dict:
-        """Return observation structure for symmetry augmentation.
-
-        Note: This only returns actor observation structure (without privileged info like linvel).
-        Privileged information (linvel) is handled separately in the learner.
-        """
+        """Return observation structure for symmetry augmentation."""
         return {
-            # "linvel": 3,
+            "linvel": 3,
             "gyro": 3,
             "gravity": 3,
             "dof_pos": self._num_action,
