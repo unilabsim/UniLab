@@ -257,6 +257,18 @@ class MotrixBackend(SimBackend):
         return q[..., [3, 0, 1, 2]]
 
     def _process_rigid_body_props(self, cfg) -> None:
+        if cfg.domain_rand.randomize_link_mass:
+            scale_low = cfg.domain_rand.link_mass_scale_range[0]
+            scale_high = cfg.domain_rand.link_mass_scale_range[1]
+            base_name = cfg.asset.base_name
+            for link in self._model.links:
+                if link.name and link.name != base_name:
+                    base_mass = self._model.get_link(link.name).get_mass_override(self._data)
+                    scaled_mass = base_mass * np.random.uniform(
+                        scale_low, scale_high, size=(self._num_envs,)
+                    )
+                    self._model.get_link(link.name).set_mass_override(self._data, scaled_mass)
+
         if cfg.domain_rand.randomize_base_mass:
             mass = self._model.get_link(cfg.asset.base_name).get_mass_override(self._data)
             mass_low = cfg.domain_rand.added_mass_range[0]
@@ -272,6 +284,12 @@ class MotrixBackend(SimBackend):
             x_low = cfg.domain_rand.com_offset_x[0]
             x_high = cfg.domain_rand.com_offset_x[1]
             com_offset[:, 0] = np.random.uniform(x_low, x_high, self._num_envs)
+            com_offset[:, 1] = np.random.uniform(
+                cfg.domain_rand.com_offset_y[0], cfg.domain_rand.com_offset_y[1], self._num_envs
+            )
+            com_offset[:, 2] = np.random.uniform(
+                cfg.domain_rand.com_offset_z[0], cfg.domain_rand.com_offset_z[1], self._num_envs
+            )
             self._model.get_link(cfg.asset.base_name).set_center_of_mass_override(
                 self._data, com_offset
             )

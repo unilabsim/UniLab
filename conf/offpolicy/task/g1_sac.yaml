@@ -17,3 +17,18 @@ motrix_legacy:
   enabled: true
   algo_overrides:
     use_symmetry: false
+  env_cfg_override:
+    domain_rand:
+      randomize_base_mass: true
+      added_mass_range: [-1.0, 3.0]
+      random_com: true
+      randomize_link_mass: true
+      link_mass_scale_range: [0.9, 1.2]
+      randomize_dof_pos: true
+      dof_pos_scale_range: [0.5, 1.5]
+      randomize_action_delay: true
+      randomize_action_scale: true
+      action_scale_range: [0.8, 1.2]
+      push_robots: true
+      push_interval: 500
+      max_force: [1.0, 1.0, 0.0]

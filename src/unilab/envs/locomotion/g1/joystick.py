@@ -41,6 +41,19 @@ class Domain_Rand:
 
     random_com: bool = False
     com_offset_x: list[float] = field(default_factory=lambda: [-0.05, 0.05])
+    com_offset_y: list[float] = field(default_factory=lambda: [-0.05, 0.05])
+    com_offset_z: list[float] = field(default_factory=lambda: [-0.05, 0.05])
+
+    randomize_link_mass: bool = False
+    link_mass_scale_range: list[float] = field(default_factory=lambda: [0.9, 1.2])
+
+    randomize_dof_pos: bool = False
+    dof_pos_scale_range: list[float] = field(default_factory=lambda: [0.5, 1.5])
+
+    randomize_action_delay: bool = False
+
+    randomize_action_scale: bool = False
+    action_scale_range: list[float] = field(default_factory=lambda: [0.8, 1.2])
 
     push_robots: bool = False
     push_interval: int = 750
@@ -394,6 +407,15 @@ class G1JoystickPPO(G1BaseEnv):
         qpos = np.tile(self._init_qpos, (num_reset, 1))
         qvel = np.tile(self._init_qvel, (num_reset, 1))
 
+        domain_rand = getattr(self._cfg, "domain_rand", None)
+        if domain_rand and domain_rand.randomize_dof_pos:
+            scale = np.random.uniform(
+                domain_rand.dof_pos_scale_range[0],
+                domain_rand.dof_pos_scale_range[1],
+                (num_reset, 1),
+            )
+            qpos[:, 7:] = self._init_qpos[7:] * scale
+
         dxy = np.random.uniform(-0.5, 0.5, (num_reset, 2))
         qpos[:, 0:2] += dxy
         yaw = np.random.uniform(-np.pi, np.pi, (num_reset,))
@@ -414,10 +436,26 @@ class G1JoystickPPO(G1BaseEnv):
             high=np.asarray(self._cfg.commands.vel_limit[1], dtype=get_global_dtype()),
         )
 
+        if domain_rand and domain_rand.randomize_action_delay:
+            action_delay = np.random.randint(0, 2, (num_reset,), dtype=np.int32)
+        else:
+            action_delay = np.zeros((num_reset,), dtype=np.int32)
+
+        if domain_rand and domain_rand.randomize_action_scale:
+            action_scale = np.random.uniform(
+                domain_rand.action_scale_range[0],
+                domain_rand.action_scale_range[1],
+                (num_reset, 1),
+            ).astype(np.float32)
+        else:
+            action_scale = np.ones((num_reset, 1), dtype=np.float32)
+
         info = {
             "commands": commands,
             "current_actions": np.zeros((num_reset, self._num_action), dtype=dtype),
             "last_actions": np.zeros((num_reset, self._num_action), dtype=dtype),
+            "action_delay": action_delay,
+            "action_scale": action_scale,
             "gait_phase": sample_gait_phase_pairs(
                 rng=np.random,
                 num_samples=num_reset,
@@ -437,6 +475,13 @@ class G1JoystickPPO(G1BaseEnv):
         state.info["last_actions"] = state.info.get("current_actions", np.zeros_like(actions))
         state.info["current_actions"] = actions
 
+        delay = state.info.get("action_delay", None)
+        if delay is not None and np.any(delay):
+            mask = delay[:, np.newaxis].astype(bool)
+            exec_actions = np.where(mask, state.info["last_actions"], actions)
+        else:
+            exec_actions = actions
+
         gait_phase = state.info.get(
             "gait_phase", np.zeros((self._num_envs, 2), dtype=get_global_dtype())
         )
@@ -444,4 +489,10 @@ class G1JoystickPPO(G1BaseEnv):
         gait_phase[:, 1] = (gait_phase[:, 1] + self._gait_phase_delta) % (2 * np.pi)
         state.info["gait_phase"] = gait_phase
 
-        return np.asarray(actions * self._cfg.control_config.action_scale + self.default_angles)
+        action_scale = state.info.get(
+            "action_scale", np.ones((self._num_envs, 1), dtype=np.float32)
+        )
+        return np.asarray(
+            exec_actions * self._cfg.control_config.action_scale * action_scale
+            + self.default_angles
+        )
