@@ -7,40 +7,31 @@ import imageio
 
 
 def _resolve_gl_backend() -> str:
-    """Pick a valid MUJOCO_GL backend for the current platform.
-
-    Respects an explicit user setting unless it's provably invalid (e.g. egl
-    on macOS).  Falls back to glfw when EGL is requested but not available.
-    """
+    """Pick a valid MUJOCO_GL backend for the current platform."""
     current = os.environ.get("MUJOCO_GL", "")
     safe_values = {"glfw", "osmesa", "disabled"}
 
     if sys.platform == "darwin":
-        # macOS has no EGL support; glfw is the only off-screen option
         return current if current in safe_values else "glfw"
 
-    # Linux / other: honour explicit non-egl choices
     if current in safe_values:
         return current
 
-    # Try to load EGL; fall back to glfw if unavailable
     try:
         import ctypes
 
         ctypes.CDLL("libEGL.so.1")
-        # NVIDIA EGL requires a device ID to initialize offscreen contexts in
-        # spawned subprocesses; default to GPU 0 if the user hasn't set it.
         os.environ.setdefault("MUJOCO_EGL_DEVICE_ID", "0")
         return "egl"
     except OSError:
         return "glfw"
 
 
-# Must be set *before* importing mujoco (it reads the var at import time)
+# Must be set *before* importing mujoco (it reads the var at import time).
 os.environ["MUJOCO_GL"] = _resolve_gl_backend()
 
 import mujoco  # noqa: E402
-import numpy as np
+import numpy as np  # noqa: E402
 
 
 def get_grid_offsets(num_envs, spacing=1.0):
@@ -57,6 +48,26 @@ def get_grid_offsets(num_envs, spacing=1.0):
 
 # Worker global context
 _worker_ctx: dict[str, Any] = {}
+
+
+def _load_motrix_batch_renderer():
+    """Load the optional Motrix batch renderer lazily.
+
+    When motrixsim is not installed, render_many should continue to use the
+    original MuJoCo rendering path without any behavior change.
+    """
+    try:
+        from unilab.utils.motrix_batch_renderer import (
+            MOTRIX_BATCH_RENDERER_AVAILABLE,
+            MotrixBatchRenderer,
+        )
+    except Exception:
+        return None
+
+    if not MOTRIX_BATCH_RENDERER_AVAILABLE:
+        return None
+
+    return MotrixBatchRenderer
 
 
 def _close_worker():
@@ -79,23 +90,18 @@ def init_worker(model_path, shape):
 
 
 def render_frame_job(args):
-    """
-    Worker function to render a single frame.
-    args: (state_batch, offsets, transparent, cam_distance, cam_elevation, cam_azimuth)
-    """
+    """Worker function to render a single frame with MuJoCo's legacy path."""
     state_batch, offsets, transparent, cam_distance, cam_elevation, cam_azimuth = args
 
     model = _worker_ctx["model"]
     data = _worker_ctx["data"]
     renderer = _worker_ctx["renderer"]
 
-    # Visual options
     vopt = mujoco.MjvOption()
     vopt.flags[mujoco.mjtVisFlag.mjVIS_TRANSPARENT] = transparent
     pert = mujoco.MjvPerturb()
     catmask = mujoco.mjtCatBit.mjCAT_DYNAMIC
 
-    # Helper to set state
     def set_state(d, s, offset=None):
         d.time = s[0]
         d.qpos[:] = s[1 : 1 + model.nq]
@@ -104,29 +110,16 @@ def render_frame_job(args):
         apply_root_offset = False
 
         if offset is not None:
-            # Check if Root (Body 1) has a free joint or slide joints allowing X/Y movement
-            # Body 0 is world. Body 1 is usually the robot base.
             robot_moved = False
-
-            # Heuristic: Check joint at qpos 0, 1.
-            # If jnt_type[0] is free (0), fine.
-            # If jnt_type[0] is slide (2) and axis is x/y...
-
-            # Better check: Does the first body have a joint?
             first_body_jnt = model.body_jntadr[1] if model.nbody > 1 else -1
-            if first_body_jnt >= 0:
-                jnt_type = model.jnt_type[first_body_jnt]
-                # mjJNT_FREE=0
-                if jnt_type == 0:
-                    d.qpos[0] += offset[0]
-                    d.qpos[1] += offset[1]
-                    robot_moved = True
+            if first_body_jnt >= 0 and model.jnt_type[first_body_jnt] == 0:
+                d.qpos[0] += offset[0]
+                d.qpos[1] += offset[1]
+                robot_moved = True
 
-            # If robot wasn't moved via qpos, we need to manually offset geometries later
             if not robot_moved:
                 apply_root_offset = True
 
-            # 2. Box offset
             box_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "box")
             if box_id >= 0:
                 jnt_adr = model.body_jntadr[box_id]
@@ -135,7 +128,6 @@ def render_frame_job(args):
                     d.qpos[qpos_adr] += offset[0]
                     d.qpos[qpos_adr + 1] += offset[1]
 
-            # 3. Target offset (target_x, target_y)
             target_x = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, "target_x")
             if target_x >= 0:
                 d.qpos[model.jnt_qposadr[target_x]] += offset[0]
@@ -146,56 +138,28 @@ def render_frame_job(args):
 
         mujoco.mj_forward(model, d)
 
-        # Post-process: Shift all geometries if robot root wasn't moved
         if apply_root_offset and offset is not None:
-            # Shift all geoms?
-            # We should shift Everything that is PART OF THE ROBOT.
-            # Or just everything?
-            # Box and Target were already shifted via qpos.
-            # BUT qpos shift updates body_pos which updates geom_pos.
-            # If we shift ALL geom_pos, we double shift Box and Target!
-
-            # So we need to shift geoms that belong to bodies which are NOT Box or Target.
-            # Or simpler: Shift everything, but subtract offset from Box/Target qpos first? No.
-
-            # Let's iterate bodies.
-            # Simple heuristic: Shift everything except Box and Target?
             box_body_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "box")
             target_body_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "mocap_target")
 
-            # Also target might be just a body named "mocap_target"
-
             for i in range(model.ngeom):
                 body_id = model.geom_bodyid[i]
-                # If it is robot body.
-                # We want to shift generally everything that wasn't shifted by Qpos.
-                # Box and Target were shifted by Qpos.
-                # Floor (Plane) should usually NOT be shifted (infinite).
-                # Everything else (Robot Base, Robot Links, Decoration) should be shifted.
-
                 is_box_or_target = (body_id == box_body_id) or (body_id == target_body_id)
                 is_plane = model.geom_type[i] == mujoco.mjtGeom.mjGEOM_PLANE
-
                 if not is_box_or_target and not is_plane:
                     d.geom_xpos[i, 0] += offset[0]
                     d.geom_xpos[i, 1] += offset[1]
 
-            # Also update site positions if they are visualized
             for i in range(model.nsite):
                 body_id = model.site_bodyid[i]
-
                 is_box_or_target = (body_id == box_body_id) or (body_id == target_body_id)
-
                 if not is_box_or_target:
                     d.site_xpos[i, 0] += offset[0]
                     d.site_xpos[i, 1] += offset[1]
 
     num_envs = state_batch.shape[0]
-
-    # 1. Clear/Init Scene
     set_state(data, state_batch[0], offsets[0] if offsets is not None else None)
 
-    # Init Camera
     cam = mujoco.MjvCamera()
     if offsets is not None:
         center_x = np.mean(offsets[:, 0])
@@ -210,12 +174,81 @@ def render_frame_job(args):
 
     renderer.update_scene(data, camera=cam, scene_option=vopt)
 
-    # 2. Add other robots
     for i in range(1, num_envs):
         set_state(data, state_batch[i], offsets[i] if offsets is not None else None)
         mujoco.mjv_addGeoms(model, data, vopt, pert, catmask, renderer.scene)
 
     return renderer.render()
+
+
+def _render_states_get_frames_motrix(
+    state_list,
+    model_path,
+    width=1280,
+    height=720,
+    camera_id=-1,
+    cam_distance=2.0,
+    cam_elevation=-20,
+    cam_azimuth=90,
+):
+    renderer_cls = _load_motrix_batch_renderer()
+    if renderer_cls is None:
+        raise ImportError("motrixsim not available")
+
+    num_envs = state_list[0].shape[0]
+    with renderer_cls(
+        model_file=model_path,
+        mujoco_model=mujoco.MjModel.from_xml_path(model_path),
+        num_envs=num_envs,
+        headless=True,
+        width=width,
+        height=height,
+        camera_id=camera_id,
+        cam_distance=cam_distance,
+        cam_elevation=cam_elevation,
+        cam_azimuth=cam_azimuth,
+    ) as renderer:
+        return [renderer.capture_frame(state) for state in state_list]
+
+
+def _render_states_get_frames_mujoco(
+    state_list,
+    model_path,
+    width=1280,
+    height=720,
+    num_processes=8,
+    cam_distance=2.0,
+    cam_elevation=-20,
+    cam_azimuth=90,
+):
+    num_envs = state_list[0].shape[0]
+    offsets = get_grid_offsets(num_envs)
+    shape = (width, height)
+
+    print(
+        f"Rendering {len(state_list)} frames for {num_envs} envs with {num_processes} processes..."
+    )
+
+    tasks = [(s, offsets, False, cam_distance, cam_elevation, cam_azimuth) for s in state_list]
+    frames = []
+
+    if num_processes <= 1:
+        init_worker(model_path, shape)
+        try:
+            for task in tasks:
+                frames.append(render_frame_job(task))
+        finally:
+            _close_worker()
+    else:
+        import multiprocessing
+
+        ctx = multiprocessing.get_context("spawn")
+        with ctx.Pool(
+            processes=num_processes, initializer=init_worker, initargs=(model_path, shape)
+        ) as pool:
+            frames.extend(pool.map(render_frame_job, tasks))
+
+    return frames
 
 
 def render_states_get_frames(
@@ -229,62 +262,37 @@ def render_states_get_frames(
     cam_elevation=-20,
     cam_azimuth=90,
 ):
-    """
-    Render a list of physics states and return the list of frames.
-
-    Args:
-        state_list: List of numpy arrays, each shape (num_envs, state_dim).
-        model_path: Path to the mujoco XML model file.
-        width: Width of the video.
-        height: Height of the video.
-        num_processes: Number of parallel processes to use.
-        camera_id: Camera ID to render from.
-        cam_distance: Camera distance from lookat point.
-        cam_elevation: Camera elevation angle in degrees.
-        cam_azimuth: Camera azimuth angle in degrees.
-    Returns:
-        List of numpy arrays (H, W, 3) (RGB)
-    """
+    """Render a list of MuJoCo batch states and return RGB frames."""
     if not state_list:
         print("No states to render.")
         return []
 
-    num_envs = state_list[0].shape[0]
-    offsets = get_grid_offsets(num_envs)
-    shape = (width, height)
-
-    print(
-        f"Rendering {len(state_list)} frames for {num_envs} envs with {num_processes} processes..."
-    )
-
-    # Prepare arguments for each frame
-    tasks = [(s, offsets, False, cam_distance, cam_elevation, cam_azimuth) for s in state_list]
-
-    frames = []
-
-    if num_processes <= 1:
-        # Serial execution
-        # Initialize context manually
-        init_worker(model_path, shape)
+    motrix_renderer_available = _load_motrix_batch_renderer() is not None
+    if os.getenv("UNILAB_DISABLE_MOTRIX_BATCH_RENDERER", "0") != "1" and motrix_renderer_available:
         try:
-            for task in tasks:
-                res = render_frame_job(task)
-                frames.append(res)
-        finally:
-            _close_worker()
-    else:
-        # Use multiprocessing Pool
-        # On macOS, use spawn to avoid forking OpenGL/MuJoCo contexts.
-        import multiprocessing
+            return _render_states_get_frames_motrix(
+                state_list,
+                model_path,
+                width=width,
+                height=height,
+                camera_id=camera_id,
+                cam_distance=cam_distance,
+                cam_elevation=cam_elevation,
+                cam_azimuth=cam_azimuth,
+            )
+        except Exception as exc:
+            print(f"Falling back to MuJoCo render_many path: {exc}")
 
-        ctx = multiprocessing.get_context("spawn")
-        with ctx.Pool(
-            processes=num_processes, initializer=init_worker, initargs=(model_path, shape)
-        ) as pool:
-            results = pool.map(render_frame_job, tasks)
-            frames.extend(results)
-
-    return frames
+    return _render_states_get_frames_mujoco(
+        state_list,
+        model_path,
+        width=width,
+        height=height,
+        num_processes=num_processes,
+        cam_distance=cam_distance,
+        cam_elevation=cam_elevation,
+        cam_azimuth=cam_azimuth,
+    )
 
 
 def render_states_to_video(
@@ -299,9 +307,7 @@ def render_states_to_video(
     cam_elevation=-20,
     cam_azimuth=90,
 ):
-    """
-    Render a list of physics states to a video file using parallel processing.
-    """
+    """Render a list of physics states to a video file."""
     frames = render_states_get_frames(
         state_list,
         model_path,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -52,6 +52,13 @@ class PPOConfig:
 class PPOTrainer:
     """PPO update logic for `MLPActorCritic` and `RolloutBuffer`."""
 
+    @staticmethod
+    def _tree_leaves(tree: Any) -> list[Any]:
+        flat_tree = tree_flatten(tree, destination=[])
+        if isinstance(flat_tree, dict):
+            return list(flat_tree.values())
+        return [leaf for _, leaf in flat_tree]
+
     def __init__(self, model: MLPActorCritic, cfg: PPOConfig) -> None:
         self.model = model
         self.cfg = cfg
@@ -69,7 +76,7 @@ class PPOTrainer:
 
     @staticmethod
     def _all_finite(tree) -> bool:
-        leaves = [leaf for _, leaf in tree_flatten(tree)]  # type: ignore[misc]
+        leaves = PPOTrainer._tree_leaves(tree)
         if not leaves:
             return True
         checks = [mx.all(mx.isfinite(leaf)) for leaf in leaves]
@@ -80,7 +87,7 @@ class PPOTrainer:
         """Global gradient clipping similar to rsl-rl max_grad_norm."""
         if self.cfg.max_grad_norm <= 0.0:
             return grads
-        leaves = [leaf for _, leaf in tree_flatten(grads)]
+        leaves = self._tree_leaves(grads)
         if not leaves:
             return grads
         sq_norm = mx.array(0.0, dtype=self._dtype)

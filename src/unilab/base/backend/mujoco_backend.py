@@ -6,6 +6,8 @@ import mujoco
 import numpy as np
 from mujoco import batch_forward, rollout
 
+from unilab.utils.motrix_batch_renderer import MotrixBatchRenderer
+
 from ..dtype_config import get_global_dtype
 from .base import SimBackend
 
@@ -22,6 +24,7 @@ class MuJoCoBackend(SimBackend):
         np_dtype=None,
         add_body_sensors: bool = False,
     ):
+        self._model_file = model_file
         self.add_body_sensors = add_body_sensors
 
         if self.add_body_sensors:
@@ -59,6 +62,7 @@ class MuJoCoBackend(SimBackend):
         self._worker_data = [mujoco.MjData(self._model) for _ in range(self._n_threads)]
         self._rollout = rollout.Rollout(nthread=self._n_threads)
         self._forward_runner = batch_forward.BatchForwardRunner(nthread=self._n_threads)
+        self._batch_renderer: MotrixBatchRenderer | None = None
 
         # 索引
         self.nq = self._model.nq
@@ -281,3 +285,20 @@ class MuJoCoBackend(SimBackend):
 
     def get_physics_state(self) -> np.ndarray:
         return self._physics_state
+
+    def init_renderer(self, spacing: float = 1.0) -> None:
+        if self._batch_renderer is not None:
+            return
+
+        self._batch_renderer = MotrixBatchRenderer(
+            model_file=self._model_file,
+            mujoco_model=self._model,
+            num_envs=self._num_envs,
+            spacing=spacing,
+        )
+
+    def render(self) -> None:
+        if self._batch_renderer is None:
+            self.init_renderer()
+        assert self._batch_renderer is not None
+        self._batch_renderer.render(self._physics_state)
