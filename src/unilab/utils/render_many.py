@@ -190,6 +190,7 @@ def _render_states_get_frames_motrix(
     cam_distance=2.0,
     cam_elevation=-20,
     cam_azimuth=90,
+    camera_mode="fixed",
 ):
     renderer_cls = _load_motrix_batch_renderer()
     if renderer_cls is None:
@@ -207,6 +208,7 @@ def _render_states_get_frames_motrix(
         cam_distance=cam_distance,
         cam_elevation=cam_elevation,
         cam_azimuth=cam_azimuth,
+        camera_mode=camera_mode,
     ) as renderer:
         return [renderer.capture_frame(state) for state in state_list]
 
@@ -261,6 +263,7 @@ def render_states_get_frames(
     cam_distance=2.0,
     cam_elevation=-20,
     cam_azimuth=90,
+    camera_mode="fixed",
 ):
     """Render a list of MuJoCo batch states and return RGB frames."""
     if not state_list:
@@ -279,6 +282,7 @@ def render_states_get_frames(
                 cam_distance=cam_distance,
                 cam_elevation=cam_elevation,
                 cam_azimuth=cam_azimuth,
+                camera_mode=camera_mode,
             )
         except Exception as exc:
             print(f"Falling back to MuJoCo render_many path: {exc}")
@@ -306,6 +310,7 @@ def render_states_to_video(
     cam_distance=2.0,
     cam_elevation=-20,
     cam_azimuth=90,
+    camera_mode="fixed",
 ):
     """Render a list of physics states to a video file."""
     frames = render_states_get_frames(
@@ -317,6 +322,7 @@ def render_states_to_video(
         cam_distance=cam_distance,
         cam_elevation=cam_elevation,
         cam_azimuth=cam_azimuth,
+        camera_mode=camera_mode,
     )
 
     print(f"Saving video to {output_path}...")

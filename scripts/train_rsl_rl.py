@@ -275,7 +275,7 @@ def play_rsl_rl(cfg: DictConfig, device: str) -> str | None:
         return None
 
     runner = OnPolicyRunner(wrapped_env, train_cfg, log_dir=None, device=device)
-    runner.load(load_path)
+    runner.load(load_path, map_location=device)
     policy = runner.get_inference_policy(device=device)
 
     if cfg.training.sim_backend == "motrix":
@@ -335,6 +335,7 @@ def play_rsl_rl(cfg: DictConfig, device: str) -> str | None:
             cam_distance=cfg.training.cam_distance,
             cam_elevation=cfg.training.cam_elevation,
             cam_azimuth=cfg.training.cam_azimuth,
+            camera_mode=getattr(cfg.training, "camera_mode", "fixed"),
         )
 
         print(f"Saving video to {output_video} with mediapy...")

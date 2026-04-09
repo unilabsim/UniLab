@@ -75,10 +75,32 @@ def _compute_camera_axes(position: np.ndarray, target: np.ndarray) -> tuple[np.n
     return camera_x, camera_y
 
 
+def _find_follow_camera_parent(worldbody: ET.Element) -> ET.Element:
+    """Pick a robot body to host the follow camera."""
+    preferred_names = ("pelvis", "torso_link", "base_link", "base", "trunk")
+    for body_name in preferred_names:
+        body = worldbody.find(f".//body[@name='{body_name}']")
+        if body is not None:
+            return body
+
+    first_body = worldbody.find(".//body")
+    if first_body is not None:
+        return first_body
+
+    # Fallback to worldbody if model has no explicit body tree (unlikely).
+    return worldbody
+
+
 def compute_batch_render_lookat(model_file: str, offsets: np.ndarray) -> np.ndarray:
-    lookat = _read_statistic_center(model_file)
+    stat_center = _read_statistic_center(model_file)
+    # Use the grid center for XY and the statistic center Z (approximate
+    # robot height) for a reasonable lookat target in batch rendering.
+    lookat = np.zeros(3, dtype=np.float64)
     if offsets.size > 0:
-        lookat[:2] += offsets[:, :2].mean(axis=0)
+        lookat[:2] = offsets[:, :2].mean(axis=0)
+    # lookat[0] -= 4.0
+    lookat[0] -= 0.0
+    lookat[2] = 0.5
     return lookat
 
 
@@ -90,9 +112,13 @@ def inject_batch_render_camera(
     elevation: float,
     azimuth: float,
     camera_name: str = "__unilab_batch_render_camera__",
+    camera_mode: str = "fixed",
 ) -> str:
-    """Inject a fixed camera into an MJCF for Motrix headless capture."""
-    elevation_rad = math.radians(elevation)
+    """Inject a camera into an MJCF for Motrix headless capture."""
+    # MuJoCo convention: negative elevation means the camera looks down from
+    # above (camera is above the target).  Negate so the spherical offset
+    # places the camera on the correct side.
+    elevation_rad = math.radians(-elevation)
     azimuth_rad = math.radians(azimuth)
     offset = np.array(
         [
@@ -111,14 +137,28 @@ def inject_batch_render_camera(
     if worldbody is None:
         worldbody = ET.SubElement(root, "worldbody")
 
-    ET.SubElement(
-        worldbody,
-        "camera",
-        name=camera_name,
-        mode="fixed",
-        pos=_format_xml_vec(position),
-        xyaxes=_format_xml_vec(np.concatenate([camera_x, camera_y])),
-    )
+    if camera_mode not in {"fixed", "trackcom"}:
+        raise ValueError(f"Unsupported camera_mode: {camera_mode}")
+
+    camera_attrs: dict[str, str] = {
+        "name": camera_name,
+        "fovy": "60",
+    }
+    if camera_mode == "trackcom":
+        # Host the camera on the main body so translation follows the robot.
+        # Orient toward a local torso point for a stable trailing view.
+        target_parent = _find_follow_camera_parent(worldbody)
+        local_target = np.array([0.0, 0.0, 0.5], dtype=np.float64)
+        camera_x_local, camera_y_local = _compute_camera_axes(offset, local_target)
+        camera_attrs["mode"] = "fixed"
+        camera_attrs["pos"] = _format_xml_vec(offset)
+        camera_attrs["xyaxes"] = _format_xml_vec(np.concatenate([camera_x_local, camera_y_local]))
+        ET.SubElement(target_parent, "camera", **camera_attrs)
+    else:
+        camera_attrs["mode"] = "fixed"
+        camera_attrs["pos"] = _format_xml_vec(position)
+        camera_attrs["xyaxes"] = _format_xml_vec(np.concatenate([camera_x, camera_y]))
+        ET.SubElement(worldbody, "camera", **camera_attrs)
 
     model_dir = Path(model_file).resolve().parent
     fd, tmp_path = tempfile.mkstemp(
@@ -188,11 +228,13 @@ class MotrixBatchRenderer:
         cam_distance: float = 2.0,
         cam_elevation: float = -20.0,
         cam_azimuth: float = 90.0,
+        camera_mode: str = "fixed",
     ):
         if not MOTRIX_BATCH_RENDERER_AVAILABLE:
             raise ImportError("motrixsim not available")
         assert mtx is not None
 
+        self._camera_mode = camera_mode.lower()
         self._model_file = model_file
         self._headless = headless
         self._bridge = MujocoStateBridge(mujoco_model)
@@ -210,6 +252,7 @@ class MotrixBatchRenderer:
                     distance=cam_distance,
                     elevation=cam_elevation,
                     azimuth=cam_azimuth,
+                    camera_mode=self._camera_mode,
                 )
                 render_model_path = temp_model_path
 
@@ -232,6 +275,7 @@ class MotrixBatchRenderer:
                 )
             self._camera_id = resolved_camera_id
             self._model.cameras[self._camera_id].set_render_target("image", width, height)
+            self._configure_follow_camera()
             self._render_app = RenderApp(log_level="WARN", headless=True)
         else:
             self._render_app = RenderApp()
@@ -250,6 +294,23 @@ class MotrixBatchRenderer:
     @property
     def data(self) -> "motrixsim.SceneData":
         return self._data
+
+    def _configure_follow_camera(self) -> None:
+        """Finalize runtime follow behavior for trackcom mode."""
+        if self._camera_mode != "trackcom" or self._camera_id is None:
+            return
+
+        camera = self._model.cameras[self._camera_id]
+        for link_name in ("pelvis", "torso_link", "base_link", "base", "trunk"):
+            link = self._model.get_link(link_name)
+            if link is None:
+                continue
+            try:
+                camera.rotation_track = "look_at_link"
+                camera.track_target_link = link
+            except Exception:
+                pass
+            break
 
     def _sync_scene_data(self, physics_state: np.ndarray) -> None:
         qpos_motrix = self._bridge.physics_state_to_motrix_qpos(physics_state)
