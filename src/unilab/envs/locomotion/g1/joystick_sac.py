@@ -14,10 +14,10 @@ from unilab.base.curriculum import EpisodeLengthTracker, PenaltyCurriculum
 from unilab.base.dtype_config import get_global_dtype
 from unilab.envs.locomotion.common import rewards
 from unilab.envs.locomotion.common.commands import Commands
-from unilab.envs.locomotion.common.domain_rand import DomainRandConfig
 from unilab.envs.locomotion.common.rewards import RewardContext
 from unilab.envs.locomotion.g1.base import G1BaseCfg, G1BaseEnv
 from unilab.envs.locomotion.g1.joystick import (
+    G1DomainRandConfig,
     G1JoystickDomainRandomizationProvider,
     G1JoystickPPO,
     InitState,
@@ -28,6 +28,8 @@ from unilab.envs.locomotion.g1.joystick import (
 class ControlConfigSAC:
     action_scale: float = 1.0  # holosoma 0.25
     simulate_action_latency: bool = False
+    Kp: float = 100.0
+    Kd: float = 3.0
 
 
 @dataclass
@@ -55,7 +57,7 @@ class G1JoystickSACCfg(G1BaseCfg):
     init_state: InitState = field(default_factory=InitState)
     commands: Commands = field(default_factory=Commands)
     control_config: ControlConfigSAC = field(default_factory=ControlConfigSAC)  # type: ignore[assignment]
-    domain_rand: DomainRandConfig = field(default_factory=DomainRandConfig)
+    domain_rand: G1DomainRandConfig = field(default_factory=G1DomainRandConfig)
     gait_phase_init_mode: str = "offset_phase"
     reset_base_qvel_limit: float = 0.5
 
@@ -69,7 +71,12 @@ class G1WalkTaskMjSAC(G1JoystickPPO):
         if cfg.reward_config is None:
             raise ValueError("reward_config must be provided via Hydra configuration")
         backend = create_backend(
-            backend_type, cfg.model_file, num_envs, cfg.sim_dt, base_name=cfg.asset.base_name
+            backend_type,
+            cfg.model_file,
+            num_envs,
+            cfg.sim_dt,
+            base_name=cfg.asset.base_name,
+            position_actuator_gains={"kp": cfg.control_config.Kp, "kd": cfg.control_config.Kd},
         )
         G1BaseEnv.__init__(self, cfg, backend, num_envs)
         self._enable_reward_log = True

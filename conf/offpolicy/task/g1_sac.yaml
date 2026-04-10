@@ -17,3 +17,7 @@ motrix_legacy:
   enabled: true
   algo_overrides:
     use_symmetry: false
+  env_cfg_override:
+    domain_rand:
+      randomize_kp: false
+      randomize_kd: false

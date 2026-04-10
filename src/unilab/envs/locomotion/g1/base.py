@@ -24,6 +24,8 @@ class NoiseConfig:
 @dataclass
 class ControlConfig(ControlConfigBase):
     action_scale: float | np.ndarray = 0.25  # type: ignore[assignment]
+    Kp: float = 100.0
+    Kd: float = 3.0
 
 
 @dataclass
