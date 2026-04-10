@@ -23,6 +23,15 @@ from unilab.envs.locomotion.g1.base import G1BaseCfg, G1BaseEnv
 
 
 @dataclass
+class G1DomainRandConfig(DomainRandConfig):
+    randomize_kp: bool = True
+    kp_multiplier_range: list[float] = field(default_factory=lambda: [0.9, 1.1])
+
+    randomize_kd: bool = True
+    kd_multiplier_range: list[float] = field(default_factory=lambda: [0.9, 1.1])
+
+
+@dataclass
 class InitState:
     pos = [0.0, 0.0, 0.754]
 
@@ -107,7 +116,7 @@ class G1JoystickPPOCfg(G1BaseCfg):
     init_state: InitState = field(default_factory=InitState)
     commands: Commands = field(default_factory=Commands)
     reward_config: RewardConfigPPO | None = None
-    domain_rand: DomainRandConfig = field(default_factory=DomainRandConfig)
+    domain_rand: G1DomainRandConfig = field(default_factory=G1DomainRandConfig)
     gait_phase_init_mode: str = "offset_phase"
     reset_base_qvel_limit: float = 0.5
 
