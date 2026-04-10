@@ -23,6 +23,15 @@ from unilab.envs.locomotion.g1.base import G1BaseCfg, G1BaseEnv
 
 
 @dataclass
+class G1DomainRandConfig(DomainRandConfig):
+    randomize_kp: bool = True
+    kp_multiplier_range: list[float] = field(default_factory=lambda: [0.9, 1.1])
+
+    randomize_kd: bool = True
+    kd_multiplier_range: list[float] = field(default_factory=lambda: [0.9, 1.1])
+
+
+@dataclass
 class InitState:
     pos = [0.0, 0.0, 0.754]
 
@@ -107,38 +116,9 @@ class G1JoystickPPOCfg(G1BaseCfg):
     init_state: InitState = field(default_factory=InitState)
     commands: Commands = field(default_factory=Commands)
     reward_config: RewardConfigPPO | None = None
-    domain_rand: DomainRandConfig = field(default_factory=DomainRandConfig)
+    domain_rand: G1DomainRandConfig = field(default_factory=G1DomainRandConfig)
     gait_phase_init_mode: str = "offset_phase"
     reset_base_qvel_limit: float = 0.5
-    backend_overrides: dict | None = None
-
-    def apply_backend_overrides(self, backend_type: str) -> None:
-        if not self.backend_overrides or not self.backend_overrides.get("enabled", False):
-            return
-        if backend_type != "motrix":
-            return
-        if self.reward_config is None:
-            raise ValueError("reward_config must be provided before applying backend overrides")
-
-        action_scale = self.backend_overrides.get("control_action_scale")
-        if action_scale is not None:
-            self.control_config.action_scale = float(action_scale)
-
-        command_vel_limit = self.backend_overrides.get("command_vel_limit")
-        if command_vel_limit is not None:
-            self.commands.vel_limit = [list(command_vel_limit[0]), list(command_vel_limit[1])]
-
-        reward_scale_overrides = self.backend_overrides.get("reward_scale_overrides")
-        if reward_scale_overrides:
-            self.reward_config.scales.update(reward_scale_overrides)
-
-        gait_phase_init_mode = self.backend_overrides.get("gait_phase_init_mode")
-        if gait_phase_init_mode is not None:
-            self.gait_phase_init_mode = str(gait_phase_init_mode)
-
-        reset_base_qvel_limit = self.backend_overrides.get("reset_base_qvel_limit")
-        if reset_base_qvel_limit is not None:
-            self.reset_base_qvel_limit = float(reset_base_qvel_limit)
 
 
 class G1JoystickDomainRandomizationProvider(LocomotionDRProvider):
@@ -181,7 +161,6 @@ class G1JoystickPPO(G1BaseEnv):
     def __init__(self, cfg: G1JoystickPPOCfg, num_envs=1, backend_type="mujoco"):
         if cfg.reward_config is None:
             raise ValueError("reward_config must be provided via Hydra configuration")
-        cfg.apply_backend_overrides(backend_type)
         backend = create_backend(
             backend_type, cfg.model_file, num_envs, cfg.sim_dt, base_name=cfg.asset.base_name
         )
@@ -223,11 +202,7 @@ class G1JoystickPPO(G1BaseEnv):
 
     def _use_legacy_motrix_baseline(self) -> bool:
         backend_type = getattr(getattr(self, "_backend", None), "backend_type", None)
-        return bool(
-            backend_type == "motrix"
-            and self._cfg.backend_overrides
-            and self._cfg.backend_overrides.get("enabled", False)
-        )
+        return backend_type == "motrix"
 
     def update_state(self, state: NpEnvState) -> NpEnvState:
         linvel = self.get_local_linvel()
