@@ -61,6 +61,7 @@ def off_policy_collector_fn(
     env_cfg_override: dict | None = None,
     obs_dim: int | None = None,
     action_dim: int | None = None,
+    actor_kwargs: dict | None = None,
     **kwargs,
 ):
     """Entry point for the off-policy collector subprocess."""
@@ -92,6 +93,7 @@ def off_policy_collector_fn(
             env_cfg_override=env_cfg_override,
             obs_dim=obs_dim,
             action_dim=action_dim,
+            actor_kwargs=actor_kwargs,
         )
     except Exception as e:
         print(f"[Collector] Exception: {e}", file=sys.stderr, flush=True)
@@ -126,6 +128,7 @@ def _run_collector(
     env_cfg_override,
     obs_dim,
     action_dim,
+    actor_kwargs,
 ):
     from unilab.base import registry
     from unilab.ipc import SharedWeightSync
@@ -151,7 +154,14 @@ def _run_collector(
         action_dim=action_dim,
     )
     actor = build_actor(
-        algo_type, obs_dim, action_dim, actor_hidden_dim, use_layer_norm, "cpu", num_envs
+        algo_type,
+        obs_dim,
+        action_dim,
+        actor_hidden_dim,
+        use_layer_norm,
+        "cpu",
+        num_envs,
+        **(actor_kwargs or {}),
     )
     actor.eval()
 
