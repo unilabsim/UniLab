@@ -143,6 +143,20 @@ class MotrixBackend(SimBackend):
         for link in self._model.links:
             if link.name:
                 self._link_cache[link.index] = link
+        self._sensor_dim_cache: dict[str, int] = {}
+        self._sensor_ndim_cache: dict[str, int] = {}
+        self._sensor_data_cache: dict[str, np.ndarray] = {}
+        self._dof_pos_cache: np.ndarray | None = None
+        self._dof_vel_cache: np.ndarray | None = None
+        self._base_pos_cache: np.ndarray | None = None
+        self._base_quat_cache: np.ndarray | None = None
+        self._base_lin_vel_cache: np.ndarray | None = None
+        self._base_ang_vel_cache: np.ndarray | None = None
+        self._link_velocities_cache: np.ndarray | None = None
+        self._body_sensor_cache: dict[tuple[str, tuple[int, ...]], np.ndarray] = {}
+        self._link_pose_slice_cache: dict[tuple[int, ...], np.ndarray] = {}
+        self._link_lin_vel_slice_cache: dict[tuple[int, ...], np.ndarray] = {}
+        self._link_ang_vel_slice_cache: dict[tuple[int, ...], np.ndarray] = {}
 
         # 运行一次正向运动学，确保初始 link 位置和传感器数据有效。
         self._model.forward_kinematic(self._data)
@@ -316,36 +330,59 @@ class MotrixBackend(SimBackend):
     # ------------------------------------------------------------------ #
 
     def get_base_pos(self) -> np.ndarray:
+        if self._base_pos_cache is not None:
+            return self._base_pos_cache
         if self._body_floatingbase is not None:
-            return self._body_floatingbase.get_translation(self._data)  # type: ignore[no-any-return]
-        return self._body_link.get_pose(self._data)[:, :3]  # type: ignore[no-any-return]
+            self._base_pos_cache = self._body_floatingbase.get_translation(self._data)
+        else:
+            self._base_pos_cache = self._body_link.get_pose(self._data)[:, :3]
+        return self._base_pos_cache  # type: ignore[return-value]
 
     def get_base_quat(self) -> np.ndarray:
+        if self._base_quat_cache is not None:
+            return self._base_quat_cache
         if self._body_floatingbase is not None:
             quat = self._body_floatingbase.get_rotation(self._data)
         else:
             quat = self._body_link.get_rotation(self._data)
-        return self._xyzw_to_wxyz(quat)
+        self._base_quat_cache = self._xyzw_to_wxyz(quat)
+        return self._base_quat_cache
 
     def get_base_lin_vel(self) -> np.ndarray:
+        if self._base_lin_vel_cache is not None:
+            return self._base_lin_vel_cache
         if self._body_floatingbase is not None:
-            return self._body_floatingbase.get_global_linear_velocity(self._data)  # type: ignore[no-any-return]
-        return self._body_link.get_linear_velocity(self._data)  # type: ignore[no-any-return]
+            self._base_lin_vel_cache = self._body_floatingbase.get_global_linear_velocity(
+                self._data
+            )
+        else:
+            self._base_lin_vel_cache = self._body_link.get_linear_velocity(self._data)
+        return self._base_lin_vel_cache  # type: ignore[return-value]
 
     def get_base_ang_vel(self) -> np.ndarray:
+        if self._base_ang_vel_cache is not None:
+            return self._base_ang_vel_cache
         if self._body_floatingbase is not None:
-            return self._body_floatingbase.get_global_angular_velocity(self._data)  # type: ignore[no-any-return]
-        return self._body_link.get_angular_velocity(self._data)  # type: ignore[no-any-return]
+            self._base_ang_vel_cache = self._body_floatingbase.get_global_angular_velocity(
+                self._data
+            )
+        else:
+            self._base_ang_vel_cache = self._body_link.get_angular_velocity(self._data)
+        return self._base_ang_vel_cache  # type: ignore[return-value]
 
     # ------------------------------------------------------------------ #
     # DOF state                                                          #
     # ------------------------------------------------------------------ #
 
     def get_dof_pos(self) -> np.ndarray:
-        return self._body.get_joint_dof_pos(self._data)  # type: ignore[no-any-return]
+        if self._dof_pos_cache is None:
+            self._dof_pos_cache = self._body.get_joint_dof_pos(self._data)
+        return self._dof_pos_cache  # type: ignore[return-value]
 
     def get_dof_vel(self) -> np.ndarray:
-        return self._body.get_joint_dof_vel(self._data)  # type: ignore[no-any-return]
+        if self._dof_vel_cache is None:
+            self._dof_vel_cache = self._body.get_joint_dof_vel(self._data)
+        return self._dof_vel_cache  # type: ignore[return-value]
 
     # ------------------------------------------------------------------ #
     # Body kinematics — world frame                                      #
@@ -359,6 +396,10 @@ class MotrixBackend(SimBackend):
 
     def get_body_quat_w(self, body_ids: np.ndarray) -> np.ndarray:
         return self._xyzw_to_wxyz(self._get_link_poses_w(body_ids)[:, :, 3:])
+
+    def get_body_pose_w(self, body_ids: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        poses = self._get_link_poses_w(body_ids)
+        return poses[:, :, :3], self._xyzw_to_wxyz(poses[:, :, 3:])
 
     def get_body_lin_vel_w(self, body_ids: np.ndarray) -> np.ndarray:
         return self._get_link_lin_vel_w(body_ids)
@@ -388,7 +429,44 @@ class MotrixBackend(SimBackend):
     # ------------------------------------------------------------------ #
 
     def get_sensor_data(self, name: str) -> np.ndarray:
-        return self._model.get_sensor_value(name, self._data)  # type: ignore[no-any-return]
+        cached = self._sensor_data_cache.get(name)
+        if cached is None:
+            cached = self._model.get_sensor_value(name, self._data)
+            self._sensor_data_cache[name] = cached
+            self._sensor_dim_cache.setdefault(name, self._sensor_width(cached))
+            self._sensor_ndim_cache.setdefault(name, int(np.asarray(cached).ndim))
+        return cached  # type: ignore[return-value]
+
+    def get_sensor_data_many(self, names: Sequence[str]) -> tuple[np.ndarray, ...]:
+        missing = [name for name in names if name not in self._sensor_data_cache]
+        if missing:
+            batch_names: list[str] = []
+            for name in missing:
+                if name in self._sensor_dim_cache:
+                    batch_names.append(name)
+                    continue
+                value = self._model.get_sensor_value(name, self._data)
+                self._sensor_dim_cache[name] = self._sensor_width(value)
+                self._sensor_ndim_cache[name] = int(np.asarray(value).ndim)
+                self._sensor_data_cache[name] = value
+
+            if batch_names:
+                packed = self._model.get_sensor_values(tuple(batch_names), self._data)
+                start = 0
+                for name in batch_names:
+                    width = self._sensor_dim_cache[name]
+                    if self._sensor_ndim_cache[name] == 1:
+                        self._sensor_data_cache[name] = packed[:, start]
+                    else:
+                        self._sensor_data_cache[name] = packed[:, start : start + width]
+                    start += width
+        return tuple(self._sensor_data_cache[name] for name in names)
+
+    def _sensor_width(self, value: np.ndarray) -> int:
+        arr = np.asarray(value)
+        if arr.ndim == 1:
+            return 1
+        return int(arr.shape[1])
 
     # ------------------------------------------------------------------ #
     # MotrixSim-specific                                                 #
@@ -399,30 +477,46 @@ class MotrixBackend(SimBackend):
 
     def _get_link_poses_w(self, body_ids: np.ndarray) -> np.ndarray:
         ids = self._as_body_ids(body_ids)
-        return np.ascontiguousarray(self._link_poses[:, ids, :])
+        cache_key = tuple(int(bid) for bid in ids)
+        cached = self._link_pose_slice_cache.get(cache_key)
+        if cached is None:
+            cached = np.ascontiguousarray(self._link_poses[:, ids, :])
+            self._link_pose_slice_cache[cache_key] = cached
+        return cached
 
     def _get_link_lin_vel_w(self, body_ids: np.ndarray) -> np.ndarray:
         ids = self._as_body_ids(body_ids)
-        return np.stack(
-            [self._link_cache[int(bid)].get_linear_velocity(self._data) for bid in ids],
-            axis=1,
-        )
+        cache_key = tuple(int(bid) for bid in ids)
+        cached = self._link_lin_vel_slice_cache.get(cache_key)
+        if cached is None:
+            cached = np.ascontiguousarray(self._get_link_velocities()[:, ids, :3])
+            self._link_lin_vel_slice_cache[cache_key] = cached
+        return cached
 
     def _get_link_ang_vel_w(self, body_ids: np.ndarray) -> np.ndarray:
         ids = self._as_body_ids(body_ids)
-        return np.stack(
-            [self._link_cache[int(bid)].get_angular_velocity(self._data) for bid in ids],
-            axis=1,
-        )
+        cache_key = tuple(int(bid) for bid in ids)
+        cached = self._link_ang_vel_slice_cache.get(cache_key)
+        if cached is None:
+            cached = np.ascontiguousarray(self._get_link_velocities()[:, ids, 3:])
+            self._link_ang_vel_slice_cache[cache_key] = cached
+        return cached
+
+    def _get_link_velocities(self) -> np.ndarray:
+        if self._link_velocities_cache is None:
+            self._link_velocities_cache = self._model.get_link_velocities(self._data)
+        return self._link_velocities_cache
 
     def _get_body_sensor_values(self, body_ids: np.ndarray, prefix: str) -> np.ndarray:
-        return np.stack(
-            [
-                self._model.get_sensor_value(f"{prefix}_{name}", self._data)
-                for name in self._get_body_names(body_ids)
-            ],
-            axis=1,
-        )
+        ids = self._as_body_ids(body_ids)
+        cache_key = (prefix, tuple(int(bid) for bid in ids))
+        cached = self._body_sensor_cache.get(cache_key)
+        if cached is None:
+            names = [f"{prefix}_{name}" for name in self._get_body_names(ids)]
+            values = self.get_sensor_data_many(names)
+            cached = np.stack(values, axis=1)
+            self._body_sensor_cache[cache_key] = cached
+        return cached
 
     def _xyzw_to_wxyz(self, q: np.ndarray) -> np.ndarray:
         """motrix xyzw → wxyz"""
@@ -436,12 +530,27 @@ class MotrixBackend(SimBackend):
         return qpos_motrix
 
     def _refresh_link_pose_cache(self, env_indices: np.ndarray | None = None) -> None:
+        self._clear_step_read_cache()
         if env_indices is None:
             self._link_poses = self._model.get_link_poses(self._data)
         else:
             mask = np.zeros(self._num_envs, dtype=bool)
             mask[env_indices] = True
             self._link_poses[env_indices] = self._model.get_link_poses(self._data[mask])
+
+    def _clear_step_read_cache(self) -> None:
+        self._sensor_data_cache.clear()
+        self._dof_pos_cache = None
+        self._dof_vel_cache = None
+        self._base_pos_cache = None
+        self._base_quat_cache = None
+        self._base_lin_vel_cache = None
+        self._base_ang_vel_cache = None
+        self._link_velocities_cache = None
+        self._body_sensor_cache.clear()
+        self._link_pose_slice_cache.clear()
+        self._link_lin_vel_slice_cache.clear()
+        self._link_ang_vel_slice_cache.clear()
 
     def push_robots(self, force_range):
         ex_force = np.random.rand(self.num_envs, 3) * 2 - 1  # [x_force, y_force, z_force]

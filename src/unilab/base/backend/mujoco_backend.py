@@ -798,6 +798,13 @@ class MuJoCoBackend(SimBackend):
     def get_body_quat_w(self, body_ids: np.ndarray) -> np.ndarray:
         return self._tracked_quat_w_all[:, self._get_mapped_indices(body_ids), :]  # type: ignore[no-any-return]
 
+    def get_body_pose_w(self, body_ids: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        mapped = self._get_mapped_indices(body_ids)
+        return (
+            self._tracked_pos_w_all[:, mapped, :],
+            self._tracked_quat_w_all[:, mapped, :],
+        )
+
     def get_body_lin_vel_w(self, body_ids: np.ndarray) -> np.ndarray:
         return self._tracked_linvel_w_all[:, self._get_mapped_indices(body_ids), :]  # type: ignore[no-any-return]
 
@@ -826,6 +833,9 @@ class MuJoCoBackend(SimBackend):
 
     def get_sensor_data(self, name: str) -> np.ndarray:
         return self._sensor_views[name]
+
+    def get_sensor_data_many(self, names: Sequence[str]) -> tuple[np.ndarray, ...]:
+        return tuple(self._sensor_views[name] for name in names)
 
     # ------------------------------------------------------------------ #
     # Mujoco-specific                                                 #

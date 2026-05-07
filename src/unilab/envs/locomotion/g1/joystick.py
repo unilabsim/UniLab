@@ -103,8 +103,16 @@ def _scalarize_sensor_values(sensor_values: np.ndarray) -> np.ndarray:
 
 
 def compute_aggregated_foot_contact(backend: Any, sensor_names: list[str]) -> np.ndarray:
-    contacts = [_scalarize_sensor_values(backend.get_sensor_data(name)) for name in sensor_names]
+    sensor_values = _get_sensor_data_many(backend, sensor_names)
+    contacts = [_scalarize_sensor_values(value) for value in sensor_values]
     return np.asarray(np.any(np.stack(contacts, axis=1) > 0.5, axis=1), dtype=np.bool_)
+
+
+def _get_sensor_data_many(backend: Any, sensor_names: list[str] | tuple[str, ...]):
+    get_many = getattr(backend, "get_sensor_data_many", None)
+    if get_many is not None:
+        return get_many(sensor_names)
+    return tuple(backend.get_sensor_data(name) for name in sensor_names)
 
 
 def compute_feet_phase_contact_targets(
@@ -241,6 +249,10 @@ class G1WalkDomainRandomizationProvider(LocomotionDRProvider):
 class G1WalkEnv(G1BaseEnv):
     _cfg: G1WalkEnvCfg
     _reward_cfg: Any
+    _left_foot_pos_sensor = "left_foot_pos"
+    _right_foot_pos_sensor = "right_foot_pos"
+    _left_foot_quat_sensor = "left_foot_quat"
+    _right_foot_quat_sensor = "right_foot_quat"
 
     def __init__(self, cfg: G1WalkEnvCfg, num_envs=1, backend_type="mujoco"):
         if cfg.reward_config is None:
@@ -320,9 +332,9 @@ class G1WalkEnv(G1BaseEnv):
         }
 
     def update_state(self, state: NpEnvState) -> NpEnvState:
-        linvel = self.get_local_linvel()
-        gyro = self.get_gyro()
-        gravity = self._backend.get_sensor_data("upvector")
+        linvel, gyro, gravity = self._backend.get_sensor_data_many(
+            (self._cfg.sensor.local_linvel, self._cfg.sensor.gyro, "upvector")
+        )
         dof_pos = self.get_dof_pos()
         dof_vel = self.get_dof_vel()
 
@@ -508,8 +520,7 @@ class G1WalkEnv(G1BaseEnv):
 
     def _reward_feet_phase(self, ctx: RewardContext):
         """步态相位奖励：鼓励正确的摆动腿高度"""
-        left_foot = self._backend.get_sensor_data("left_foot_pos")
-        right_foot = self._backend.get_sensor_data("right_foot_pos")
+        left_foot, right_foot = self._get_foot_pos_sensors()
         gait_phase = ctx.info.get(
             "gait_phase", np.zeros((self._num_envs, 2), dtype=get_global_dtype())
         )
@@ -525,8 +536,7 @@ class G1WalkEnv(G1BaseEnv):
         return compute_forward_speed_gate(linvel, min_forward_speed)
 
     def _reward_feet_phase_contrast(self, ctx: RewardContext):
-        left_foot = self._backend.get_sensor_data("left_foot_pos")
-        right_foot = self._backend.get_sensor_data("right_foot_pos")
+        left_foot, right_foot = self._get_foot_pos_sensors()
         gait_phase = ctx.info.get(
             "gait_phase", np.zeros((self._num_envs, 2), dtype=get_global_dtype())
         )
@@ -565,8 +575,9 @@ class G1WalkEnv(G1BaseEnv):
         )
 
     def _reward_feet_ori(self, ctx: RewardContext):
-        left_foot_quat = self._backend.get_sensor_data("left_foot_quat")
-        right_foot_quat = self._backend.get_sensor_data("right_foot_quat")
+        left_foot_quat, right_foot_quat = _get_sensor_data_many(
+            self._backend, (self._left_foot_quat_sensor, self._right_foot_quat_sensor)
+        )
         return (
             np.square(left_foot_quat[:, 1])
             + np.square(left_foot_quat[:, 2])
@@ -575,8 +586,7 @@ class G1WalkEnv(G1BaseEnv):
         )
 
     def _reward_close_feet_xy(self, ctx: RewardContext):
-        left_foot = self._backend.get_sensor_data("left_foot_pos")
-        right_foot = self._backend.get_sensor_data("right_foot_pos")
+        left_foot, right_foot = self._get_foot_pos_sensors()
         feet_dist = np.linalg.norm(left_foot[:, :2] - right_foot[:, :2], axis=1)
         return np.where(
             feet_dist < self._reward_cfg.close_feet_threshold,
@@ -597,6 +607,12 @@ class G1WalkEnv(G1BaseEnv):
             np.sum(self._upper_body_pose_weights * np.square(diff), axis=1),
             dtype=get_global_dtype(),
         )
+
+    def _get_foot_pos_sensors(self) -> tuple[np.ndarray, np.ndarray]:
+        left_foot, right_foot = _get_sensor_data_many(
+            self._backend, (self._left_foot_pos_sensor, self._right_foot_pos_sensor)
+        )
+        return left_foot, right_foot
 
     def apply_action(self, actions: np.ndarray, state: NpEnvState) -> np.ndarray:
         state.info["last_actions"] = state.info.get("current_actions", np.zeros_like(actions))

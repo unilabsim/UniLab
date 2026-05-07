@@ -418,6 +418,15 @@ class SimBackend(abc.ABC):
             (num_envs, len(body_ids), 3)
         """
 
+    def get_body_pose_w(self, body_ids: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """Return world-frame body position and quaternion through one owner call.
+
+        Backends may override this to share the same low-level pose read between
+        position and quaternion extraction. The default preserves the existing
+        backend contract by delegating to the individual getters.
+        """
+        return self.get_body_pos_w(body_ids), self.get_body_quat_w(body_ids)
+
     # ------------------------------------------------------------------ #
     # Body kinematics — baselink frame                                     #
     # ------------------------------------------------------------------ #
@@ -480,3 +489,12 @@ class SimBackend(abc.ABC):
         Returns:
             传感器数据数组
         """
+
+    def get_sensor_data_many(self, names: Sequence[str]) -> tuple[np.ndarray, ...]:
+        """Fetch multiple sensors through the backend owner contract.
+
+        The default implementation keeps behavior identical to repeated
+        ``get_sensor_data`` calls. Backends with batch sensor access can override
+        this without leaking backend-specific APIs into env code.
+        """
+        return tuple(self.get_sensor_data(name) for name in names)

@@ -134,16 +134,26 @@ class Go2WalkTask(Go2BaseEnv):
         self.feet_phase[:, 1] = (self.phase + 0.5) % 1
         self.feet_phase[:, 2] = (self.phase + 0.5) % 1
 
-        linvel = self.get_local_linvel()
-        gyro = self.get_gyro()
-        gravity = self._backend.get_sensor_data("upvector")
+        sensor_names = (
+            self._cfg.sensor.local_linvel,
+            self._cfg.sensor.gyro,
+            "upvector",
+            *self._cfg.sensor.feet_force,
+            *self._cfg.sensor.feet_pos,
+        )
+        sensor_values = self._backend.get_sensor_data_many(sensor_names)
+        linvel = sensor_values[0]
+        gyro = sensor_values[1]
+        gravity = sensor_values[2]
         dof_pos = self.get_dof_pos()
         dof_vel = self.get_dof_vel()
         self.feet_force[:, :, :] = 0
+        force_offset = 3
+        pos_offset = force_offset + len(self._cfg.sensor.feet_force)
         for i in range(len(self._cfg.sensor.feet_force)):
-            self.feet_force[:, i, :] = self._backend.get_sensor_data(self._cfg.sensor.feet_force[i])
+            self.feet_force[:, i, :] = sensor_values[force_offset + i]
         for i in range(len(self._cfg.sensor.feet_pos)):
-            self.feet_pos[:, i, :] = self._backend.get_sensor_data(self._cfg.sensor.feet_pos[i])
+            self.feet_pos[:, i, :] = sensor_values[pos_offset + i]
         terminated = gravity[:, 2] <= 0.5
         reward = self._compute_reward(state.info, linvel, gyro, dof_pos)
         obs = self._compute_obs(

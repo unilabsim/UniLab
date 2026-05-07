@@ -353,6 +353,9 @@ class G1MotionTrackingEnv(G1BaseEnv):
         self._clip_end_truncated = np.zeros((num_envs,), dtype=bool)
 
     def _get_body_pose_w(self) -> tuple[np.ndarray, np.ndarray]:
+        get_body_pose_w = getattr(self._backend, "get_body_pose_w", None)
+        if get_body_pose_w is not None:
+            return get_body_pose_w(self.body_ids)  # type: ignore[no-any-return]
         return self._backend.get_body_pos_w(self.body_ids), self._backend.get_body_quat_w(
             self.body_ids
         )
