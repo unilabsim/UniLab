@@ -172,6 +172,10 @@ class SimBackend(abc.ABC):
         """Return the backend body inertial-position table."""
         raise NotImplementedError(f"{self.__class__.__name__} does not expose body ipos")
 
+    def get_dof_armature(self) -> np.ndarray:
+        """Return the backend DOF armature vector."""
+        raise NotImplementedError(f"{self.__class__.__name__} does not expose dof armature")
+
     def get_motion_body_ids(self, names: Sequence[str]) -> np.ndarray:
         """Resolve MuJoCo-style body IDs used by motion datasets."""
         from unilab.base.backend.xml import get_named_body_ids

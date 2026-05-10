@@ -47,6 +47,7 @@ def normalize_ppo_train_cfg(train_cfg: dict[str, Any]) -> dict[str, Any]:
     if "actor" in normalized and "critic" in normalized:
         return normalized
 
+    empirical_normalization = bool(normalized.get("empirical_normalization", False))
     policy_cfg = normalized.pop("policy", None)
     if not isinstance(policy_cfg, dict):
         return normalized
@@ -60,6 +61,7 @@ def normalize_ppo_train_cfg(train_cfg: dict[str, Any]) -> dict[str, Any]:
         "class_name": "rsl_rl.models.MLPModel",
         "hidden_dims": actor_hidden_dims,
         "activation": activation,
+        "obs_normalization": empirical_normalization,
         "distribution_cfg": {
             "class_name": "rsl_rl.modules.distribution.GaussianDistribution",
             "init_std": init_noise_std,
@@ -70,6 +72,7 @@ def normalize_ppo_train_cfg(train_cfg: dict[str, Any]) -> dict[str, Any]:
         "class_name": "rsl_rl.models.MLPModel",
         "hidden_dims": critic_hidden_dims,
         "activation": activation,
+        "obs_normalization": empirical_normalization,
     }
 
     obs_groups = normalized.get("obs_groups")

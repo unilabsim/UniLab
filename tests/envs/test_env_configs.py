@@ -672,6 +672,7 @@ def test_g1_motion_tracking_clip_end_does_not_override_true_termination():
 _STANDARD_ENVS = [
     "Go1JoystickFlat",
     "Go2JoystickFlat",
+    "Go2FootStand",
     "Go2WJoystickFlat",
     "Go2WJoystickRoughTiles",
     "G1WalkFlat",

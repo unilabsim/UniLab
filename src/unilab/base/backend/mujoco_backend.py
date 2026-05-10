@@ -17,6 +17,7 @@ from unilab.dr.types import (
     RESET_TERM_BODY_IPOS,
     RESET_TERM_BODY_IQUAT,
     RESET_TERM_BODY_MASS,
+    RESET_TERM_DOF_ARMATURE,
     RESET_TERM_GEOM_FRICTION,
     RESET_TERM_GRAVITY,
     RESET_TERM_KD,
@@ -583,6 +584,9 @@ class MuJoCoBackend(SimBackend):
     def get_body_ipos(self) -> np.ndarray:
         return np.asarray(self._model.body_ipos, dtype=np.float64).copy()
 
+    def get_dof_armature(self) -> np.ndarray:
+        return np.asarray(self._model.dof_armature, dtype=np.float64).copy()
+
     def get_motion_body_ids(self, names: Sequence[str]) -> np.ndarray:
         return self.get_body_ids(names)
 
@@ -718,6 +722,7 @@ class MuJoCoBackend(SimBackend):
                     RESET_TERM_BODY_INERTIA,
                     RESET_TERM_BODY_IPOS,
                     RESET_TERM_BODY_MASS,
+                    RESET_TERM_DOF_ARMATURE,
                     RESET_TERM_GEOM_FRICTION,
                     RESET_TERM_KP,
                     RESET_TERM_KD,
@@ -968,6 +973,14 @@ class MuJoCoBackend(SimBackend):
                 name="body_inertia",
                 num_reset=num_reset,
                 shaped_tail=(self._model.nbody, 3),
+            )
+
+        if randomization.dof_armature is not None:
+            translated["dof_armature"] = self._coerce_reset_field(
+                randomization.dof_armature,
+                name="dof_armature",
+                num_reset=num_reset,
+                shaped_tail=(self._model.nv,),
             )
 
         if randomization.geom_friction is not None:
