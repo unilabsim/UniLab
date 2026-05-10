@@ -11,6 +11,7 @@ from unilab.assets import ASSETS_ROOT_PATH
 from unilab.base import registry
 from unilab.base.backend import create_backend
 from unilab.base.np_env import NpEnvState
+from unilab.base.scene import SceneCfg
 from unilab.dr import (
     DomainRandomizationCapabilities,
     DomainRandomizationProvider,
@@ -126,7 +127,11 @@ class Domain_Rand:
 class G1MotionTrackingCfg(G1BaseCfg):
     """Configuration for G1 motion tracking environment."""
 
-    model_file: str = str(ASSETS_ROOT_PATH / "robots" / "g1" / "scene_flat.xml")
+    scene: SceneCfg = field(
+        default_factory=lambda: SceneCfg(
+            model_file=str(ASSETS_ROOT_PATH / "robots" / "g1" / "scene_flat.xml")
+        )
+    )
     # Kept at the historical single-clip default for backward compatibility.
     motion_file: str | list[str] = str(
         ASSETS_ROOT_PATH / "motions" / "g1" / "dance1_subject2_part.npz"
@@ -153,6 +158,7 @@ class G1MotionTrackingCfg(G1BaseCfg):
         "right_wrist_yaw_link",
     )
     sampling_mode: Literal["start", "clip_start", "uniform", "adaptive"] = "adaptive"
+    truncate_on_clip_end: bool = False
     max_episode_seconds: float = 10.0
     reward_config: RewardConfig = field(default_factory=RewardConfig)
     pose_randomization: PoseRandomization = field(default_factory=PoseRandomization)
@@ -320,7 +326,7 @@ class G1MotionTrackingEnv(G1BaseEnv):
 
         backend = create_backend(
             backend_type,
-            cfg.model_file,
+            cfg.scene,
             num_envs,
             cfg.sim_dt,
             base_name=cfg.asset.base_name,
@@ -460,7 +466,12 @@ class G1MotionTrackingEnv(G1BaseEnv):
         # Advance motion frames
         done_env_ids = self.motion_sampler.step()
         if len(done_env_ids) > 0:
-            self._clip_end_truncated[done_env_ids] = True
+            if self._cfg.truncate_on_clip_end:
+                self._clip_end_truncated[done_env_ids] = True
+            else:
+                # Clip boundaries are not physically continuous; treat them as
+                # reference resampling points instead of advancing into the next clip.
+                self.motion_sampler.sample_frames(done_env_ids)
 
         return state.replace(obs=obs, reward=reward, terminated=terminated)
 
