@@ -40,6 +40,11 @@ class FootstandNoiseConfig(NoiseConfig):
 
 
 @dataclass
+class FootstandControlConfig(ControlConfig):
+    clip_actions: float = 1.0
+
+
+@dataclass
 class Go2FootStandDomainRandConfig(Go2DomainRandConfig):
     randomize_kp: bool = False
     randomize_kd: bool = False
@@ -97,8 +102,13 @@ class Go2FootStandCfg(Go2HandStandCfg):
     obs_history_len: int = _FOOTSTAND_MIN_OBS_HISTORY_LEN
     soft_joint_pos_limit_factor: float = 0.9
     energy_termination_threshold: float = np.inf
+    termination_grace_steps: int = 100
+    termination_height_fraction: float = 0.8
+    termination_orientation_threshold: float = 0.2
     noise_config: FootstandNoiseConfig = field(default_factory=FootstandNoiseConfig)  # type: ignore[assignment]
-    control_config: ControlConfig = field(default_factory=lambda: ControlConfig(action_scale=0.3))  # type: ignore[assignment]
+    control_config: FootstandControlConfig = field(  # type: ignore[assignment]
+        default_factory=lambda: FootstandControlConfig(action_scale=0.3)
+    )
     sensor: FootstandSensor = field(default_factory=FootstandSensor)  # type: ignore[assignment]
     domain_rand: Go2FootStandDomainRandConfig = field(default_factory=Go2FootStandDomainRandConfig)  # type: ignore[assignment]
 
@@ -206,11 +216,12 @@ class Go2FootStandTask(Go2HandStandTask):
         super().__init__(cfg, num_envs=num_envs, backend_type=backend_type)
         self._z_des = 0.53
         self._desired_forward_vec = np.array([0.0, 0.0, 1.0], dtype=np.float32)
-        self.feet_geom_names = [0, 1]
+        self.feet_geom_names = [2, 3]
         self._joint_ids = [0, 1, 2, 3, 4, 5]
         self._tar_ids = [6, 7, 8, 9, 10, 11]
         self.target_angle = np.array([0, 1.82, -1.16, 0.0, 1.82, -1.16])
         self._init_soft_joint_limits()
+        self._init_motor_target_limits()
         self._last_dof_vel_for_acc = np.zeros((num_envs, self._num_action), dtype=np.float32)
         self._last_terminated = np.zeros((num_envs,), dtype=bool)
         self._motor_targets = np.zeros((num_envs, self._num_action), dtype=get_global_dtype())
@@ -304,6 +315,8 @@ class Go2FootStandTask(Go2HandStandTask):
             "dof_pos_limits": self._cost_joint_pos_limits,
             "torques": self._cost_torques,
             "pose": self._cost_pose,
+            "penalty_contact": self._reward_penalty_contact,
+            "tar": self._reward_tar,
             "stay_still": self._cost_stay_still,
             "energy": rewards.energy,
             "dof_acc": rewards.dof_acc,
@@ -324,19 +337,25 @@ class Go2FootStandTask(Go2HandStandTask):
         return np.asarray(np_quat_apply(self._backend.get_base_quat(), forward), dtype=get_global_dtype())
 
     def _reward_height(self, ctx: RewardContext) -> np.ndarray:
-        height = np.minimum(self.torso_height, self._z_des)
-        error = self._z_des - height
-        return np.exp(-error / 1.0)
+        del ctx
+        error = np.abs(self._z_des - self.torso_height)
+        return np.asarray(np.exp(-error / 0.1), dtype=get_global_dtype())
 
     def apply_action(self, actions: np.ndarray, state: NpEnvState) -> np.ndarray:
-        state.info["last_actions"] = state.info.get("current_actions", np.zeros_like(actions))
-        state.info["current_actions"] = actions
+        clip_actions = float(getattr(self._cfg.control_config, "clip_actions", np.inf))
+        actions_np = np.asarray(actions, dtype=get_global_dtype())
+        if np.isfinite(clip_actions):
+            actions_np = np.clip(actions_np, -clip_actions, clip_actions)
+
+        state.info["last_actions"] = state.info.get("current_actions", np.zeros_like(actions_np))
+        state.info["current_actions"] = actions_np
         exec_actions = (
             state.info["last_actions"]
             if self._cfg.control_config.simulate_action_latency
-            else actions
+            else actions_np
         )
         self._motor_targets += exec_actions * self._cfg.control_config.action_scale
+        self._clip_motor_targets()
         return np.asarray(self._motor_targets, dtype=get_global_dtype())
 
     def update_state(self, state: NpEnvState) -> NpEnvState:
@@ -362,12 +381,22 @@ class Go2FootStandTask(Go2HandStandTask):
 
         state.info["qacc"] = self._estimate_dof_acc(dof_vel)
         state.info["torques"] = self._estimate_pd_torques(state.info, dof_pos, dof_vel)
+        orientation = self._orientation_score()
+        step_count = state.info.get("steps", np.zeros((self._num_envs,), dtype=np.uint32))
+        grace_elapsed = step_count >= self._cfg.termination_grace_steps
         terminated_z = upvector[:, 2] < -0.25
         terminated_contact = np.any(result, axis=1)
+        terminated_low_height = (
+            self.torso_height < self._z_des * self._cfg.termination_height_fraction
+        )
+        terminated_bad_orientation = orientation < self._cfg.termination_orientation_threshold
+        terminated_pose = grace_elapsed & (terminated_low_height | terminated_bad_orientation)
         energy = np.sum(np.abs(state.info["torques"]) * np.abs(dof_vel), axis=1)
         terminated_energy = energy > self._cfg.energy_termination_threshold
-        terminated = np.logical_or.reduce((terminated_contact, terminated_z, terminated_energy))
-        self._last_terminated = terminated
+        terminated = np.logical_or.reduce(
+            (terminated_contact, terminated_z, terminated_energy, terminated_pose)
+        )
+        self._last_terminated = terminated.copy()
         reward = self._compute_reward(state.info, linvel, gyro, dof_pos, dof_vel)
         obs = self._compute_obs(
             state.info,
@@ -525,6 +554,31 @@ class Go2FootStandTask(Go2HandStandTask):
         self._soft_lowers = centers - 0.5 * widths * factor
         self._soft_uppers = centers + 0.5 * widths * factor
 
+    def _init_motor_target_limits(self) -> None:
+        joint_range = self._backend.get_joint_range()
+        if joint_range is None:
+            self._target_lowers = np.full(
+                (self._num_action,), -np.inf, dtype=get_global_dtype()
+            )
+            self._target_uppers = np.full((self._num_action,), np.inf, dtype=get_global_dtype())
+            return
+
+        joint_range = np.asarray(joint_range, dtype=get_global_dtype())
+        lowers = joint_range[:, 0]
+        uppers = joint_range[:, 1]
+        if lowers.size == _GO2_DOF_TO_CTRL.size:
+            lowers = self._dof_to_ctrl_order(lowers.reshape(1, -1))[0]
+            uppers = self._dof_to_ctrl_order(uppers.reshape(1, -1))[0]
+        self._target_lowers = np.asarray(lowers, dtype=get_global_dtype())
+        self._target_uppers = np.asarray(uppers, dtype=get_global_dtype())
+
+    def _clip_motor_targets(self) -> None:
+        lowers = getattr(self, "_target_lowers", None)
+        uppers = getattr(self, "_target_uppers", None)
+        if lowers is None or uppers is None:
+            return
+        np.clip(self._motor_targets, lowers, uppers, out=self._motor_targets)
+
     def _reward_termination(self, ctx: RewardContext) -> np.ndarray:
         return self._last_terminated.astype(get_global_dtype())
 
@@ -557,6 +611,10 @@ class Go2FootStandTask(Go2HandStandTask):
         return np.asarray(torques, dtype=get_global_dtype())
 
     def _reward_orientation(self, ctx: RewardContext) -> np.ndarray:
+        del ctx
+        return self._orientation_score()
+
+    def _orientation_score(self) -> np.ndarray:
         forward = self._get_body_forward()
         cos_dist = forward @ self._desired_forward_vec
         normalized = 0.5 * cos_dist + 0.5
@@ -564,4 +622,5 @@ class Go2FootStandTask(Go2HandStandTask):
 
     def _cost_contact(self, ctx: RewardContext) -> np.ndarray:
         del ctx
-        return np.asarray(np.any(self.feet_force[:, :, 0] > 0.0, axis=1), dtype=get_global_dtype())
+        feet_contact = self.feet_force[:, self.feet_geom_names, 0] > 1.0
+        return np.asarray(np.any(feet_contact, axis=1), dtype=get_global_dtype())
