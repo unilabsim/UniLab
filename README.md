@@ -8,6 +8,14 @@ Train robot RL without a GPU simulation backend.
 
 UniLab uses **CPU simulation + shared-memory runtime + GPU learning** instead of coupling simulation and learning inside one GPU-resident pipeline.
 
+```
+┌───────────────────┐                            ┌─────────────────────────┐
+│  CPU Physics Sim  │   Unified Shared Memory    │   GPU Policy Training   │
+│   MuJoCo/Motrix   │ ─────────────────────────▶ │     PPO / SAC / TD3     │
+│ Multithread Step  │    SharedReplayBuffer      │ CUDA / MPS / ROCm / XPU │
+└───────────────────┘                            └─────────────────────────┘
+```
+
 Start with the `Quick Demo` below to run the primary training command from this repository.
 
 ## 🚀 Quick Demo
@@ -24,12 +32,16 @@ cd UniLab
 uv sync --extra motrix
 # Linux AMD / ROCm workstation:
 # make sync-rocm
+# Linux Intel Arc / iGPU workstation:
+# make sync-xpu
 
 # 3. Run a first PPO training job
 # macOS: 73s on M5Max-128GB, 1min43s on M3Max-48GB, 2.5min on MacBookNeo-8GB
-# Linux: 31s on RTX 4090 and R9-9950x3d
+# Linux: 31s on RTX 4090 + R9-9950x3d, 2min16s on Intel Arc iGPU + Core Ultra 9 185H
 uv run train --algo ppo --task go2_joystick_flat --sim motrix
 # Linux AMD / ROCm workstation after make sync-rocm:
+# uv run --no-sync train --algo ppo --task go2_joystick_flat --sim motrix
+# Linux Intel Arc / XPU workstation after make sync-xpu:
 # uv run --no-sync train --algo ppo --task go2_joystick_flat --sim motrix
 ```
 
@@ -40,13 +52,18 @@ For evaluation and demo playback:
 ```bash
 uv run eval --algo ppo --task go2_joystick_flat --sim motrix --load-run -1
 
+# Headless Motrix video export for Linux/server runs
+uv run eval --algo ppo --task go2_joystick_flat --sim motrix --load-run -1 --render-mode record
+
 # Demo playback from a local trained checkpoint
 uv run demo
 ```
 
-On macOS / MacBook, the UniLab CLI routes Motrix renderer playback through `mxpython` when needed. Detailed script-level commands are documented under `docs/users/zh_CN/`.
+On macOS / MacBook, the UniLab CLI routes Motrix interactive playback through `mxpython` when needed. Motrix defaults to interactive playback; use `--render-mode record` for headless video export or `--render-mode none` to skip playback. Detailed script-level commands are documented under `docs/users/zh_CN/`.
 
 On Linux AMD / ROCm workstations, `make sync-rocm` requires ROCm 7.1 or newer and installs the PyTorch ROCm 7.2 wheel (`torch==2.11.0+rocm7.2`). Use `uv run --no-sync ...` after that setup so `uv` does not resync the default Linux CUDA wheel.
+
+On Linux Intel Arc / iGPU workstations, `make sync-xpu` installs the PyTorch XPU wheel (`torch==2.7.0+xpu`) which bundles the Intel oneAPI compiler/SYCL runtimes. The GPU userspace driver itself must come from the system package manager — on Ubuntu 24.04+ / 26.04 install `intel-opencl-icd` and `libze-intel-gpu1` (kernel 6.2+ ships the i915 driver). Use `uv run --no-sync ...` after the swap so `uv` does not resync the default Linux CUDA wheel. Off-policy training (`--algo sac` / `--algo flashsac`) supports bf16 mixed precision via `training.use_amp=true` on XPU; on-policy PPO does not need AMP.
 
 ### Interactive Notebooks
 
@@ -78,16 +95,6 @@ uv run train --algo ppo --task sharpa_inhand --sim mujoco --profile hora
 ```
 
 More training commands, script-level entrypoints, resume flow, and W&B details are in [03 Training Guide](docs/users/zh_CN/03-training.md).
-
-## 🧱 System Layout
-
-```
-┌───────────────────┐     Unified Shared Memory     ┌────────────────────┐
-│  CPU Physics Sim  │ ───────────────────────────▶  │ GPU Policy Training│
-│  mujoco.rollout   │      SharedReplayBuffer       │   PPO / SAC / TD3  │
-│ Multithread Step  │    (PyTorch shared tensors)   │     CUDA / MPS     │
-└───────────────────┘                               └────────────────────┘
-```
 
 ## 🎯 Training Entrypoints
 

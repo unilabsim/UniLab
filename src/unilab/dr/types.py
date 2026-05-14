@@ -74,9 +74,7 @@ class DomainRandomizationCapabilities:
                 payload.body_mass if self.supports_reset_term(RESET_TERM_BODY_MASS) else None
             ),
             dof_armature=(
-                payload.dof_armature
-                if self.supports_reset_term(RESET_TERM_DOF_ARMATURE)
-                else None
+                payload.dof_armature if self.supports_reset_term(RESET_TERM_DOF_ARMATURE) else None
             ),
             geom_friction=(
                 payload.geom_friction

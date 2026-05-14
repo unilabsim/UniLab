@@ -32,7 +32,14 @@ from unilab.dr.types import (
 )
 from unilab.dtype_config import get_global_dtype
 
-from .base import BackendPlayCapabilities, SimBackend
+from ..base import (
+    BackendHeightScanner,
+    BackendPlayCapabilities,
+    BackendPlayRenderPlan,
+    SimBackend,
+    normalize_play_render_mode,
+)
+from .playback import run_mujoco_playback
 
 
 def _root_state_dims(model) -> tuple[int, int]:
@@ -41,13 +48,41 @@ def _root_state_dims(model) -> tuple[int, int]:
     return 0, 0
 
 
+@dataclass
+class _MuJoCoHeightScanner(BackendHeightScanner):
+    backend: "MuJoCoBackend"
+    hfield_geom_id: int
+    offsets: np.ndarray
+    frame_body_id: int
+    alignment: str
+    output: str
+
+    def scan(self) -> np.ndarray:
+        pool = self.backend._pool
+        if pool is None:
+            raise RuntimeError("MuJoCo backend pool must be materialized before hfield scanning")
+
+        heights = pool.sample_hfield_height(
+            self.backend._physics_state,
+            hfield_geom_id=self.hfield_geom_id,
+            offsets=self.offsets,
+            frame_body_id=self.frame_body_id,
+            alignment=self.alignment,
+            output=self.output,
+        )
+        return np.asarray(heights, dtype=self.backend._np_dtype)
+
+
 def _prepare_variant_model_xml(
     model_file: str,
     *,
     add_body_sensors: bool,
     base_name: str | None,
 ) -> tuple[str, list[str]]:
-    from unilab.base.backend.xml import create_discardvisual_xml, inject_mujoco_tracking_sensors
+    from unilab.base.backend.mujoco.xml import (
+        create_discardvisual_xml,
+        inject_mujoco_tracking_sensors,
+    )
 
     model_path = create_discardvisual_xml(model_file)
     tmp_paths = [model_path]
@@ -163,7 +198,7 @@ class _MuJoCoSceneContext:
 
 
 def _build_mujoco_scene_context(scene: SceneCfg) -> _MuJoCoSceneContext:
-    from unilab.base.backend.xml import (
+    from unilab.base.backend.mujoco.xml import (
         materialize_mujoco_hfield_attached_scene,
         materialize_scene_fragments,
     )
@@ -385,7 +420,10 @@ class MuJoCoBackend(SimBackend):
         return model
 
     def _prepare_model_xml(self) -> tuple[str, list[str], list[int], list[str]]:
-        from unilab.base.backend.xml import create_discardvisual_xml, inject_mujoco_tracking_sensors
+        from unilab.base.backend.mujoco.xml import (
+            create_discardvisual_xml,
+            inject_mujoco_tracking_sensors,
+        )
 
         model_path = create_discardvisual_xml(str(self._model_file))
         tmp_paths = [model_path]
@@ -619,7 +657,7 @@ class MuJoCoBackend(SimBackend):
     def get_geom_size(self, name: str) -> np.ndarray:
         return np.asarray(self._model.geom_size[self.get_geom_id(name)], dtype=np.float64).copy()
 
-    def sample_hfield_height(
+    def create_hfield_scanner(
         self,
         *,
         hfield_geom_id: int,
@@ -627,23 +665,19 @@ class MuJoCoBackend(SimBackend):
         frame_body_id: int,
         alignment: str = "yaw",
         output: str = "height",
-    ) -> np.ndarray:
-        if self._pool is None:
-            raise RuntimeError("MuJoCo backend pool must be materialized before hfield sampling")
-
+    ) -> BackendHeightScanner:
         offsets_np = np.ascontiguousarray(np.asarray(offsets, dtype=np.float64))
         if offsets_np.ndim != 2 or offsets_np.shape[1] != 2:
             raise ValueError(f"offsets must have shape (num_points, 2), got {offsets_np.shape}")
 
-        heights = self._pool.sample_hfield_height(
-            self._physics_state,
+        return _MuJoCoHeightScanner(
+            backend=self,
             hfield_geom_id=int(hfield_geom_id),
             offsets=offsets_np,
             frame_body_id=int(frame_body_id),
             alignment=alignment,
             output=output,
         )
-        return np.asarray(heights, dtype=self._np_dtype)
 
     def get_body_subtree_ids(self, root_body_id: int) -> np.ndarray:
         subtree_ids = {int(root_body_id)}
@@ -689,6 +723,38 @@ class MuJoCoBackend(SimBackend):
 
     def get_motion_body_ids(self, names: Sequence[str]) -> np.ndarray:
         return self.get_body_ids(names)
+
+    def get_site_ids(self, names: Sequence[str]) -> np.ndarray:
+        ids: list[int] = []
+        for name in names:
+            sid = mujoco.mj_name2id(self._model, mujoco.mjtObj.mjOBJ_SITE, name)
+            if sid < 0:
+                raise ValueError(f"Site '{name}' not found in MuJoCo model")
+            ids.append(sid)
+        return np.array(ids, dtype=np.int32)
+
+    def get_joint_dof_indices(self, names: Sequence[str]) -> np.ndarray:
+        indices: list[int] = []
+        for name in names:
+            jid = mujoco.mj_name2id(self._model, mujoco.mjtObj.mjOBJ_JOINT, name)
+            if jid < 0:
+                raise ValueError(f"Joint '{name}' not found in MuJoCo model")
+            indices.append(int(self._model.jnt_dofadr[jid]))
+        return np.array(indices, dtype=np.int32)
+
+    def get_joint_dof_pos_indices(self, names: Sequence[str]) -> np.ndarray:
+        indices: list[int] = []
+        for name in names:
+            jid = mujoco.mj_name2id(self._model, mujoco.mjtObj.mjOBJ_JOINT, name)
+            if jid < 0:
+                raise ValueError(f"Joint '{name}' not found in MuJoCo model")
+            if int(self._model.jnt_type[jid]) == int(mujoco.mjtJoint.mjJNT_FREE):
+                raise ValueError(f"Joint '{name}' is not a single-DoF joint")
+            indices.append(int(self._model.jnt_qposadr[jid]) - self._root_qpos_dim)
+        return np.array(indices, dtype=np.int32)
+
+    def get_joint_dof_vel_indices(self, names: Sequence[str]) -> np.ndarray:
+        return self.get_joint_dof_indices(names) - self._root_qvel_dim
 
     def get_joint_range(self) -> np.ndarray | None:
         if self._root_qpos_dim > 0:
@@ -894,6 +960,73 @@ class MuJoCoBackend(SimBackend):
     def get_play_capabilities(self) -> BackendPlayCapabilities:
         return BackendPlayCapabilities(supports_physics_state_playback=True)
 
+    def resolve_play_render_plan(
+        self,
+        *,
+        play_render_mode: str | None,
+        play_steps: int | None,
+        output_video: str | os.PathLike[str] | None,
+    ) -> BackendPlayRenderPlan:
+        mode = normalize_play_render_mode(play_render_mode)
+        effective_mode = "record" if mode == "auto" else mode
+        if effective_mode == "none":
+            return BackendPlayRenderPlan(
+                mode=effective_mode,
+                headless=True,
+                record_video=False,
+                num_steps=None,
+                output_video=None,
+            )
+        if effective_mode == "interactive":
+            raise NotImplementedError("MuJoCo playback does not support interactive rendering.")
+        assert effective_mode == "record"
+        if play_steps is None:
+            raise ValueError("MuJoCo record playback requires a finite training.play_steps value.")
+        if output_video is None:
+            raise ValueError("MuJoCo record playback requires an output video path.")
+        return BackendPlayRenderPlan(
+            mode=effective_mode,
+            headless=True,
+            record_video=True,
+            num_steps=int(play_steps),
+            output_video=output_video,
+        )
+
+    def run_playback(
+        self,
+        *,
+        env: Any,
+        initialize,
+        step,
+        num_steps: int | None,
+        output_video: str | os.PathLike[str] | None = None,
+        render_spacing: float | None = None,
+        render_offset_mode: str | None = None,
+        headless: bool | None = None,
+        record_video: bool | None = None,
+        frame_state_getter=None,
+        camera_kwargs: dict[str, Any] | None = None,
+        extra_data_getter=None,
+    ) -> str | None:
+        del render_offset_mode
+        should_record_video = (
+            bool(record_video) if record_video is not None else output_video is not None
+        )
+        should_run_headless = bool(headless) if headless is not None else should_record_video
+        return run_mujoco_playback(
+            env=env,
+            initialize=initialize,
+            step=step,
+            num_steps=num_steps,
+            output_video=output_video,
+            render_spacing=render_spacing,
+            headless=should_run_headless,
+            record_video=should_record_video,
+            frame_state_getter=frame_state_getter,
+            camera_kwargs=camera_kwargs,
+            extra_data_getter=extra_data_getter,
+        )
+
     # ------------------------------------------------------------------ #
     # Base kinematics                                                    #
     # ------------------------------------------------------------------ #
@@ -961,6 +1094,28 @@ class MuJoCoBackend(SimBackend):
 
     def get_sensor_data(self, name: str) -> np.ndarray:
         return self._sensor_views[name]
+
+    def get_site_jacobian_w(
+        self,
+        site_id: int,
+        dof_indices: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """批量 Jacobian，shape (num_envs, 3, len(dof_indices))。
+
+        使用 BatchEnvPool.compute_site_jacobians 原生接口，无需每 env 独立 MjData。
+        scalar site_id → pool 返回 (N, 3, nv)（k 维被 squeeze）。
+        """
+        dof_indices = np.asarray(dof_indices, dtype=np.int32).reshape(-1)
+        jp, jr = self._pool.compute_site_jacobians(  # type: ignore[union-attr]
+            self._physics_state.astype(np.float64),
+            int(site_id),
+            jacp=True,
+            jacr=True,
+        )
+        return (
+            jp[:, :, dof_indices].astype(self._np_dtype),
+            jr[:, :, dof_indices].astype(self._np_dtype),
+        )
 
     # ------------------------------------------------------------------ #
     # Mujoco-specific                                                 #
@@ -1089,6 +1244,14 @@ class MuJoCoBackend(SimBackend):
                 name="geom_friction",
                 num_reset=num_reset,
                 shaped_tail=(self._model.ngeom, 3),
+            )
+
+        if randomization.dof_armature is not None:
+            translated["dof_armature"] = self._coerce_reset_field(
+                randomization.dof_armature,
+                name="dof_armature",
+                num_reset=num_reset,
+                shaped_tail=(self._model.nv,),
             )
 
         if randomization.kp is not None:

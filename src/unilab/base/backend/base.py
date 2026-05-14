@@ -1,6 +1,7 @@
 import abc
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from os import PathLike
 from typing import Any
 
 import numpy as np
@@ -24,11 +25,42 @@ class BackendPlayCapabilities:
     supports_native_video_capture: bool = False
 
 
+class BackendHeightScanner(abc.ABC):
+    """Backend-owned height-field scanner created on the env init path."""
+
+    @abc.abstractmethod
+    def scan(self) -> np.ndarray:
+        """Return sampled values with shape ``(num_envs, num_points)``."""
+
+
+PLAY_RENDER_MODES = frozenset({"auto", "interactive", "record", "none"})
+
+
+@dataclass(frozen=True)
+class BackendPlayRenderPlan:
+    """Backend-resolved playback rendering behavior."""
+
+    mode: str
+    headless: bool
+    record_video: bool
+    num_steps: int | None
+    output_video: str | PathLike[str] | None
+
+
+def normalize_play_render_mode(play_render_mode: str | None) -> str:
+    mode = "auto" if play_render_mode is None else str(play_render_mode).strip().lower()
+    if mode not in PLAY_RENDER_MODES:
+        joined = ", ".join(sorted(PLAY_RENDER_MODES))
+        raise ValueError(f"training.play_render_mode must be one of: {joined}; got {mode!r}.")
+    return mode
+
+
 class SimBackend(abc.ABC):
     """仿真后端统一接口"""
 
     _pre_step_control_fn: PreStepControlFn | None
     _scene_cleanup_handle: Any | None
+    backend_type: str
 
     # ------------------------------------------------------------------ #
     # Properties                                                           #
@@ -115,7 +147,7 @@ class SimBackend(abc.ABC):
         """Return one geom size vector through the backend contract."""
         raise NotImplementedError(f"{self.__class__.__name__} does not expose geom sizes")
 
-    def sample_hfield_height(
+    def create_hfield_scanner(
         self,
         *,
         hfield_geom_id: int,
@@ -123,21 +155,13 @@ class SimBackend(abc.ABC):
         frame_body_id: int,
         alignment: str = "yaw",
         output: str = "height",
-    ) -> np.ndarray:
-        """Sample a height-field geom through a backend-native batched sensor path.
+    ) -> BackendHeightScanner:
+        """Create a reusable height-field scanner on the init/cold path.
 
-        Args:
-            hfield_geom_id: Backend geom id for a height-field geom.
-            offsets: Local XY offsets with shape ``(num_points, 2)``.
-            frame_body_id: Backend body id that anchors the local offsets.
-            alignment: Native alignment mode, e.g. ``"yaw"``.
-            output: Native output mode, e.g. ``"height"`` or ``"clearance"``.
-
-        Returns:
-            Array with shape ``(num_envs, num_points)``.
+        Backends that support height-field terrain scan must override this method.
         """
         raise NotImplementedError(
-            f"{self.__class__.__name__} does not support native height-field sampling"
+            f"{self.__class__.__name__} does not support native height-field scanners"
         )
 
     def get_body_subtree_ids(self, root_body_id: int) -> np.ndarray:
@@ -173,7 +197,7 @@ class SimBackend(abc.ABC):
         raise NotImplementedError(f"{self.__class__.__name__} does not expose body ipos")
 
     def get_dof_armature(self) -> np.ndarray:
-        """Return the backend DOF armature vector."""
+        """Return the backend dof-armature table."""
         raise NotImplementedError(f"{self.__class__.__name__} does not expose dof armature")
 
     def get_motion_body_ids(self, names: Sequence[str]) -> np.ndarray:
@@ -313,6 +337,37 @@ class SimBackend(abc.ABC):
     def get_play_capabilities(self) -> BackendPlayCapabilities:
         """Return backend-native play/render capabilities."""
         return BackendPlayCapabilities()
+
+    def resolve_play_render_plan(
+        self,
+        *,
+        play_render_mode: str | None,
+        play_steps: int | None,
+        output_video: str | PathLike[str] | None,
+    ) -> BackendPlayRenderPlan:
+        """Resolve high-level playback mode into backend-owned render parameters."""
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not define playback render mode semantics"
+        )
+
+    def run_playback(
+        self,
+        *,
+        env: Any,
+        initialize: Callable[[], Any],
+        step: Callable[[Any], Any],
+        num_steps: int | None,
+        output_video: str | PathLike[str] | None = None,
+        render_spacing: float | None = None,
+        render_offset_mode: str | None = None,
+        headless: bool | None = None,
+        record_video: bool | None = None,
+        frame_state_getter: Callable[[], np.ndarray] | None = None,
+        camera_kwargs: dict[str, Any] | None = None,
+        extra_data_getter: Callable[[], np.ndarray | None] | None = None,
+    ) -> str | None:
+        """Execute backend-owned playback for an env wrapper."""
+        raise NotImplementedError(f"{self.__class__.__name__} does not support playback execution")
 
     def init_renderer(
         self,
@@ -525,6 +580,76 @@ class SimBackend(abc.ABC):
         Returns:
             (num_envs, len(body_ids), 3)
         """
+
+    # ------------------------------------------------------------------ #
+    # Kinematics / Jacobian                                                #
+    # ------------------------------------------------------------------ #
+
+    def get_site_ids(self, names: Sequence[str]) -> np.ndarray:
+        """将 site 名称列表转换为整数 ID 数组。
+
+        Args:
+            names: site 名称列表
+
+        Returns:
+            shape (len(names),) 的 int32 ID 数组
+        """
+        raise NotImplementedError(f"{type(self).__name__} does not implement get_site_ids")
+
+    def get_joint_dof_indices(self, names: Sequence[str]) -> np.ndarray:
+        """将关节名称列表转换为速度空间（qvel）的 DoF 索引数组。
+
+        Args:
+            names: 关节名称列表
+
+        Returns:
+            shape (len(names),) 的 int32 索引数组（相对于 qvel 起始位置）
+        """
+        raise NotImplementedError(f"{type(self).__name__} does not implement get_joint_dof_indices")
+
+    def get_joint_dof_pos_indices(self, names: Sequence[str]) -> np.ndarray:
+        """将关节名称列表转换为位置空间（qpos）的 DoF 索引数组。
+
+        仅支持单自由度关节（非 free joint）。
+
+        Args:
+            names: 关节名称列表
+
+        Returns:
+            shape (len(names),) 的 int32 索引数组（相对于 qpos 中关节部分的起始位置）
+        """
+        raise NotImplementedError(
+            f"{type(self).__name__} does not implement get_joint_dof_pos_indices"
+        )
+
+    def get_joint_dof_vel_indices(self, names: Sequence[str]) -> np.ndarray:
+        """将关节名称列表转换为速度空间（qvel）的 DoF 索引数组（相对于关节部分起始）。
+
+        Args:
+            names: 关节名称列表
+
+        Returns:
+            shape (len(names),) 的 int32 索引数组
+        """
+        raise NotImplementedError(
+            f"{type(self).__name__} does not implement get_joint_dof_vel_indices"
+        )
+
+    def get_site_jacobian_w(
+        self,
+        site_id: int,
+        dof_indices: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """批量计算指定 site 相对于指定 DoF 列的世界系 Jacobian。
+
+        Args:
+            site_id: site 整数 ID
+            dof_indices: 要提取的 DoF 列索引，shape (n_dof,)
+
+        Returns:
+            (jacp, jacr)，各为 shape (num_envs, 3, n_dof) 的平移/旋转 Jacobian
+        """
+        raise NotImplementedError(f"{type(self).__name__} does not implement get_site_jacobian_w")
 
     # ------------------------------------------------------------------ #
     # Sensors                                                              #

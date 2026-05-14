@@ -7,6 +7,11 @@ sync-rocm:
 	uv sync --extra motrix --no-install-package torch
 	uv pip install --no-deps torch==2.11.0 triton-rocm==3.6.0 --torch-backend rocm7.2
 
+.PHONY: sync-xpu
+sync-xpu:
+	uv sync --extra motrix --no-install-package torch
+	uv pip install torch==2.7.0 --torch-backend xpu
+
 .PHONY: format
 format:
 	uv run ruff format
@@ -46,3 +51,4 @@ clean:
 	find . -type d -name ".ruff_cache" -exec rm -rf {} +
 	find . -type d -name "htmlcov" -exec rm -rf {} +
 	find . -type f -name ".coverage" -delete
+	rm -f train_appo.log train_offpolicy.log train_rsl_rl.log
