@@ -1,0 +1,21 @@
+<mujoco>
+  <compiler angle="radian" assetdir="assets"/>
+  <option>
+    <flag/>
+  </option>
+  <statistic/>
+  <asset>
+    <texture type="2d" colorspace="sRGB" name="T_CardBoxA_D" file="T_CardBoxA_D.png"/>
+    <texture type="2d" colorspace="linear" name="T_CardBoxA_N" file="T_CardBoxA_N.png"/>
+    <texture type="2d" colorspace="linear" name="T_CardBoxA_ORM" file="T_CardBoxA_ORM.png"/>
+    <material name="cardbox" rgba="1.0 1.0 1.0 1.0" reflectance="0.5" roughness="1.0" metallic="1.0">
+      <layer texture="T_CardBoxA_D" role="rgb"/>
+      <layer texture="T_CardBoxA_N" role="normal"/>
+      <layer texture="T_CardBoxA_ORM" role="orm"/>
+    </material>
+    <mesh name="CardBoxA_01" file="CardBoxA_01.obj"/>
+  </asset>
+  <worldbody>
+    <geom name="CardBoxA_01" pos="0.0 0.0 0.1650001" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="CardBoxA_01" material="cardbox" group="2"/>
+  </worldbody>
+</mujoco>

@@ -1,0 +1,27 @@
+<mujoco>
+  <compiler angle="radian" assetdir="assets"/>
+  <option>
+    <flag/>
+  </option>
+  <statistic/>
+  <asset>
+    <texture type="2d" colorspace="sRGB" name="t_counter_a01_alb" file="t_counter_a01_alb.png"/>
+    <texture type="2d" colorspace="linear" name="t_counter_a01_nor" file="t_counter_a01_nor.png"/>
+    <texture type="2d" colorspace="linear" name="t_counter_a01_orm" file="t_counter_a01_orm.png"/>
+    <texture type="2d" colorspace="linear" name="noise_normal" file="noise_normal.png"/>
+    <material name="m_wood_counter_a01" rgba="0.735357 0.735357 0.735357 1.0" reflectance="0.5" roughness="1.0" metallic="1.0">
+      <layer texture="t_counter_a01_alb" role="rgb"/>
+      <layer texture="t_counter_a01_nor" role="normal"/>
+      <layer texture="t_counter_a01_orm" role="orm"/>
+    </material>
+    <material name="aluminum_rough" rgba="0.7324986 0.7350006 0.735357 1.0" reflectance="0.5" roughness="0.54" metallic="1.0" texuniform="true" texrepeat="12.0 12.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <mesh name="stairs_surface" file="stairs_surface.obj"/>
+    <mesh name="stairs_column" file="stairs_column.obj"/>
+  </asset>
+  <worldbody>
+    <geom name="stairs_surface" pos="4e-07 -0.0 0.7000002" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="stairs_surface" material="m_wood_counter_a01" group="2"/>
+    <geom name="stairs_column" pos="-2e-07 0.0 0.3400001" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="stairs_column" material="aluminum_rough" group="2"/>
+  </worldbody>
+</mujoco>

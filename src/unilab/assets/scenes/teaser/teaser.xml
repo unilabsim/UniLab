@@ -1,0 +1,31 @@
+<mujoco>
+  <compiler autolimits="true" angle="radian" assetdir="assets"/>
+  <visual>
+    <headlight diffuse="0.0 0.0 0.0" ambient="0.0 0.0 0.0" specular="0 0 0"/>
+    <map envmapintensity="200"/>
+    <ssgi active="true"
+    resolutionscale="1"
+    raycount="2"
+    stepcount="16"
+    thickness="0.1"
+    intensity="1.0"
+    gidenoiseoffset="0"
+    rraycount="256"
+    rdenoiseoffset="0"
+    />
+    <!-- <tonemapping method="aces"/> -->
+  </visual>
+
+  <asset>
+    <texture name="env_diff" type="envdiff" file="diff2.ktx2"/>
+    <texture name="env_spec" type="envspec" file="spec2.ktx2"/>
+    <model name="scene" file="./scene.xml"/>
+  </asset>
+
+  <worldbody>
+    <camera name="Camera" pos="-1e-07 -4.9291162 3.5937848" quat="0.8660254 0.5 0.0 0.0" fovy="39.0000011" mode="fixed"/>
+    <attach model="scene" prefix="scene_00_"/>
+  </worldbody>
+
+  
+</mujoco>

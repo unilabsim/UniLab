@@ -1,0 +1,76 @@
+<mujoco>
+  <compiler angle="radian" assetdir="assets"/>
+  <option>
+    <flag/>
+  </option>
+  <statistic/>
+  <asset>
+    <texture type="2d" colorspace="sRGB" name="t_plastic_glossy_white_a01_tile_alb" file="t_plastic_glossy_white_a01_tile_alb.png"/>
+    <texture type="2d" colorspace="linear" name="t_plastic_glossy_white_a01_tile_nor" file="t_plastic_glossy_white_a01_tile_nor.png"/>
+    <texture type="2d" colorspace="linear" name="t_plastic_glossy_white_a01_tile_orm" file="t_plastic_glossy_white_a01_tile_orm.png"/>
+    <texture type="2d" colorspace="sRGB" name="t_metal_chrome_a01_tile_alb" file="t_metal_chrome_a01_tile_alb.png"/>
+    <texture type="2d" colorspace="linear" name="t_metal_chrome_a01_tile_nor" file="t_metal_chrome_a01_tile_nor.png"/>
+    <texture type="2d" colorspace="linear" name="t_metal_chrome_a01_tile_orm" file="t_metal_chrome_a01_tile_orm.png"/>
+    <texture type="2d" colorspace="sRGB" name="t_metal_paintedGlossy_white_a01_tile_alb" file="t_metal_paintedGlossy_white_a01_tile_alb.png"/>
+    <texture type="2d" colorspace="linear" name="t_metal_paintedGlossy_white_a01_tile_nor" file="t_metal_paintedGlossy_white_a01_tile_nor.png"/>
+    <texture type="2d" colorspace="linear" name="t_metal_paintedGlossy_white_a01_tile_orm" file="t_metal_paintedGlossy_white_a01_tile_orm.png"/>
+    <texture type="2d" colorspace="sRGB" name="t_metal_glossy_a01_tile_alb" file="t_metal_glossy_a01_tile_alb.png"/>
+    <texture type="2d" colorspace="linear" name="t_metal_glossy_a01_tile_orm" file="t_metal_glossy_a01_tile_orm.png"/>
+    <texture type="2d" colorspace="linear" name="t_metal_glossy_a01_tile_nor" file="t_metal_glossy_a01_tile_nor.png"/>
+    <material name="m_plastic_white_a01" rgba="1.0 1.0 1.0 1.0" reflectance="0.5" roughness="1.0" metallic="1.0" texuniform="true" texrepeat="4.0 4.0">
+      <layer texture="t_plastic_glossy_white_a01_tile_alb" role="rgb"/>
+      <layer texture="t_plastic_glossy_white_a01_tile_nor" role="normal"/>
+      <layer texture="t_plastic_glossy_white_a01_tile_orm" role="orm"/>
+    </material>
+    <material name="m_metal_chrome_a01" rgba="1.0 1.0 1.0 1.0" reflectance="0.5" roughness="1.0" metallic="1.0" texuniform="true" texrepeat="10.0 10.0">
+      <layer texture="t_metal_chrome_a01_tile_alb" role="rgb"/>
+      <layer texture="t_metal_chrome_a01_tile_nor" role="normal"/>
+      <layer texture="t_metal_chrome_a01_tile_orm" role="orm"/>
+    </material>
+    <material name="m_metal_white_a01" rgba="1.0 1.0 1.0 1.0" reflectance="0.5" roughness="1.0" metallic="1.0">
+      <layer texture="t_metal_paintedGlossy_white_a01_tile_alb" role="rgb"/>
+      <layer texture="t_metal_paintedGlossy_white_a01_tile_nor" role="normal"/>
+      <layer texture="t_metal_paintedGlossy_white_a01_tile_orm" role="orm"/>
+    </material>
+    <material name="m_plastic_black_a01" rgba="1.0 1.0 1.0 1.0" reflectance="0.5" roughness="1.0" metallic="1.0">
+      <layer texture="t_plastic_glossy_white_a01_tile_alb" role="rgb"/>
+      <layer texture="t_plastic_glossy_white_a01_tile_nor" role="normal"/>
+      <layer texture="t_plastic_glossy_white_a01_tile_orm" role="orm"/>
+    </material>
+    <material name="m_metal_glossy_a02" rgba="1.0 1.0 1.0 1.0" reflectance="0.5" roughness="1.0" metallic="1.0" texuniform="true" texrepeat="2.0 2.0">
+      <layer texture="t_metal_glossy_a01_tile_alb" role="rgb"/>
+      <layer texture="t_metal_glossy_a01_tile_orm" role="orm"/>
+    </material>
+    <material name="m_metal_glossy_a01" rgba="1.0 1.0 1.0 1.0" reflectance="0.5" roughness="1.0" metallic="1.0" texuniform="true" texrepeat="2.0 2.0">
+      <layer texture="t_metal_glossy_a01_tile_alb" role="rgb"/>
+      <layer texture="t_metal_glossy_a01_tile_nor" role="normal"/>
+      <layer texture="t_metal_glossy_a01_tile_orm" role="orm"/>
+    </material>
+    <mesh name="drawer_a_000" file="drawer_a_000.obj"/>
+    <mesh name="drawer_a_001" file="drawer_a_001.obj"/>
+    <mesh name="drawer_a_002" file="drawer_a_002.obj"/>
+    <mesh name="drawer_a_003" file="drawer_a_003.obj"/>
+    <mesh name="drawer_b_000" file="drawer_b_000.obj"/>
+    <mesh name="drawer_b_001" file="drawer_b_001.obj"/>
+    <mesh name="drawer_b_002" file="drawer_b_002.obj"/>
+    <mesh name="drawer_b_003" file="drawer_b_003.obj"/>
+    <mesh name="table_surface" file="table_surface.obj"/>
+    <mesh name="door_handle" file="door_handle.obj"/>
+    <mesh name="table_shelf" file="table_shelf.obj"/>
+    <mesh name="drawer_rail" file="drawer_rail.obj"/>
+  </asset>
+  <worldbody>
+    <geom name="drawer_a_000" pos="0.4872005 0.8703362 0.3471529" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="drawer_a_000" material="m_plastic_white_a01" group="2"/>
+    <geom name="drawer_a_001" pos="0.4872005 0.8703362 0.3471529" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="drawer_a_001" material="m_metal_chrome_a01" group="2"/>
+    <geom name="drawer_a_002" pos="0.4872005 0.8703362 0.3471529" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="drawer_a_002" material="m_metal_white_a01" group="2"/>
+    <geom name="drawer_a_003" pos="0.4872005 0.8703362 0.3471529" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="drawer_a_003" material="m_plastic_black_a01" group="2"/>
+    <geom name="drawer_b_000" pos="0.2562021 0.8630574 0.6409199" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="drawer_b_000" material="m_plastic_white_a01" group="2"/>
+    <geom name="drawer_b_001" pos="0.2562021 0.8630574 0.6409199" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="drawer_b_001" material="m_metal_chrome_a01" group="2"/>
+    <geom name="drawer_b_002" pos="0.2562021 0.8630574 0.6409199" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="drawer_b_002" material="m_metal_white_a01" group="2"/>
+    <geom name="drawer_b_003" pos="0.2562021 0.8630574 0.6409199" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="drawer_b_003" material="m_plastic_black_a01" group="2"/>
+    <geom name="table_surface" pos="-0.0120504 -1.2e-06 0.6991988" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="table_surface" material="m_metal_glossy_a02" group="2"/>
+    <geom name="door_handle" pos="0.2277488 -0.9282426 0.3848079" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="door_handle" material="m_metal_chrome_a01" group="2"/>
+    <geom name="table_shelf" pos="-0.2612025 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="table_shelf" material="m_plastic_white_a01" group="2"/>
+    <geom name="drawer_rail" pos="-0.2612025 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="drawer_rail" material="m_metal_glossy_a01" group="2"/>
+  </worldbody>
+</mujoco>

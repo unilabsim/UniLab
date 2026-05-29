@@ -1,0 +1,207 @@
+<mujoco>
+  <compiler angle="radian" assetdir="assets"/>
+  <option timestep="0.02">
+    <flag/>
+  </option>
+  <statistic/>
+  <asset>
+    <texture type="2d" colorspace="linear" name="noise_normal" file="noise_normal.png"/>
+    <material name="black_plastic" rgba="0.0507087 0.0507087 0.0507087 1.0" reflectance="0.5" roughness="0.4" metallic="0.0" texuniform="true" texrepeat="12.0 12.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <material name="black_metal" rgba="0.220085 0.220813 0.2209164 1.0" reflectance="0.5" roughness="0.5" metallic="1.0" texuniform="true" texrepeat="16.0 16.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <material name="aluminum_rough" rgba="0.9621279 0.9653596 0.9658199 1.0" reflectance="0.5" roughness="0.54" metallic="1.0" texuniform="true" texrepeat="12.0 12.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <material name="gray_plastic" rgba="0.5969514 0.5983734 0.6262097 1.0" reflectance="0.5" roughness="0.4" metallic="0.0"/>
+    <material name="black_rubber" rgba="0.0507087 0.0507087 0.0507087 1.0" reflectance="0.5" roughness="0.7" metallic="0.0" texuniform="true" texrepeat="16.0 16.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <material name="template" rgba="0.9063318 0.9063318 0.9063318 1.0" reflectance="0.5" roughness="0.5" metallic="0.0"/>
+    <mesh name="base_0" file="base_0.obj"/>
+    <mesh name="base_1" file="base_1.obj"/>
+    <mesh name="base_2" file="base_2.obj"/>
+    <mesh name="base_3" file="base_3.obj"/>
+    <mesh name="base_4" file="base_4.obj"/>
+    <mesh name="hip_0" file="hip_0.obj"/>
+    <mesh name="hip_1" file="hip_1.obj"/>
+    <mesh name="thigh_0" file="thigh_0.obj"/>
+    <mesh name="thigh_1" file="thigh_1.obj"/>
+    <mesh name="thigh_mirror_0" file="thigh_mirror_0.obj"/>
+    <mesh name="thigh_mirror_1" file="thigh_mirror_1.obj"/>
+    <mesh name="wheel" file="wheel.obj"/>
+    <mesh name="calf" file="calf.obj"/>
+    <mesh name="calf_mirror" file="calf_mirror.obj"/>
+    <mesh name="wheel_001" file="wheel_001.obj"/>
+    <mesh name="wheel_convex" file="wheel_convex.stl"/>
+  </asset>
+  <worldbody>
+    <body name="base" pos="0.2998938 -0.0344606 0.6118738" quat="0.9419456 0.0269808 0.0834898 -0.3240989">
+      <inertial pos="0.021112 0.0 -0.005366" quat="0.000544 -0.7134351 0.0017372 -0.700719" mass="6.921" diaginertia="0.107027 0.0980771 0.0244531"/>
+      <joint name="JNT_Joint" pos="0.0 0.0 0.0" axis="-0.0 1.0 1e-07" type="free" armature="0.01" damping="0.5" frictionloss="0.2"/>
+      <geom name="base1" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 -0.0" type="box" size="0.1881 0.04675 0.057" material="template" group="3" condim="1" conaffinity="2" friction="0.6 0.005 0.0001" margin="0.001"/>
+      <geom name="base2" pos="0.285 0.0 0.01" quat="1.0 -0.0 0.0 -0.0" type="cylinder" size="0.05 0.045" material="template" group="3" condim="1" conaffinity="2" friction="0.6 0.005 0.0001" margin="0.001"/>
+      <geom name="base3" pos="0.293 0.0 -0.06" quat="1.0 -0.0 0.0 -0.0" type="sphere" size="0.047" material="template" group="3" condim="1" conaffinity="2" friction="0.6 0.005 0.0001" margin="0.001"/>
+      <geom name="base_0" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="base_0" material="black_plastic" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+      <geom name="base_1" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="base_1" material="black_metal" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+      <geom name="base_2" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="base_2" material="black_plastic" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+      <geom name="base_3" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="base_3" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+      <geom name="base_4" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="base_4" material="gray_plastic" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+      <site name="imu" pos="-0.02557 0.0 0.04232" quat="1.0 -0.0 0.0 -0.0" type="sphere" size="0.025"/>
+      <body name="FL_hip" pos="0.1934001 0.0465 -1e-07" quat="0.9999973 -0.0023455 0.0 -0.0">
+        <inertial pos="-0.0054 0.00194 -0.000105" quat="0.4970138 0.4992449 0.505462 0.498237" mass="0.678" diaginertia="0.000884 0.000596 0.00048"/>
+        <joint name="FL_hip_joint" pos="0.0 0.0 0.0" axis="1.0 -2e-07 -1e-07" type="hinge" range="-1.0472 1.0472" armature="0.01" damping="0.5" frictionloss="0.2"/>
+        <geom name="FL_hip_geom" pos="0.0 0.08 0.0" quat="0.7071068 0.7071068 0.0 -0.0" type="cylinder" size="0.046 0.02" material="template" group="3" condim="1" conaffinity="2" friction="0.6 0.005 0.0001" margin="0.001"/>
+        <geom name="hip_0" pos="0.0 -0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="hip_0" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+        <geom name="hip_1" pos="0.0 -0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="hip_1" material="gray_plastic" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+        <body name="FL_thigh" pos="0.0 0.0954999 -2e-07" quat="0.8880953 0.0 0.4596595 0.0">
+          <inertial pos="-0.00374 -0.0223 -0.0327" quat="0.8295329 0.0847635 -0.0200632 0.5516229" mass="1.152" diaginertia="0.0059497 0.0058415 0.0008788"/>
+          <joint name="FL_thigh_joint" pos="0.0 0.0 0.0" axis="0.0 1.0 0.0" type="hinge" range="-1.5707999 3.4907" armature="0.01" damping="0.5" frictionloss="0.2"/>
+          <geom name="FL_thigh_geom" pos="0.0 0.0 -0.1065" quat="0.7071068 -0.0 0.7071068 0.0" type="box" size="0.1065 0.01225 0.017" material="template" group="3" condim="1" conaffinity="2" friction="0.6 0.005 0.0001" margin="0.001"/>
+          <geom name="thigh_0" pos="0.0 -1e-07 1e-07" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="thigh_0" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+          <geom name="thigh_1" pos="0.0 -1e-07 1e-07" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="thigh_1" material="gray_plastic" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+          <body name="FL_calf" pos="1e-07 1e-07 -0.213" quat="0.776633 0.0 -0.6299533 0.0">
+            <inertial pos="0.006296 -0.0006221 -0.141417" quat="0.7106717 0.001541 -0.0045009 0.7035077" mass="0.241352" diaginertia="0.0014901 0.0014636 5.31e-05"/>
+            <joint name="FL_calf_joint" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-2.7227001 -0.83776" armature="0.01" damping="0.1" frictionloss="0.2"/>
+            <geom name="calf" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="calf" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.4 0.005 0.0001" margin="0.001"/>
+            <geom name="GEO_Cylinder_002" pos="0.008 0.0 -0.06" quat="0.9944927 -0.0 -0.104807 -0.0" type="cylinder" size="0.012 0.06" material="template" group="3" condim="1" friction="0.4 0.005 0.0001" margin="0.001"/>
+            <geom name="GEO_Cylinder_003" pos="0.02 0.0 -0.148" quat="0.9996875 -0.0 0.0249974 -0.0" type="cylinder" size="0.011 0.0325" material="template" group="3" condim="1" friction="0.4 0.005 0.0001" margin="0.001"/>
+            <body name="FL_wheel_link" pos="0.0 0.0 -0.2264" quat="1.0 -0.0 0.0 0.0">
+              <inertial pos="-0.0 0.04 -0.0" quat="0.6614189 0.248219 0.250051 0.6621079" mass="0.98" diaginertia="0.003 0.0016 0.0016"/>
+              <joint name="FL_wheel_joint" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" armature="0.01" damping="0.1" frictionloss="0.2"/>
+              <geom name="wheel" pos="1e-07 1e-07 0.0" quat="1e-07 -1.0 0.0 -0.0" type="mesh" mesh="wheel" material="black_rubber" group="2" condim="1" contype="0" conaffinity="0" friction="0.4 0.005 0.0001" margin="0.001"/>
+              <geom name="wheel_hub" pos="0.0 0.0 0.0" quat="0.0 -1.0 0.0 0.0" type="mesh" mesh="wheel_001" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.4 0.005 0.0001" margin="0.001"/>
+              <geom name="wheel_convex" pos="0.0 0.0 0.0" quat="0.0 -1.0 0.0 0.0" type="mesh" mesh="wheel_convex" group="3" condim="6" priority="1" friction="0.8 0.02 0.01" margin="0.001"/>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="FR_hip" pos="0.1934001 -0.0465 -0.0" quat="0.9999793 0.0064387 0.0 -0.0">
+        <inertial pos="-0.0054 -0.00194 -0.000105" quat="0.4982368 0.5054619 0.4992449 0.4970139" mass="0.678" diaginertia="0.000884 0.000596 0.00048"/>
+        <joint name="FR_hip_joint" pos="0.0 0.0 0.0" axis="1.0 -1e-07 -1e-07" type="hinge" range="-1.0472 1.0472" armature="0.01" damping="0.5" frictionloss="0.2"/>
+        <geom name="FR_hip_geom" pos="0.0 -0.08 0.0" quat="0.7071066 0.7071069 -0.0 0.0" type="cylinder" size="0.046 0.02" material="template" group="3" condim="1" conaffinity="2" friction="0.6 0.005 0.0001" margin="0.001"/>
+        <geom name="hip_0_001" pos="0.0 0.0 0.0" quat="4.63e-05 1.0 -0.0 0.0" type="mesh" mesh="hip_0" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+        <geom name="hip_1_001" pos="0.0 0.0 0.0" quat="4.63e-05 1.0 -0.0 0.0" type="mesh" mesh="hip_1" material="gray_plastic" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+        <body name="FR_thigh" pos="0.0 -0.0955001 3e-07" quat="0.9950206 0.0 0.0996701 -0.0">
+          <inertial pos="-0.00374 0.0223 -0.0327" quat="0.551623 -0.0200632 0.0847635 0.8295329" mass="1.152" diaginertia="0.0059497 0.0058415 0.0008788"/>
+          <joint name="FR_thigh_joint" pos="0.0 0.0 0.0" axis="-0.0 1.0 1e-07" type="hinge" range="-1.5707999 3.4907" armature="0.01" damping="0.5" frictionloss="0.2"/>
+          <geom name="FR_thigh_geom" pos="0.0 0.0 -0.1065" quat="0.7071068 0.0 0.7071068 0.0" type="box" size="0.1065 0.01225 0.017" material="template" group="3" condim="1" conaffinity="2" friction="0.6 0.005 0.0001" margin="0.001"/>
+          <geom name="thigh_mirror_0" pos="1e-07 -0.0 3e-07" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="thigh_mirror_0" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+          <geom name="thigh_mirror_1" pos="1e-07 -0.0 3e-07" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="thigh_mirror_1" material="gray_plastic" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+          <body name="FR_calf" pos="-1e-07 -1e-07 -0.2129999" quat="0.756881 0.0 -0.6535527 0.0">
+            <inertial pos="0.006296 0.0006221 -0.141417" quat="0.7035078 -0.0045009 0.001541 0.7106717" mass="0.241352" diaginertia="0.0014901 0.0014636 5.31e-05"/>
+            <joint name="FR_calf_joint" pos="0.0 0.0 0.0" axis="-0.0 1.0 1e-07" type="hinge" range="-2.7227001 -0.83776" armature="0.01" damping="0.1" frictionloss="0.2"/>
+            <geom name="calf_mirror" pos="0.0 0.0 0.0" quat="1.0 -0.0 -0.0 -0.0" type="mesh" mesh="calf_mirror" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.4 0.005 0.0001" margin="0.001"/>
+            <geom name="GEO_Cylinder_005" pos="0.01 0.0 -0.06" quat="0.9950042 0.0 -0.0998334 -0.0" type="cylinder" size="0.013 0.06" material="template" group="3" condim="1" friction="0.4 0.005 0.0001" margin="0.001"/>
+            <geom name="GEO_Cylinder_006" pos="0.02 0.0 -0.148" quat="0.9996875 -0.0 0.0249974 -0.0" type="cylinder" size="0.011 0.0325" material="template" group="3" condim="1" friction="0.4 0.005 0.0001" margin="0.001"/>
+            <body name="FR_wheel_link" pos="0.0 0.0 -0.2264" quat="1.0 -0.0 -0.0 -0.0">
+              <inertial pos="-0.0 -0.04 -0.0" quat="0.6614189 0.248219 0.250051 0.6621079" mass="0.98" diaginertia="0.003 0.0016 0.0016"/>
+              <joint name="FR_wheel_joint" pos="0.0 0.0 0.0" axis="-0.0 1.0 1e-07" type="hinge" armature="0.01" damping="0.1" frictionloss="0.2"/>
+              <geom name="wheel_001" pos="0.0 0.0 0.0" quat="1.0 -0.0 -0.0 -0.0" type="mesh" mesh="wheel" material="black_rubber" group="2" condim="1" contype="0" conaffinity="0" friction="0.4 0.005 0.0001" margin="0.001"/>
+              <geom name="wheel_hub_001" pos="0.0 0.0 0.0" quat="1.0 -0.0 -0.0 -0.0" type="mesh" mesh="wheel_001" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.4 0.005 0.0001" margin="0.001"/>
+              <geom name="wheel_convex_001" pos="-1e-07 -0.0 -1e-07" quat="1.0 -0.0 -0.0 0.0" type="mesh" mesh="wheel_convex" group="3" condim="6" priority="1" friction="0.8 0.02 0.01" margin="0.001"/>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="RL_hip" pos="-0.1934001 0.0465 -2e-07" quat="0.9999968 0.0025262 0.0 -1e-07">
+        <inertial pos="0.0054 0.00194 -0.000105" quat="0.5054619 0.4982368 0.4970139 0.4992448" mass="0.678" diaginertia="0.000884 0.000596 0.00048"/>
+        <joint name="RL_hip_joint" pos="0.0 0.0 0.0" axis="1.0 -1e-07 -1e-07" type="hinge" range="-1.0472 1.0472" armature="0.01" damping="0.5" frictionloss="0.2"/>
+        <geom name="hip_0_002" pos="0.0 0.0 0.0" quat="4.63e-05 -0.0 1.0 -0.0" type="mesh" mesh="hip_0" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+        <geom name="hip_1_002" pos="0.0 0.0 0.0" quat="4.63e-05 -0.0 1.0 -0.0" type="mesh" mesh="hip_1" material="gray_plastic" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+        <geom name="RL_hip_geom" pos="0.0 0.08 0.0" quat="0.7071066 0.7071069 0.0 0.0" type="cylinder" size="0.046 0.02" material="template" group="3" condim="1" conaffinity="2" friction="0.6 0.005 0.0001" margin="0.001"/>
+        <body name="RL_thigh" pos="-0.0 0.0955 2e-07" quat="0.7915581 -1e-07 0.6110939 0.0">
+          <inertial pos="-0.00374 -0.0223 -0.0327" quat="0.8295329 0.0847635 -0.0200632 0.551623" mass="1.152" diaginertia="0.0059497 0.0058415 0.0008788"/>
+          <joint name="RL_thigh_joint" pos="0.0 0.0 0.0" axis="-0.0 1.0 1e-07" type="hinge" range="-0.5236 4.5379" armature="0.01" damping="0.5" frictionloss="0.2"/>
+          <geom name="RL_thigh_geom" pos="0.0 0.0 -0.1065" quat="0.7071068 0.0 0.7071068 -0.0" type="box" size="0.1065 0.01225 0.017" material="template" group="3" condim="1" conaffinity="2" friction="0.6 0.005 0.0001" margin="0.001"/>
+          <geom name="thigh_0_001" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="thigh_0" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+          <geom name="thigh_1_001" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="thigh_1" material="gray_plastic" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+          <body name="RL_calf" pos="2e-07 -1e-07 -0.213" quat="0.9089683 0.0 -0.4168651 0.0">
+            <inertial pos="0.006296 -0.0006221 -0.141417" quat="0.7106718 0.001541 -0.0045009 0.7035077" mass="0.241352" diaginertia="0.0014901 0.0014636 5.31e-05"/>
+            <joint name="RL_calf_joint" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-2.7227001 -0.83776" armature="0.01" damping="0.1" frictionloss="0.2"/>
+            <geom name="calf_001" pos="-1e-07 1e-07 0.0" quat="1.0 0.0 -1e-07 -0.0" type="mesh" mesh="calf" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.4 0.005 0.0001" margin="0.001"/>
+            <geom name="GEO_Cylinder_008" pos="0.01 0.0 -0.06" quat="0.9950042 -0.0 -0.0998334 -0.0" type="cylinder" size="0.013 0.06" material="template" group="3" condim="1" friction="0.4 0.005 0.0001" margin="0.001"/>
+            <geom name="GEO_Cylinder_009" pos="0.02 0.0 -0.148" quat="0.9996875 0.0 0.0249973 -0.0" type="cylinder" size="0.011 0.0325" material="template" group="3" condim="1" friction="0.4 0.005 0.0001" margin="0.001"/>
+            <body name="RL_wheel_link" pos="0.0 0.0 -0.2264" quat="1.0 0.0 -0.0 -0.0">
+              <inertial pos="-0.0 0.04 -0.0" quat="0.6614189 0.2482189 0.2500509 0.6621079" mass="0.98" diaginertia="0.003 0.0016 0.0016"/>
+              <joint name="RL_wheel_joint" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" armature="0.01" damping="0.1" frictionloss="0.2"/>
+              <geom name="wheel_002" pos="0.0 0.0 0.0" quat="1e-07 -1.0 0.0 -0.0" type="mesh" mesh="wheel" material="black_rubber" group="2" condim="1" contype="0" conaffinity="0" friction="0.4 0.005 0.0001" margin="0.001"/>
+              <geom name="wheel_hub_002" pos="0.0 0.0 0.0" quat="1e-07 -1.0 0.0 -0.0" type="mesh" mesh="wheel_001" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.4 0.005 0.0001" margin="0.001"/>
+              <geom name="wheel_convex_002" pos="0.0 0.0 0.0" quat="1e-07 -1.0 0.0 -0.0" type="mesh" mesh="wheel_convex" group="3" condim="6" priority="1" friction="0.8 0.02 0.01" margin="0.001"/>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="RR_hip" pos="-0.1933999 -0.0464999 -0.0" quat="0.9999985 0.0017485 0.0 0.0">
+        <inertial pos="0.0054 -0.00194 -0.000105" quat="0.4992447 0.4970138 0.498237 0.5054619" mass="0.678" diaginertia="0.000884 0.000596 0.00048"/>
+        <joint name="RR_hip_joint" pos="0.0 0.0 0.0" axis="1.0 -1e-07 -1e-07" type="hinge" range="-1.0472 1.0472" armature="0.01" damping="0.5" frictionloss="0.2"/>
+        <geom name="hip_0_003" pos="0.0 0.0 0.0" quat="0.0 4.63e-05 4.63e-05 -1.0" type="mesh" mesh="hip_0" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+        <geom name="hip_1_003" pos="0.0 0.0 0.0" quat="0.0 4.63e-05 4.63e-05 -1.0" type="mesh" mesh="hip_1" material="gray_plastic" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+        <geom name="RR_hip_geom" pos="0.0 -0.08 0.0" quat="0.7071066 0.7071069 0.0 0.0" type="cylinder" size="0.046 0.02" material="template" group="3" condim="1" conaffinity="2" friction="0.6 0.005 0.0001" margin="0.001"/>
+        <body name="RR_thigh" pos="-0.0 -0.0955 0.0" quat="0.8615213 -0.0 0.5077214 0.0">
+          <inertial pos="-0.00374 0.0223 -0.0327" quat="0.5516229 -0.0200632 0.0847635 0.8295329" mass="1.152" diaginertia="0.0059497 0.0058415 0.0008788"/>
+          <joint name="RR_thigh_joint" pos="0.0 0.0 0.0" axis="-0.0 1.0 0.0" type="hinge" range="-0.5236 4.5379" armature="0.01" damping="0.5" frictionloss="0.2"/>
+          <geom name="RR_thigh_geom" pos="0.0 0.0 -0.1065" quat="0.7071068 0.0 0.7071068 0.0" type="box" size="0.1065 0.01225 0.017" material="template" group="3" condim="1" conaffinity="2" friction="0.6 0.005 0.0001" margin="0.001"/>
+          <geom name="thigh_mirror_0_001" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="thigh_mirror_0" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+          <geom name="thigh_mirror_1_001" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="thigh_mirror_1" material="gray_plastic" group="2" condim="1" contype="0" conaffinity="0" friction="0.6 0.005 0.0001" margin="0.001"/>
+          <body name="RR_calf" pos="1e-07 -1e-07 -0.2130001" quat="0.4549958 0.0 -0.8904936 -0.0">
+            <inertial pos="0.006296 0.0006221 -0.141417" quat="0.7035078 -0.0045009 0.001541 0.7106717" mass="0.241352" diaginertia="0.0014901 0.0014636 5.31e-05"/>
+            <joint name="RR_calf_joint" pos="0.0 0.0 0.0" axis="-0.0 1.0 1e-07" type="hinge" range="-2.7227001 -0.83776" armature="0.01" damping="0.1" frictionloss="0.2"/>
+            <geom name="calf_mirror_001" pos="-2e-07 0.0 0.0" quat="1.0 -0.0 -0.0 -0.0" type="mesh" mesh="calf_mirror" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.4 0.005 0.0001" margin="0.001"/>
+            <geom name="GEO_Cylinder_011" pos="0.01 0.0 -0.06" quat="0.9950042 -0.0 -0.0998334 -0.0" type="cylinder" size="0.013 0.06" material="template" group="3" condim="1" friction="0.4 0.005 0.0001" margin="0.001"/>
+            <geom name="GEO_Cylinder_012" pos="0.02 0.0 -0.148" quat="0.9996875 0.0 0.0249974 -0.0" type="cylinder" size="0.011 0.0325" material="template" group="3" condim="1" friction="0.4 0.005 0.0001" margin="0.001"/>
+            <body name="RR_wheel_link" pos="0.0 0.0 -0.2264" quat="1.0 0.0 0.0 -0.0">
+              <inertial pos="-0.0 -0.04 -0.0" quat="0.6614188 0.248219 0.250051 0.662108" mass="0.98" diaginertia="0.003 0.0016 0.0016"/>
+              <joint name="RR_wheel_joint" pos="0.0 0.0 0.0" axis="-0.0 1.0 1e-07" type="hinge" armature="0.01" damping="0.1" frictionloss="0.2"/>
+              <geom name="wheel_003" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="wheel" material="black_rubber" group="2" condim="1" contype="0" conaffinity="0" friction="0.4 0.005 0.0001" margin="0.001"/>
+              <geom name="wheel_hub_003" pos="-1e-07 -0.0 1e-07" quat="1.0 -0.0 -0.0 -0.0" type="mesh" mesh="wheel_001" material="aluminum_rough" group="2" condim="1" contype="0" conaffinity="0" friction="0.4 0.005 0.0001" margin="0.001"/>
+              <geom name="wheel_convex_003" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="wheel_convex" group="3" condim="6" priority="1" friction="0.8 0.02 0.01" margin="0.001"/>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <position name="FR_hip_001" joint="FR_hip_joint" forcerange="-23.7000008 23.7000008" kp="35.0"/>
+    <position name="FR_thigh_001" joint="FR_thigh_joint" forcerange="-23.7000008 23.7000008" kp="35.0"/>
+    <position name="FL_hip_001" joint="FL_hip_joint" forcerange="-23.7000008 23.7000008" kp="35.0"/>
+    <position name="FL_thigh_001" joint="FL_thigh_joint" forcerange="-23.7000008 23.7000008" kp="35.0"/>
+    <position name="RR_hip_001" joint="RR_hip_joint" forcerange="-23.7000008 23.7000008" kp="35.0"/>
+    <position name="RR_thigh_001" joint="RR_thigh_joint" forcerange="-23.7000008 23.7000008" kp="35.0"/>
+    <position name="RL_hip_001" joint="RL_hip_joint" forcerange="-23.7000008 23.7000008" kp="35.0"/>
+    <position name="RL_thigh_001" joint="RL_thigh_joint" forcerange="-23.7000008 23.7000008" kp="35.0"/>
+    <motor name="RL_calf_001" joint="RL_calf_joint" ctrlrange="-45.4300003 45.4300003"/>
+    <motor name="RR_calf_001" joint="RR_calf_joint" ctrlrange="-45.4300003 45.4300003"/>
+    <motor name="RR_wheel" joint="RR_wheel_joint" ctrlrange="-15.0 15.0"/>
+    <motor name="FL_wheel" joint="FL_wheel_joint" ctrlrange="-15.0 15.0"/>
+    <motor name="FR_wheel" joint="FR_wheel_joint" ctrlrange="-15.0 15.0"/>
+    <motor name="FL_calf_001" joint="FL_calf_joint" ctrlrange="-45.4300003 45.4300003"/>
+    <motor name="FR_calf_001" joint="FR_calf_joint" ctrlrange="-45.4300003 45.4300003"/>
+    <motor name="RL_wheel" joint="RL_wheel_joint" ctrlrange="-15.0 15.0"/>
+  </actuator>
+  <sensor>
+    <accelerometer name="local_linvel" site="imu"/>
+    <framexaxis name="upvector" objtype="site" objname="imu"/>
+    <velocimeter name="global_position" site="imu"/>
+    <frameyaxis name="global_linvel" objtype="site" objname="imu"/>
+    <jointpos name="RL_calf_pos" joint="RL_calf_joint"/>
+    <jointvel name="RL_wheel_vel" joint="RL_wheel_joint"/>
+    <jointpos name="RR_wheel_pos" joint="RR_wheel_joint"/>
+    <jointpos name="FR_calf_pos" joint="FR_calf_joint"/>
+    <jointpos name="RR_calf_pos" joint="RR_calf_joint"/>
+    <jointpos name="FL_wheel_pos" joint="FL_wheel_joint"/>
+    <jointvel name="RL_calf_vel" joint="RL_calf_joint"/>
+    <jointvel name="FL_calf_vel" joint="FL_calf_joint"/>
+    <jointpos name="FR_wheel_pos" joint="FR_wheel_joint"/>
+    <jointpos name="FL_calf_pos" joint="FL_calf_joint"/>
+    <jointvel name="RR_calf_vel" joint="RR_calf_joint"/>
+    <jointvel name="FR_wheel_vel" joint="FR_wheel_joint"/>
+    <jointpos name="RL_wheel_pos" joint="RL_wheel_joint"/>
+    <jointvel name="RR_wheel_vel" joint="RR_wheel_joint"/>
+    <jointvel name="FR_calf_vel" joint="FR_calf_joint"/>
+    <jointvel name="FL_wheel_vel" joint="FL_wheel_joint"/>
+  </sensor>
+</mujoco>

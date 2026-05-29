@@ -1,0 +1,634 @@
+<mujoco>
+  <compiler angle="radian" assetdir="assets"/>
+  <option timestep="0.0066667">
+    <flag/>
+  </option>
+  <statistic/>
+  <asset>
+    <texture type="2d" colorspace="linear" name="noise_normal" file="noise_normal.png"/>
+    <material name="black_metal" rgba="0.220085 0.220813 0.2209164 1.0" reflectance="0.5" roughness="0.5" metallic="1.0" texuniform="true" texrepeat="16.0 16.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <material name="aluminum_rough" rgba="0.9621279 0.9653596 0.9658199 1.0" reflectance="0.5" roughness="0.54" metallic="1.0" texuniform="true" texrepeat="12.0 12.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <material name="black_plastic" rgba="0.0507087 0.0507087 0.0507087 1.0" reflectance="0.5" roughness="0.4" metallic="0.0" texuniform="true" texrepeat="12.0 12.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <material name="gray_plastic" rgba="0.5969514 0.5983734 0.6262097 1.0" reflectance="0.5" roughness="0.4" metallic="0.0"/>
+    <material name="black_rubber" rgba="0.0507087 0.0507087 0.0507087 1.0" reflectance="0.5" roughness="0.7318181" metallic="0.0" texuniform="true" texrepeat="16.0 16.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <material name="template" rgba="0.9063318 0.9063318 0.9063318 1.0" reflectance="0.5" roughness="0.5" metallic="0.0"/>
+    <mesh name="pelvis" file="pelvis.obj"/>
+    <mesh name="pelvis_contour_link" file="pelvis_contour_link.obj"/>
+    <mesh name="left_hip_pitch_link" file="left_hip_pitch_link.obj"/>
+    <mesh name="left_hip_roll_link_001" file="left_hip_roll_link_001.obj"/>
+    <mesh name="left_hip_yaw_link" file="left_hip_yaw_link.obj"/>
+    <mesh name="left_knee_link_002" file="left_knee_link_002.obj"/>
+    <mesh name="left_ankle_pitch_link" file="left_ankle_pitch_link.obj"/>
+    <mesh name="left_ankle_roll_link" file="left_ankle_roll_link.obj"/>
+    <mesh name="right_hip_pitch_link" file="right_hip_pitch_link.obj"/>
+    <mesh name="right_hip_roll_link_001" file="right_hip_roll_link_001.obj"/>
+    <mesh name="right_hip_yaw_link" file="right_hip_yaw_link.obj"/>
+    <mesh name="right_knee_link_002" file="right_knee_link_002.obj"/>
+    <mesh name="right_ankle_pitch_link" file="right_ankle_pitch_link.obj"/>
+    <mesh name="right_ankle_roll_link" file="right_ankle_roll_link.obj"/>
+    <mesh name="waist_yaw_link" file="waist_yaw_link.obj"/>
+    <mesh name="waist_roll_link" file="waist_roll_link.obj"/>
+    <mesh name="torso_link_001" file="torso_link_001.obj"/>
+    <mesh name="logo_link" file="logo_link.obj"/>
+    <mesh name="head_link_001" file="head_link_001.obj"/>
+    <mesh name="left_shoulder_pitch_link" file="left_shoulder_pitch_link.obj"/>
+    <mesh name="left_shoulder_roll_link" file="left_shoulder_roll_link.obj"/>
+    <mesh name="left_shoulder_yaw_link" file="left_shoulder_yaw_link.obj"/>
+    <mesh name="left_elbow_link" file="left_elbow_link.obj"/>
+    <mesh name="left_wrist_roll_link" file="left_wrist_roll_link.obj"/>
+    <mesh name="left_wrist_pitch_link" file="left_wrist_pitch_link.obj"/>
+    <mesh name="left_wrist_yaw_link" file="left_wrist_yaw_link.obj"/>
+    <mesh name="right_shoulder_pitch_link" file="right_shoulder_pitch_link.obj"/>
+    <mesh name="right_shoulder_roll_link" file="right_shoulder_roll_link.obj"/>
+    <mesh name="right_shoulder_yaw_link" file="right_shoulder_yaw_link.obj"/>
+    <mesh name="right_elbow_link" file="right_elbow_link.obj"/>
+    <mesh name="right_wrist_roll_link" file="right_wrist_roll_link.obj"/>
+    <mesh name="right_wrist_pitch_link" file="right_wrist_pitch_link.obj"/>
+    <mesh name="right_wrist_yaw_link" file="right_wrist_yaw_link.obj"/>
+    <mesh name="torso_link_002" file="torso_link_002.obj"/>
+    <mesh name="torso_link_003" file="torso_link_003.obj"/>
+    <mesh name="right_shoulder_yaw_link_001" file="right_shoulder_yaw_link_001.obj"/>
+    <mesh name="left_shoulder_yaw_link_001" file="left_shoulder_yaw_link_001.obj"/>
+    <mesh name="right_elbow_link_001" file="right_elbow_link_001.obj"/>
+    <mesh name="left_elbow_link_001" file="left_elbow_link_001.obj"/>
+    <mesh name="right_hip_roll_link_002" file="right_hip_roll_link_002.obj"/>
+    <mesh name="left_hip_roll_link_002" file="left_hip_roll_link_002.obj"/>
+    <mesh name="left_hip_yaw_link_001" file="left_hip_yaw_link_001.obj"/>
+    <mesh name="right_hip_yaw_link_001" file="right_hip_yaw_link_001.obj"/>
+    <mesh name="right_knee_link_001" file="right_knee_link_001.obj"/>
+    <mesh name="left_knee_link_001" file="left_knee_link_001.obj"/>
+    <mesh name="right_ankle_roll_link_001" file="right_ankle_roll_link_001.obj"/>
+    <mesh name="left_ankle_roll_link_001" file="left_ankle_roll_link_001.obj"/>
+    <mesh name="right_DP_visual" file="right_DP_visual.obj"/>
+    <mesh name="right_MP_visual" file="right_MP_visual.obj"/>
+    <mesh name="right_thumb_DP_visual" file="right_thumb_DP_visual.obj"/>
+    <mesh name="right_PP_visual" file="right_PP_visual.obj"/>
+    <mesh name="right_pinky_MC_visual" file="right_pinky_MC_visual.obj"/>
+    <mesh name="right_thumb_MC_visual" file="right_thumb_MC_visual.obj"/>
+    <mesh name="right_hand_C_MC_visual" file="right_hand_C_MC_visual.obj"/>
+    <mesh name="elastomer" file="elastomer.obj"/>
+    <mesh name="thumb_elastomer" file="thumb_elastomer.obj"/>
+    <mesh name="right_MCP_VL_visual" file="right_MCP_VL_visual.obj"/>
+    <mesh name="r_elastomer" file="r_elastomer.obj"/>
+    <mesh name="right_thumb_CMC_VL_visual" file="right_thumb_CMC_VL_visual.obj"/>
+    <mesh name="right_thumb_PP_visual" file="right_thumb_PP_visual.obj"/>
+    <mesh name="right_thumb_MCP_VL_visual" file="right_thumb_MCP_VL_visual.obj"/>
+    <mesh name="wrist" file="wrist.obj"/>
+    <mesh name="left_thumb_MC_visual" file="left_thumb_MC_visual.obj"/>
+    <mesh name="left_thumb_CMC_VL_visual" file="left_thumb_CMC_VL_visual.obj"/>
+    <mesh name="left_MCP_VL_visual" file="left_MCP_VL_visual.obj"/>
+    <mesh name="left_DP_visual" file="left_DP_visual.obj"/>
+    <mesh name="elastomer_001" file="elastomer_001.obj"/>
+    <mesh name="thumb_elastomer_001" file="thumb_elastomer_001.obj"/>
+    <mesh name="left_thumb_DP_visual" file="left_thumb_DP_visual.obj"/>
+    <mesh name="left_MP_visual" file="left_MP_visual.obj"/>
+    <mesh name="left_PP_visual" file="left_PP_visual.obj"/>
+    <mesh name="wrist_001" file="wrist_001.obj"/>
+    <mesh name="left_hand_C_MC_visual" file="left_hand_C_MC_visual.obj"/>
+    <mesh name="left_thumb_MCP_VL_visual" file="left_thumb_MCP_VL_visual.obj"/>
+    <mesh name="left_thumb_PP_visual" file="left_thumb_PP_visual.obj"/>
+    <mesh name="left_pinky_MC_visual" file="left_pinky_MC_visual.obj"/>
+    <mesh name="r_elastomer_001" file="r_elastomer_001.stl"/>
+    <mesh name="MCP_VL" file="MCP_VL.stl"/>
+    <mesh name="right_DP" file="right_DP.stl"/>
+    <mesh name="right_hand_C_MC" file="right_hand_C_MC.stl"/>
+    <mesh name="wrist_collision" file="wrist_collision.stl"/>
+    <mesh name="thumb_elastomer_001_001" file="thumb_elastomer_001_001.stl"/>
+    <mesh name="right_thumb_MC" file="right_thumb_MC.stl"/>
+    <mesh name="right_pinky_MC" file="right_pinky_MC.stl"/>
+    <mesh name="right_MP" file="right_MP.stl"/>
+    <mesh name="right_PP" file="right_PP.stl"/>
+    <mesh name="right_thumb_DP" file="right_thumb_DP.stl"/>
+    <mesh name="right_thumb_PP" file="right_thumb_PP.stl"/>
+    <mesh name="left_thumb_PP" file="left_thumb_PP.stl"/>
+    <mesh name="MCP_VL_001" file="MCP_VL_001.stl"/>
+    <mesh name="left_DP" file="left_DP.stl"/>
+    <mesh name="l_elastomer" file="l_elastomer.stl"/>
+    <mesh name="left_MP" file="left_MP.stl"/>
+    <mesh name="left_thumb_MC" file="left_thumb_MC.stl"/>
+    <mesh name="left_hand_C_MC" file="left_hand_C_MC.stl"/>
+    <mesh name="left_PP" file="left_PP.stl"/>
+    <mesh name="wrist_collision_001" file="wrist_collision_001.stl"/>
+    <mesh name="left_pinky_MC" file="left_pinky_MC.stl"/>
+    <mesh name="left_thumb_DP" file="left_thumb_DP.stl"/>
+    <mesh name="l_thumb_elastomer" file="l_thumb_elastomer.stl"/>
+  </asset>
+  <worldbody>
+    <body name="pelvis" pos="-0.0166258 0.0575539 0.7355765" quat="0.9933253 -0.091102 -0.0064615 -0.0704525">
+      <inertial pos="0.0 0.0 -0.07605" quat="0.9999999 0.0 -0.0003991 -0.0" mass="3.813" diaginertia="0.010549 0.0093089 0.0079184"/>
+      <joint name="floating_base_joint" pos="0.0 0.0 0.0" axis="-0.0 0.0 1.0" type="free" armature="0.01" frictionloss="0.3"/>
+      <geom name="pelvis_001" pos="0.0 0.0 -0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="pelvis" material="black_metal" group="2" contype="0" conaffinity="0" density="0.0"/>
+      <geom name="pelvis_collision" pos="0.0 0.0 -0.08" quat="1.0 0.0 -0.0 -0.0" type="sphere" size="0.07" material="template" group="3"/>
+      <geom name="pelvis_contour_link" pos="0.0 0.0 -0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="pelvis_contour_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+      <site name="imu_in_pelvis" pos="0.04525 0.0 -0.08339" quat="1.0 0.0 -0.0 -0.0" type="sphere" size="0.01" group="5"/>
+      <body name="left_hip_pitch_link" pos="0.0 0.064452 -0.1026997" quat="0.9855858 0.0 -0.1691762 0.0">
+        <inertial pos="0.002741 0.047791 -0.02606" quat="0.9548625 0.2939642 0.0302556 0.030122" mass="1.35" diaginertia="0.0018152 0.0015342 0.0011621"/>
+        <joint name="left_hip_pitch_joint" pos="0.0 0.0 0.0" axis="-0.0 1.0 1e-07" type="hinge" range="-2.5307 2.8798001" armature="0.01" frictionloss="0.3"/>
+        <geom name="left_hip_pitch_link_001" pos="-0.0 -1e-07 -1e-07" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="left_hip_pitch_link" material="black_metal" group="2" contype="0" conaffinity="0" density="0.0"/>
+        <body name="left_hip_roll_link" pos="-0.0 0.052 -0.030465" quat="0.9835458 0.1581443 -0.0862307 0.013865">
+          <inertial pos="0.029812 -0.001045 -0.087934" quat="0.9778078 -1.97e-05 0.205576 -0.0403793" mass="1.52" diaginertia="0.0025499 0.0024117 0.0014875"/>
+          <joint name="left_hip_roll_joint" pos="0.0 0.0 0.0" axis="1.0 -1e-07 -1e-07" type="hinge" range="-0.5236 2.9670999" armature="0.01" frictionloss="0.3"/>
+          <geom name="left_hip_collision" pos="0.02 0.0 -0.04" quat="0.0 -0.0 -0.0 -1.0" type="capsule" size="0.06 0.04" material="template" group="3"/>
+          <geom name="left_hip_roll_link_001" pos="-1e-07 -0.0 -0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="left_hip_roll_link_001" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+          <geom name="left_hip_roll_link_002" pos="-1e-07 -0.0 -0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="left_hip_roll_link_002" material="black_metal" group="2" contype="0" conaffinity="0" density="0.0"/>
+          <body name="left_hip_yaw_link" pos="0.025001 0.0 -0.1241201" quat="0.9754025 -0.0 0.0 0.2204314">
+            <inertial pos="-0.057709 -0.010981 -0.15078" quat="0.600598 0.15832 0.223482 0.7511809" mass="1.702" diaginertia="0.0077617 0.0071758 0.0016014"/>
+            <joint name="left_hip_yaw_joint" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-2.7576001 2.7576001" armature="0.01" frictionloss="0.3"/>
+            <geom name="left_hip_yaw_link_001" pos="-3e-07 -0.0 2e-07" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="left_hip_yaw_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+            <geom name="left_hip_yaw_link_002" pos="-3e-07 -0.0 2e-07" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="left_hip_yaw_link_001" material="black_metal" group="2" contype="0" conaffinity="0" density="0.0"/>
+            <geom name="left_thigh_collision" pos="-0.03 0.0 -0.1" quat="0.0 -0.2010659 -0.0 -0.9795777" type="capsule" size="0.055 0.0761577" material="template" group="3"/>
+            <body name="left_knee_link" pos="-0.078273 0.0021489 -0.1773399" quat="0.8507696 0.0 0.5255389 -0.0">
+              <inertial pos="0.005457 0.003964 -0.12074" quat="0.9234179 -0.0327699 0.0158246 0.382067" mass="1.932" diaginertia="0.0113804 0.0112778 0.0014646"/>
+              <joint name="left_knee_joint" pos="0.0 0.0 0.0" axis="-0.0 1.0 1e-07" type="hinge" range="-0.087267 2.8798001" armature="0.01" frictionloss="0.3"/>
+              <geom name="left_knee_link_001" pos="-0.0 0.0 -1e-07" quat="1.0 0.0 -0.0 -0.0" type="mesh" mesh="left_knee_link_002" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+              <geom name="left_knee_link_001_001" pos="-0.0 0.0 -1e-07" quat="1.0 0.0 -0.0 -0.0" type="mesh" mesh="left_knee_link_001" material="black_metal" group="2" contype="0" conaffinity="0" density="0.0"/>
+              <geom name="left_linkage_brace_collision" pos="0.01 0.0 -0.24" quat="0.0 0.0 0.0 -1.0" type="capsule" size="0.03 0.04" material="template" group="3"/>
+              <geom name="left_shin_collision" pos="0.01 0.0 -0.075" quat="0.0 0.0 0.0 -1.0" type="capsule" size="0.045 0.075" material="template" group="3"/>
+              <body name="left_ankle_pitch_link" pos="-0.0 -9.44e-05 -0.30001" quat="0.9570674 -0.0 -0.2898656 -0.0">
+                <inertial pos="-0.007269 0.0 0.011137" quat="0.603053 0.369225 0.369225 0.603053" mass="0.074" diaginertia="1.89e-05 1.41e-05 6.9e-06"/>
+                <joint name="left_ankle_pitch_joint" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-0.87267 0.5236" armature="0.01" frictionloss="0.3"/>
+                <geom name="left_ankle_pitch_link_001" pos="0.0 0.0 -0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="left_ankle_pitch_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+                <body name="left_ankle_roll_link" pos="0.0 -0.0 -0.017558" quat="0.998336 0.0576662 -0.0 -0.0">
+                  <inertial pos="0.026505 0.0 -0.016425" quat="0.000481 -0.7284818 0.000619 -0.6850647" mass="0.608" diaginertia="0.0016722 0.0016161 0.0002176"/>
+                  <joint name="left_ankle_roll_joint" pos="0.0 0.0 0.0" axis="1.0 -1e-07 -1e-07" type="hinge" range="-0.2618 0.2618" armature="0.01" frictionloss="0.3"/>
+                  <geom name="left_ankle_roll_link_001" pos="0.0 0.0 -0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="left_ankle_roll_link" material="black_plastic" group="2" contype="0" conaffinity="0" density="0.0"/>
+                  <geom name="left_ankle_roll_link_001_001" pos="0.0 0.0 -0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="left_ankle_roll_link_001" material="black_rubber" group="2" contype="0" conaffinity="0" density="0.0"/>
+                  <geom name="left_foot1_collision" pos="0.075 -0.0265 -0.025" quat="0.00707 -0.7070715 -0.00707 -0.7070714" type="capsule" size="0.01 0.025005" material="template" group="3" friction="0.6 0.005 0.0001"/>
+                  <geom name="left_foot2_collision" pos="0.0395 -0.018 -0.025" quat="0.0 0.7071068 0.0 -0.7071068" type="capsule" size="0.01 0.0835" material="template" group="3" friction="0.6 0.005 0.0001"/>
+                  <geom name="left_foot3_collision" pos="0.039 -0.01 -0.025" quat="0.0 0.7071068 0.0 -0.7071068" type="capsule" size="0.01 0.091" material="template" group="3" friction="0.6 0.005 0.0001"/>
+                  <geom name="left_foot4_collision" pos="0.039 0.0 -0.025" quat="0.0 0.7071068 0.0 -0.7071068" type="capsule" size="0.01 0.093" material="template" group="3" friction="0.6 0.005 0.0001"/>
+                  <geom name="left_foot5_collision" pos="0.039 0.01 -0.025" quat="0.0 0.7071068 0.0 -0.7071068" type="capsule" size="0.01 0.091" material="template" group="3" friction="0.6 0.005 0.0001"/>
+                  <geom name="left_foot6_collision" pos="0.0395 0.018 -0.025" quat="0.0 0.7071068 0.0 -0.7071068" type="capsule" size="0.01 0.0835" material="template" group="3" friction="0.6 0.005 0.0001"/>
+                  <geom name="left_foot7_collision" pos="0.075 0.026 -0.025" quat="0.0 0.7071068 -0.0 0.7071068" type="capsule" size="0.01 0.025" material="template" group="3" friction="0.6 0.005 0.0001"/>
+                  <geom name="left_foot_contact_0_geom" pos="-0.05 0.025 -0.03" quat="1.0 -0.0 0.0 -0.0" type="sphere" size="0.005" material="template" group="3" priority="1" friction="0.6 0.005 0.0001"/>
+                  <geom name="left_foot_contact_1_geom" pos="-0.05 -0.025 -0.03" quat="1.0 -0.0 0.0 -0.0" type="sphere" size="0.005" material="template" group="3" priority="1" friction="0.6 0.005 0.0001"/>
+                  <geom name="left_foot_contact_2_geom" pos="0.12 0.03 -0.03" quat="1.0 -0.0 0.0 -0.0" type="sphere" size="0.005" material="template" group="3" priority="1" friction="0.6 0.005 0.0001"/>
+                  <geom name="left_foot_contact_3_geom" pos="0.12 -0.03 -0.03" quat="1.0 -0.0 0.0 -0.0" type="sphere" size="0.005" material="template" group="3" priority="1" friction="0.6 0.005 0.0001"/>
+                  <site name="left_foot" pos="0.04 0.0 -0.037" quat="1.0 -0.0 0.0 -0.0" type="sphere" size="0.025" group="5"/>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="right_hip_pitch_link" pos="-0.0 -0.064452 -0.1027" quat="0.9701978 0.0 -0.2423143 -0.0">
+        <inertial pos="0.002741 -0.047791 -0.02606" quat="0.9548625 -0.2939641 0.0302556 -0.030122" mass="1.35" diaginertia="0.0018152 0.0015342 0.0011621"/>
+        <joint name="right_hip_pitch_joint" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-2.5307 2.8798001" armature="0.01" frictionloss="0.3"/>
+        <geom name="right_hip_pitch_link_001" pos="-2e-07 0.0 -4e-07" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="right_hip_pitch_link" material="black_metal" group="2" contype="0" conaffinity="0" density="0.0"/>
+        <body name="right_hip_roll_link" pos="-0.0 -0.052 -0.0304653" quat="0.9934018 -0.0743292 -0.0870952 -0.0065167">
+          <inertial pos="0.029812 0.001045 -0.087934" quat="0.9778078 1.97e-05 0.205576 0.0403793" mass="1.52" diaginertia="0.0025499 0.0024117 0.0014875"/>
+          <joint name="right_hip_roll_joint" pos="0.0 0.0 0.0" axis="1.0 -1e-07 -1e-07" type="hinge" range="-2.9670999 0.5236" armature="0.01" frictionloss="0.3"/>
+          <geom name="right_hip_collision" pos="0.02 0.0 -0.04" quat="0.0 0.0 -0.0 -1.0" type="capsule" size="0.06 0.04" material="template" group="3"/>
+          <geom name="right_hip_roll_link_001" pos="0.0 -1e-07 0.0" quat="1.0 -0.0 -0.0 0.0" type="mesh" mesh="right_hip_roll_link_001" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+          <geom name="right_hip_roll_link_002" pos="0.0 -1e-07 0.0" quat="1.0 -0.0 -0.0 0.0" type="mesh" mesh="right_hip_roll_link_002" material="black_metal" group="2" contype="0" conaffinity="0" density="0.0"/>
+          <body name="right_hip_yaw_link" pos="0.0250009 -1e-07 -0.12412" quat="0.9953774 0.0 -0.0 -0.0960412">
+            <inertial pos="-0.057709 0.010981 -0.15078" quat="0.7511809 0.223482 0.15832 0.600598" mass="1.702" diaginertia="0.0077617 0.0071758 0.0016014"/>
+            <joint name="right_hip_yaw_joint" pos="0.0 0.0 0.0" axis="-0.0 0.0 1.0" type="hinge" range="-2.7576001 2.7576001" armature="0.01" frictionloss="0.3"/>
+            <geom name="right_hip_yaw_link_001" pos="3e-07 -1e-07 -2e-07" quat="1.0 -1e-07 -0.0 0.0" type="mesh" mesh="right_hip_yaw_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+            <geom name="right_hip_yaw_link_002" pos="3e-07 -1e-07 -2e-07" quat="1.0 -1e-07 -0.0 0.0" type="mesh" mesh="right_hip_yaw_link_001" material="black_metal" group="2" contype="0" conaffinity="0" density="0.0"/>
+            <geom name="right_thigh_collision" pos="-0.03 0.0 -0.1" quat="0.0 -0.2010659 -0.0 -0.9795777" type="capsule" size="0.055 0.0761577" material="template" group="3"/>
+            <body name="right_knee_link" pos="-0.0782729 -0.0021489 -0.17734" quat="0.8348584 -1e-07 0.5504648 -0.0">
+              <inertial pos="0.005457 -0.003964 -0.12074" quat="0.9234389 0.0345276 0.0116333 -0.3820119" mass="1.932" diaginertia="0.011374 0.0112843 0.0014645"/>
+              <joint name="right_knee_joint" pos="0.0 0.0 0.0" axis="-0.0 1.0 1e-07" type="hinge" range="-0.087267 2.8798001" armature="0.01" frictionloss="0.3"/>
+              <geom name="right_knee_link_001" pos="0.0 1e-07 0.0" quat="1.0 -0.0 -0.0 1e-07" type="mesh" mesh="right_knee_link_002" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+              <geom name="right_knee_link_002" pos="0.0 1e-07 0.0" quat="1.0 -0.0 -0.0 1e-07" type="mesh" mesh="right_knee_link_001" material="black_metal" group="2" contype="0" conaffinity="0" density="0.0"/>
+              <geom name="right_linkage_brace_collision" pos="0.01 0.0 -0.24" quat="1e-07 0.0 -0.0 -1.0" type="capsule" size="0.03 0.04" material="template" group="3"/>
+              <geom name="right_shin_collision" pos="0.01 0.0 -0.075" quat="1e-07 0.0 -0.0 -1.0" type="capsule" size="0.045 0.075" material="template" group="3"/>
+              <body name="right_ankle_pitch_link" pos="0.0 9.45e-05 -0.30001" quat="1.0 -0.0 -0.0 0.0">
+                <inertial pos="-0.007269 0.0 0.011137" quat="0.603053 0.369225 0.369225 0.603053" mass="0.074" diaginertia="1.89e-05 1.41e-05 6.9e-06"/>
+                <joint name="right_ankle_pitch_joint" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-0.87267 0.5236" armature="0.01" frictionloss="0.3"/>
+                <geom name="right_ankle_pitch_link_001" pos="0.0 -0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="right_ankle_pitch_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+                <body name="right_ankle_roll_link" pos="0.0 0.0 -0.017558" quat="1.0 -0.0 -0.0 -0.0">
+                  <inertial pos="0.026505 0.0 -0.016425" quat="0.000481 0.7284818 0.0006191 0.6850647" mass="0.608" diaginertia="0.0016722 0.0016161 0.0002176"/>
+                  <joint name="right_ankle_roll_joint" pos="0.0 0.0 0.0" axis="1.0 -1e-07 -1e-07" type="hinge" range="-0.2618 0.2618" armature="0.01" frictionloss="0.3"/>
+                  <geom name="right_ankle_roll_link_001" pos="0.0 -1e-07 0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="right_ankle_roll_link" material="black_plastic" group="2" contype="0" conaffinity="0" density="0.0"/>
+                  <geom name="right_ankle_roll_link_001_001" pos="0.0 -1e-07 0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="right_ankle_roll_link_001" material="black_rubber" group="2" contype="0" conaffinity="0" density="0.0"/>
+                  <geom name="right_foot1_collision" pos="0.075 -0.026 -0.025" quat="0.0 0.7071068 -0.0 0.7071067" type="capsule" size="0.01 0.025" material="template" group="3" friction="0.6 0.005 0.0001"/>
+                  <geom name="right_foot2_collision" pos="0.0395 -0.018 -0.025" quat="0.0 0.7071068 0.0 -0.7071068" type="capsule" size="0.01 0.0835" material="template" group="3" friction="0.6 0.005 0.0001"/>
+                  <geom name="right_foot3_collision" pos="0.039 -0.01 -0.025" quat="0.0 0.7071068 0.0 -0.7071068" type="capsule" size="0.01 0.091" material="template" group="3" friction="0.6 0.005 0.0001"/>
+                  <geom name="right_foot4_collision" pos="0.039 0.0 -0.025" quat="0.0 0.7071068 0.0 -0.7071068" type="capsule" size="0.01 0.093" material="template" group="3" friction="0.6 0.005 0.0001"/>
+                  <geom name="right_foot5_collision" pos="0.039 0.01 -0.025" quat="0.0 0.7071068 0.0 -0.7071068" type="capsule" size="0.01 0.091" material="template" group="3" friction="0.6 0.005 0.0001"/>
+                  <geom name="right_foot6_collision" pos="0.0395 0.018 -0.025" quat="0.0 0.7071068 0.0 -0.7071068" type="capsule" size="0.01 0.0835" material="template" group="3" friction="0.6 0.005 0.0001"/>
+                  <geom name="right_foot7_collision" pos="0.075 0.026 -0.025" quat="0.0 0.7071068 -0.0 0.7071067" type="capsule" size="0.01 0.025" material="template" group="3" friction="0.6 0.005 0.0001"/>
+                  <geom name="right_foot_contact_0_geom" pos="-0.05 0.025 -0.03" quat="1.0 -0.0 0.0 0.0" type="sphere" size="0.005" material="template" group="3" priority="1" friction="0.6 0.005 0.0001"/>
+                  <geom name="right_foot_contact_1_geom" pos="-0.05 -0.025 -0.03" quat="1.0 -0.0 0.0 0.0" type="sphere" size="0.005" material="template" group="3" priority="1" friction="0.6 0.005 0.0001"/>
+                  <geom name="right_foot_contact_2_geom" pos="0.12 0.03 -0.03" quat="1.0 -0.0 0.0 0.0" type="sphere" size="0.005" material="template" group="3" priority="1" friction="0.6 0.005 0.0001"/>
+                  <geom name="right_foot_contact_3_geom" pos="0.12 -0.03 -0.03" quat="1.0 -0.0 0.0 0.0" type="sphere" size="0.005" material="template" group="3" priority="1" friction="0.6 0.005 0.0001"/>
+                  <site name="right_foot" pos="0.04 0.0 -0.037" quat="1.0 -0.0 0.0 0.0" type="sphere" size="0.025" group="5"/>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="waist_yaw_link" pos="-0.0 0.0 2e-07" quat="0.9999866 0.0 -0.0 0.005177">
+        <inertial pos="0.003494 0.000233 0.018034" quat="0.2896971 0.5910009 -0.3377951 0.672821" mass="0.214" diaginertia="0.0001635 0.0001077 0.0001022"/>
+        <joint name="waist_yaw_joint" pos="0.0 0.0 0.0" axis="-0.0 0.0 1.0" type="hinge" range="-2.618 2.618" armature="0.01" frictionloss="0.3"/>
+        <geom name="waist_yaw_link_001" pos="-0.0 1e-07 0.0" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="waist_yaw_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+        <body name="waist_roll_link" pos="-0.0039635 1e-07 0.0439999" quat="0.999843 0.017719 -0.0 0.0">
+          <inertial pos="0.0 2.3e-05 0.0" quat="0.5 0.5 -0.5 0.5" mass="0.086" diaginertia="8.2e-06 7.1e-06 6.3e-06"/>
+          <joint name="waist_roll_joint" pos="0.0 0.0 0.0" axis="1.0 -1e-07 -1e-07" type="hinge" range="-0.52 0.52" armature="0.01" frictionloss="0.3"/>
+          <geom name="waist_roll_link_001" pos="-0.0 1e-07 -0.0" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="waist_roll_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+          <body name="torso_link" pos="0.0 -0.0 -2e-07" quat="0.9989621 -0.0 0.0455496 -0.0">
+            <inertial pos="0.0020316 0.0003397 0.184568" quat="0.9998026 -6.03e-05 0.0198256 0.0013199" mass="7.8179998" diaginertia="0.121847 0.109825 0.0273735"/>
+            <joint name="waist_pitch_joint" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-0.52 0.52" armature="0.01" frictionloss="0.3"/>
+            <geom name="head_collision" pos="0.0 0.0 0.43" quat="1.0 0.0 0.0 0.0" type="sphere" size="0.06" material="template" group="3"/>
+            <geom name="head_link" pos="0.0039635 0.0 -0.0440001" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="head_link_001" material="black_plastic" group="2" contype="0" conaffinity="0" density="0.0"/>
+            <geom name="logo_link" pos="0.0039635 0.0 -0.0440001" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="logo_link" material="black_plastic" group="2" contype="0" conaffinity="0" density="0.0"/>
+            <geom name="torso_collision" pos="0.01 0.0 0.14" quat="0.0 -1.0 -0.0 0.0" type="capsule" size="0.09 0.06" material="template" group="3"/>
+            <geom name="torso_link_001" pos="0.0 -0.0 -0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="torso_link_001" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+            <geom name="torso_link_002" pos="0.0 -0.0 -0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="torso_link_002" material="gray_plastic" group="2" contype="0" conaffinity="0" density="0.0"/>
+            <geom name="torso_link_003" pos="0.0 -0.0 -0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="torso_link_003" material="gray_plastic" group="2" contype="0" conaffinity="0" density="0.0"/>
+            <site name="imu_in_torso" pos="-0.03959 -0.00224 0.14792" quat="1.0 0.0 0.0 0.0" type="sphere" size="0.01" group="5"/>
+            <body name="left_shoulder_pitch_link" pos="0.0039561 0.1002204 0.2477797" quat="0.8743573 0.1228608 -0.4648897 -0.0654381">
+              <inertial pos="0.0 0.035892 -0.011628" quat="0.6541519 0.0130458 -0.326267 0.68225" mass="0.718" diaginertia="0.0004659 0.0004328 0.0004064"/>
+              <joint name="left_shoulder_pitch_joint" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-3.0892 2.6703999" armature="0.01" frictionloss="0.3"/>
+              <geom name="left_shoulder_pitch_link_001" pos="6e-07 -3e-07 6e-07" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="left_shoulder_pitch_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+              <body name="left_shoulder_roll_link" pos="-3e-07 0.0379999 -0.0138309" quat="0.8899132 0.45613 1e-07 -0.0">
+                <inertial pos="-0.000227 0.00727 -0.063243" quat="0.701256 -0.0196223 -0.0071032 0.712604" mass="0.643" diaginertia="0.0006913 0.000618 0.000389"/>
+                <joint name="left_shoulder_roll_joint" pos="0.0 0.0 0.0" axis="1.0 -1e-07 -1e-07" type="hinge" range="-1.5882 2.2514999" armature="0.01" frictionloss="0.3"/>
+                <geom name="left_shoulder_roll_link_001" pos="-0.0 3e-07 -0.0" quat="1.0 -0.0 -0.0 0.0" type="mesh" mesh="left_shoulder_roll_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+                <body name="left_shoulder_yaw_link" pos="-3e-07 0.0062399 -0.1032" quat="0.9937956 -0.0 -0.0 0.1112215">
+                  <inertial pos="0.010773 -0.002949 -0.072009" quat="0.7168787 -0.0964829 -0.0679942 0.6871338" mass="0.734" diaginertia="0.0010619 0.0010322 0.0004007"/>
+                  <joint name="left_shoulder_yaw_joint" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-2.618 2.618" armature="0.01" frictionloss="0.3"/>
+                  <geom name="left_shoulder_yaw_collision" pos="0.0 0.0 -0.015" quat="1e-07 -1.0 -0.0 -0.0" type="capsule" size="0.035 0.065" material="template" group="3"/>
+                  <geom name="left_shoulder_yaw_link_001" pos="-3e-07 8e-07 0.0" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="left_shoulder_yaw_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+                  <geom name="left_shoulder_yaw_link_002" pos="-3e-07 8e-07 0.0" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="left_shoulder_yaw_link_001" material="black_metal" group="2" contype="0" conaffinity="0" density="0.0"/>
+                  <body name="left_elbow_link" pos="0.015783 -0.0 -0.0805179" quat="0.9607661 -0.0 0.2773597 0.0">
+                    <inertial pos="0.064956 0.004454 -0.010062" quat="0.5417652 0.6361323 0.3888212 0.3881292" mass="0.6" diaginertia="0.000443 0.0004216 0.0002594"/>
+                    <joint name="left_elbow_joint" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-1.0472 2.0943999" armature="0.01" frictionloss="0.3"/>
+                    <geom name="left_elbow_link_001" pos="-5e-07 3e-07 3e-07" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="left_elbow_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+                    <geom name="left_elbow_link_001_001" pos="-5e-07 3e-07 3e-07" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="left_elbow_link_001" material="black_metal" group="2" contype="0" conaffinity="0" density="0.0"/>
+                    <geom name="left_elbow_yaw_collision" pos="0.035 0.0 -0.01" quat="0.0 0.7071068 0.0 -0.7071068" type="capsule" size="0.035 0.045" material="template" group="3"/>
+                    <body name="left_wrist_roll_link" pos="0.1000001 0.0018875 -0.0100001" quat="0.762274 -0.6472544 0.0 -1e-07">
+                      <inertial pos="0.0171394 0.0005376 5e-07" quat="0.5753148 0.4117001 -0.574883 0.4111272" mass="0.085445" diaginertia="5.48e-05 4.97e-05 3.58e-05"/>
+                      <joint name="left_wrist_roll_joint" pos="0.0 0.0 0.0" axis="1.0 -0.0 -1e-07" type="hinge" range="-1.9722199 1.9722199" armature="0.01" frictionloss="0.3"/>
+                      <geom name="left_wrist_roll_link_001" pos="0.0 1e-07 -1e-07" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="left_wrist_roll_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+                      <body name="left_wrist_pitch_link" pos="0.0379999 1e-07 0.0" quat="1.0 0.0 0.0 0.0">
+                        <inertial pos="0.0229999 -0.0011168 -0.0011166" quat="0.2499977 0.6613625 0.293036 0.6436076" mass="0.48405" diaginertia="0.0004304 0.0004299 0.0001646"/>
+                        <joint name="left_wrist_pitch_joint" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-1.61443 1.61443" armature="0.01" frictionloss="0.3"/>
+                        <geom name="left_wrist_collision" pos="0.025 0.0 0.0" quat="0.0 0.7071068 0.0 -0.7071068" type="capsule" size="0.035 0.035" material="template" group="3"/>
+                        <geom name="left_wrist_pitch_link_001" pos="5e-07 5e-07 1e-07" quat="1.0 1e-07 1e-07 0.0" type="mesh" mesh="left_wrist_pitch_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+                        <body name="left_wrist_yaw_link" pos="0.046 1e-07 0.0" quat="1.0 -0.0 0.0 0.0">
+                          <inertial pos="0.0708244 0.0001917 0.0016174" quat="0.5105708 0.5262948 0.4680779 0.4931879" mass="0.254576" diaginertia="0.0006461 0.00056 0.0001476"/>
+                          <joint name="left_wrist_yaw_joint" pos="0.0 0.0 0.0" axis="-0.0 0.0 1.0" type="hinge" range="-1.61443 1.61443" armature="0.01" frictionloss="0.3"/>
+                          <geom name="left_hand_collision" pos="0.11 -0.01 0.0" quat="0.0863966 -0.7018089 0.0863966 0.7018088" type="capsule" size="0.035 0.0412311" material="template" group="3"/>
+                          <geom name="left_wrist_yaw_link_001" pos="1e-07 0.0 0.0" quat="1.0 -1e-07 -1e-07 0.0" type="mesh" mesh="left_wrist_yaw_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+                          <site name="left_palm" pos="0.08 0.0 0.0" quat="1.0 -0.0 -0.0 0.0" type="sphere" size="0.01" group="5"/>
+                          <body name="lh_left_hand_C_MC" pos="0.0170007 -4e-07 3e-07" quat="0.7071075 4.8e-06 0.707106 -4.8e-06">
+                            <inertial pos="-0.00216 -0.00536 0.04011" quat="0.6930823 0.0757242 -0.0659362 0.7138314" mass="0.6506" diaginertia="0.000815 0.0006742 0.0002731"/>
+                            <geom name="lh_left_hand_C_MC_visual" pos="1e-07 -1e-07 0.0290003" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="left_hand_C_MC_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                            <geom name="lh_wrist_visual_001" pos="1e-07 -1e-07 4e-07" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="wrist_001" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                            <geom name="lh_left_hand_C_MC_001" pos="1e-07 -1e-07 0.0290003" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="left_hand_C_MC" group="3"/>
+                            <geom name="lh_wrist_001" pos="1e-07 -1e-07 4e-07" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="wrist_collision_001" group="3"/>
+                            <body name="lh_left_index_MCP_VL" pos="0.0009999 -0.0303001 0.1248999" quat="0.6696746 -0.6696774 -0.2270106 -0.2270115">
+                              <inertial pos="-0.0092 -0.0013 0.0" quat="0.4795062 0.5196862 -0.4795062 0.5196862" mass="0.00221" diaginertia="2e-07 2e-07 1e-07"/>
+                              <joint name="lh_left_index_MCP_FE" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="-0.1745329 1.5707999" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                              <geom name="lh_left_index_MCP_VL_visual" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="left_MCP_VL_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                              <geom name="lh_left_index_MCP_VL_001" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="MCP_VL_001" group="3"/>
+                              <body name="lh_left_index_PP" pos="1e-07 -1.1e-06 -4e-07" quat="0.7061195 0.7061226 0.0373235 -0.0373237">
+                                <inertial pos="0.027 -0.00055 -0.00068" quat="0.5027189 0.479286 0.512565 0.5048128" mass="0.04741" diaginertia="1.14e-05 1.1e-05 2.2e-06"/>
+                                <joint name="lh_left_index_MCP_AA" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.3491 0.3491" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                                <geom name="lh_left_index_PP_visual" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="left_PP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                <geom name="lh_left_index_PP_001" pos="2e-07 -5e-07 -0.0" quat="1.0 -1e-07 0.0 -0.0" type="mesh" mesh="left_PP" group="3"/>
+                                <body name="lh_left_index_MP" pos="0.0470002 -1e-07 1e-07" quat="0.6501018 -0.6501049 0.2781461 0.2781475">
+                                  <inertial pos="0.01212 -0.00116 0.00058" quat="0.0266411 -0.7325578 0.018927 -0.6799199" mass="0.01824" diaginertia="2e-06 1.9e-06 6e-07"/>
+                                  <joint name="lh_left_index_PIP" pos="0.0 0.0 0.0" axis="-0.0 0.0 1.0" type="hinge" range="0.0 1.7453001" armature="0.0006" damping="4.1e-06" frictionloss="0.01276"/>
+                                  <geom name="lh_left_index_MP_visual" pos="0.0 0.0 0.0" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="left_MP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                  <geom name="lh_left_index_MP_001" pos="0.0 0.0 0.0" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="left_MP" group="3"/>
+                                  <body name="lh_left_index_DP" pos="0.0315002 4e-07 1e-07" quat="0.9502863 -0.0 -0.0 0.3113774">
+                                    <inertial pos="0.0124885 -0.0025729 -0.0001076" quat="0.0492917 -0.7166281 0.0583642 -0.6932591" mass="0.004651" diaginertia="3e-07 3e-07 1e-07"/>
+                                    <joint name="lh_left_index_DIP" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="0.0 1.3963" armature="0.00042" damping="1.2e-06" frictionloss="0.0037874"/>
+                                    <geom name="lh_left_index_DP_visual" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="left_DP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                    <geom name="lh_left_index_elastomer_visual" pos="0.0 0.0 0.0" quat="0.5 0.5 -0.5 0.5" type="mesh" mesh="elastomer_001" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0" solref="0.06 0.9"/>
+                                    <geom name="lh_left_index_DP_001" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="left_DP" group="3"/>
+                                    <geom name="lh_left_index_elastomer" pos="0.0 0.0 0.0" quat="0.5 0.5 -0.5 0.5" type="mesh" mesh="l_elastomer" group="3"/>
+                                  </body>
+                                </body>
+                              </body>
+                            </body>
+                            <body name="lh_left_middle_MCP_VL" pos="-2e-07 -0.0100001 0.1279002" quat="0.6696746 -0.6696774 -0.2270106 -0.2270115">
+                              <inertial pos="-0.0092 -0.0013 0.0" quat="0.4795062 0.5196862 -0.4795062 0.5196862" mass="0.00221" diaginertia="2e-07 2e-07 1e-07"/>
+                              <joint name="lh_left_middle_MCP_FE" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="-0.1745329 1.5707999" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                              <geom name="lh_left_middle_MCP_VL_visual" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="left_MCP_VL_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                              <geom name="lh_left_middle_MCP_VL_001" pos="1e-07 -5e-07 0.0" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="MCP_VL_001" group="3"/>
+                              <body name="lh_left_middle_PP" pos="-1e-07 -2e-07 -1e-07" quat="0.7067257 0.7067289 -0.0231639 0.023164">
+                                <inertial pos="0.027 -0.00055 -0.00068" quat="0.5027188 0.4792859 0.5125649 0.5048129" mass="0.04741" diaginertia="1.14e-05 1.1e-05 2.2e-06"/>
+                                <joint name="lh_left_middle_MCP_AA" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.3491 0.3491" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                                <geom name="lh_left_middle_PP_visual" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="left_PP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                <geom name="lh_left_middle_PP_001" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="left_PP" group="3"/>
+                                <body name="lh_left_middle_MP" pos="0.0470001 -1e-07 1e-07" quat="0.6239281 -0.6239311 0.3327331 0.3327346">
+                                  <inertial pos="0.01212 -0.00116 0.00058" quat="0.0266411 -0.7325578 0.018927 -0.6799199" mass="0.01824" diaginertia="2e-06 1.9e-06 6e-07"/>
+                                  <joint name="lh_left_middle_PIP" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="0.0 1.7453001" armature="0.0006" damping="4.1e-06" frictionloss="0.01276"/>
+                                  <geom name="lh_left_middle_MP_visual" pos="-4e-07 2e-07 3e-07" quat="1.0 0.0 -0.0 -0.0" type="mesh" mesh="left_MP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                  <geom name="lh_left_middle_MP_001" pos="-4e-07 2e-07 3e-07" quat="1.0 0.0 -0.0 -0.0" type="mesh" mesh="left_MP" group="3"/>
+                                  <body name="lh_left_middle_DP" pos="0.0315 0.0 -1e-07" quat="0.9684895 -0.0 -0.0 0.2490544">
+                                    <inertial pos="0.0124885 -0.0025729 -0.0001076" quat="0.0492917 -0.7166281 0.0583642 -0.6932591" mass="0.004651" diaginertia="3e-07 3e-07 1e-07"/>
+                                    <joint name="lh_left_middle_DIP" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="0.0 1.3963" armature="0.00042" damping="1.2e-06" frictionloss="0.0037874"/>
+                                    <geom name="lh_left_middle_DP_visual" pos="-1e-07 -2e-07 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="left_DP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                    <geom name="lh_left_middle_elastomer_visual" pos="0.0 0.0 0.0" quat="0.5 0.5 -0.5000001 0.5" type="mesh" mesh="elastomer_001" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0" solref="0.06 0.9"/>
+                                    <geom name="lh_left_middle_DP_001" pos="-1e-07 -2e-07 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="left_DP" group="3"/>
+                                    <geom name="lh_left_middle_elastomer" pos="0.0 0.0 0.0" quat="0.5 0.5 -0.5000001 0.5" type="mesh" mesh="l_elastomer" group="3"/>
+                                  </body>
+                                </body>
+                              </body>
+                            </body>
+                            <body name="lh_left_pinky_MC" pos="0.0113599 0.0263002 0.1158999" quat="2e-07 3.7e-06 -1.0 -3.7e-06">
+                              <inertial pos="0.0107985 0.005988 -0.0335125" quat="0.7069559 0.0008324 0.0268047 0.706749" mass="0.12541" diaginertia="4.48e-05 3.73e-05 1.7e-05"/>
+                              <joint name="lh_left_pinky_CMC" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="0.0 0.2618" armature="0.00012" damping="4.2e-05" frictionloss="0.012"/>
+                              <geom name="lh_left_pinky_MC_visual" pos="-5e-07 -3e-07 -1e-07" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="left_pinky_MC_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                              <geom name="lh_left_pinky_MC_001" pos="-5e-07 -3e-07 -1e-07" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="left_pinky_MC" group="3"/>
+                              <body name="lh_left_pinky_MCP_VL" pos="0.0083605 0.0048 1e-07" quat="0.2270133 -0.2270142 0.6696737 0.6696765">
+                                <inertial pos="-0.0092 -0.0013 0.0" quat="0.4795063 0.5196862 -0.4795063 0.5196862" mass="0.00221" diaginertia="2e-07 2e-07 1e-07"/>
+                                <joint name="lh_left_pinky_MCP_FE" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.1745329 1.5707999" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                                <geom name="lh_left_pinky_MCP_VL_visual" pos="-0.0 0.0 -0.0" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="left_MCP_VL_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                <geom name="lh_left_pinky_MCP_VL_001" pos="0.0 0.0 0.0" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="MCP_VL_001" group="3"/>
+                                <body name="lh_left_pinky_PP" pos="-1e-07 -6e-07 -3e-07" quat="0.7061511 0.7061543 -0.0367204 0.0367206">
+                                  <inertial pos="0.027 -0.00055 -0.00068" quat="0.5027189 0.479286 0.512565 0.5048128" mass="0.04741" diaginertia="1.14e-05 1.1e-05 2.2e-06"/>
+                                  <joint name="lh_left_pinky_MCP_AA" pos="0.0 0.0 0.0" axis="-0.0 0.0 1.0" type="hinge" range="-0.3491 0.3491" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                                  <geom name="lh_left_pinky_PP_visual" pos="1e-07 1e-07 -2e-07" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="left_PP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                  <geom name="lh_left_pinky_PP_001" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="left_PP" group="3"/>
+                                  <body name="lh_left_pinky_MP" pos="0.0470002 0.0 -2e-07" quat="0.6430988 -0.6431018 0.2939757 0.2939771">
+                                    <inertial pos="0.01212 -0.00116 0.00058" quat="0.0266411 -0.7325578 0.018927 -0.6799199" mass="0.01824" diaginertia="2e-06 1.9e-06 6e-07"/>
+                                    <joint name="lh_left_pinky_PIP" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="0.0 1.7453001" armature="0.0006" damping="4.1e-06" frictionloss="0.01276"/>
+                                    <geom name="lh_left_pinky_MP_visual" pos="0.0 0.0 0.0" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="left_MP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                    <geom name="lh_left_pinky_MP_001" pos="0.0 0.0 0.0" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="left_MP" group="3"/>
+                                    <body name="lh_left_pinky_DP" pos="0.0315 -2e-07 -3e-07" quat="0.938074 -0.0 -0.0 0.346435">
+                                      <inertial pos="0.0124885 -0.0025729 -0.0001076" quat="0.0492917 -0.7166281 0.0583642 -0.6932591" mass="0.004651" diaginertia="3e-07 3e-07 1e-07"/>
+                                      <joint name="lh_left_pinky_DIP" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="0.0 1.3963" armature="0.00042" damping="1.2e-06" frictionloss="0.0037874"/>
+                                      <geom name="lh_left_pinky_DP_visual" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="left_DP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                      <geom name="lh_left_pinky_elastomer_visual" pos="0.0 0.0 0.0" quat="0.5 0.5 -0.5 0.5" type="mesh" mesh="elastomer_001" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0" solref="0.06 0.9"/>
+                                      <geom name="lh_left_pinky_DP_001" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="left_DP" group="3"/>
+                                      <geom name="lh_left_pinky_elastomer" pos="0.0 0.0 0.0" quat="0.5 0.5 -0.5 0.5" type="mesh" mesh="l_elastomer" group="3"/>
+                                    </body>
+                                  </body>
+                                </body>
+                              </body>
+                            </body>
+                            <body name="lh_left_ring_MCP_VL" pos="0.0014999 0.0103002 0.1218999" quat="0.6696746 -0.6696774 -0.2270106 -0.2270115">
+                              <inertial pos="-0.0092 -0.0013 0.0" quat="0.4795062 0.5196862 -0.4795062 0.5196862" mass="0.00221" diaginertia="2e-07 2e-07 1e-07"/>
+                              <joint name="lh_left_ring_MCP_FE" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="-0.1745329 1.5707999" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                              <geom name="lh_left_ring_MCP_VL_visual" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="left_MCP_VL_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                              <geom name="lh_left_ring_MCP_VL_001" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="MCP_VL_001" group="3"/>
+                              <body name="lh_left_ring_PP" pos="0.0 -1e-07 -1e-07" quat="0.7060782 0.7060814 -0.0380952 0.0380953">
+                                <inertial pos="0.027 -0.00055 -0.00068" quat="0.5027189 0.4792859 0.5125649 0.5048129" mass="0.04741" diaginertia="1.14e-05 1.1e-05 2.2e-06"/>
+                                <joint name="lh_left_ring_MCP_AA" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.3491 0.3491" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                                <geom name="lh_left_ring_PP_visual" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="left_PP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                <geom name="lh_left_ring_PP_001" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="left_PP" group="3"/>
+                                <body name="lh_left_ring_MP" pos="0.0470001 -1e-07 -4e-07" quat="0.6425551 -0.642558 0.2951622 0.2951635">
+                                  <inertial pos="0.01212 -0.00116 0.00058" quat="0.0266411 -0.7325579 0.018927 -0.6799198" mass="0.01824" diaginertia="2e-06 1.9e-06 6e-07"/>
+                                  <joint name="lh_left_ring_PIP" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="0.0 1.7453001" armature="0.0006" damping="4.1e-06" frictionloss="0.01276"/>
+                                  <geom name="lh_left_ring_MP_visual" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="left_MP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                  <geom name="lh_left_ring_MP_001" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="left_MP" group="3"/>
+                                  <body name="lh_left_ring_DP" pos="0.0314999 1e-07 0.0" quat="0.9325321 0.0 -1e-07 0.3610872">
+                                    <inertial pos="0.0124885 -0.0025729 -0.0001076" quat="0.0492917 -0.7166281 0.0583642 -0.6932591" mass="0.004651" diaginertia="3e-07 3e-07 1e-07"/>
+                                    <joint name="lh_left_ring_DIP" pos="0.0 0.0 0.0" axis="-0.0 0.0 1.0" type="hinge" range="0.0 1.3963" armature="0.00042" damping="1.2e-06" frictionloss="0.0037874"/>
+                                    <geom name="lh_left_ring_DP_visual" pos="0.0 0.0 0.0" quat="1.0 0.0 -0.0 -0.0" type="mesh" mesh="left_DP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                    <geom name="lh_left_ring_elastomer_visual" pos="-2e-07 0.0 6e-07" quat="0.5 0.500002 -0.499998 0.5" type="mesh" mesh="elastomer_001" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0" solref="0.06 0.9"/>
+                                    <geom name="lh_left_ring_DP_001" pos="0.0 0.0 0.0" quat="1.0 0.0 -0.0 -0.0" type="mesh" mesh="left_DP" group="3"/>
+                                    <geom name="lh_left_ring_elastomer" pos="-2e-07 0.0 6e-07" quat="0.5 0.500002 -0.499998 0.5" type="mesh" mesh="l_elastomer" group="3"/>
+                                  </body>
+                                </body>
+                              </body>
+                            </body>
+                            <body name="lh_left_thumb_CMC_VL" pos="0.0100002 -0.0259999 0.0503999" quat="0.9981313 0.0 0.0 -0.0611052">
+                              <inertial pos="-0.00065 -0.0002 0.0" quat="0.5576639 0.434754 -0.5576639 0.434754" mass="0.0025" diaginertia="3e-07 2e-07 1e-07"/>
+                              <joint name="lh_left_thumb_CMC_FE" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.1745 1.9198999" armature="0.0032" damping="4.2e-05" frictionloss="0.132"/>
+                              <geom name="lh_left_thumb_CMC_VL_visual" pos="0.0 0.0 0.0" quat="1.0 1e-07 0.0 -0.0" type="mesh" mesh="left_thumb_CMC_VL_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                              <body name="lh_left_thumb_MC" pos="0.0 -0.0050002 4e-07" quat="0.7015384 0.7015408 -0.0885558 0.0885564">
+                                <inertial pos="0.03643 -0.01024 -0.00517" quat="0.1544618 0.6837632 0.1512593 0.6969433" mass="0.13587" diaginertia="4.69e-05 4.29e-05 1.92e-05"/>
+                                <joint name="lh_left_thumb_CMC_AA" pos="0.0 0.0 0.0" axis="-0.0 0.0 1.0" type="hinge" range="-0.3491 0.3491" armature="0.0032" damping="4.2e-05" frictionloss="0.132"/>
+                                <geom name="lh_left_thumb_MC_visual" pos="-3e-07 1.3e-06 2e-07" quat="1.0 -1e-07 0.0 1e-07" type="mesh" mesh="left_thumb_MC_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                <geom name="lh_left_thumb_MC_001" pos="-3e-07 1.3e-06 2e-07" quat="1.0 -1e-07 0.0 1e-07" type="mesh" mesh="left_thumb_MC" group="3"/>
+                                <body name="lh_left_thumb_MCP_VL" pos="0.065 -0.0060001 -0.0103918" quat="0.8906378 -0.2386464 0.1001782 0.373867">
+                                  <inertial pos="-0.0 0.0 0.0" quat="0.4843628 0.5151629 -0.4843628 0.5151628" mass="0.0025" diaginertia="3e-07 2e-07 1e-07"/>
+                                  <joint name="lh_left_thumb_MCP_FE" pos="0.0 0.0 0.0" axis="-0.0 0.0 1.0" type="hinge" range="-0.5236 1.3963" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                                  <geom name="lh_left_thumb_MCP_VL_visual" pos="2e-07 -1e-07 -0.0" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="left_thumb_MCP_VL_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                  <body name="lh_left_thumb_PP" pos="0.0 1e-07 0.0" quat="0.7071052 0.7071084 -0.0 -0.0">
+                                    <inertial pos="0.021256 -0.00095 0.00092" quat="0.5116128 0.4435798 0.5546086 0.4836307" mass="0.03078" diaginertia="6.1e-06 5.9e-06 1.2e-06"/>
+                                    <joint name="lh_left_thumb_MCP_AA" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.3491 0.3491" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                                    <geom name="lh_left_thumb_PP_visual" pos="3e-07 8e-07 3e-07" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="left_thumb_PP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                    <geom name="lh_left_thumb_PP_001" pos="3e-07 8e-07 3e-07" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="left_thumb_PP" group="3"/>
+                                    <body name="lh_left_thumb_DP" pos="0.0389999 2e-07 -1e-07" quat="0.6519908 -0.6519938 0.2736891 0.2736904">
+                                      <inertial pos="0.0082386 -0.0017818 -0.0009998" quat="0.2559758 -0.7138495 0.1874369 -0.6243097" mass="0.009981" diaginertia="1.1e-06 1e-06 3e-07"/>
+                                      <joint name="lh_left_thumb_IP" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="0.0 1.7453001" armature="0.0006" damping="4.1e-06" frictionloss="0.01276"/>
+                                      <geom name="lh_left_thumb_DP_visual" pos="0.0 4e-07 2e-07" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="left_thumb_DP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                      <geom name="lh_thumb_elastomer" pos="0.0 4e-07 2e-07" quat="0.5 0.5 -0.5 0.5" type="mesh" mesh="thumb_elastomer_001" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                      <geom name="lh_left_thumb_DP_001" pos="0.0 4e-07 2e-07" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="left_thumb_DP" group="3"/>
+                                      <geom name="lh_left_thumb_elastomer" pos="0.0 4e-07 2e-07" quat="0.5 0.5 -0.5 0.5" type="mesh" mesh="l_thumb_elastomer" group="3" solref="0.06 0.9"/>
+                                    </body>
+                                  </body>
+                                </body>
+                              </body>
+                            </body>
+                          </body>
+                        </body>
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+            <body name="right_shoulder_pitch_link" pos="0.0039561 -0.1002105 0.24778" quat="0.9120316 -0.1281647 -0.3857739 0.0543207">
+              <inertial pos="0.0 -0.035892 -0.011628" quat="0.6822499 -0.326267 0.0130458 0.6541519" mass="0.718" diaginertia="0.0004659 0.0004328 0.0004064"/>
+              <joint name="right_shoulder_pitch_joint" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-3.0892 2.6703999" armature="0.01" frictionloss="0.3"/>
+              <geom name="right_shoulder_pitch_link_001" pos="1e-07 2e-07 1.1e-06" quat="1.0 -0.0 -1e-07 -0.0" type="mesh" mesh="right_shoulder_pitch_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+              <body name="right_shoulder_roll_link" pos="0.0 -0.0380001 -0.0138312" quat="0.9291922 -0.3695968 0.0 -1e-07">
+                <inertial pos="-0.000227 -0.00727 -0.063243" quat="0.712604 -0.0071032 -0.0196223 0.7012561" mass="0.643" diaginertia="0.0006913 0.000618 0.000389"/>
+                <joint name="right_shoulder_roll_joint" pos="0.0 0.0 0.0" axis="1.0 -1e-07 -0.0" type="hinge" range="-2.2514999 1.5882" armature="0.01" frictionloss="0.3"/>
+                <geom name="right_shoulder_roll_link_001" pos="0.0 -2e-07 -0.0" quat="1.0 0.0 -0.0 1e-07" type="mesh" mesh="right_shoulder_roll_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+                <body name="right_shoulder_yaw_link" pos="-2e-07 -0.0062402 -0.1032" quat="0.9877595 -0.0 -1e-07 -0.1559847">
+                  <inertial pos="0.010773 0.002949 -0.072009" quat="0.6871337 -0.0679942 -0.0964829 0.7168788" mass="0.734" diaginertia="0.0010619 0.0010322 0.0004007"/>
+                  <joint name="right_shoulder_yaw_joint" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="-2.618 2.618" armature="0.01" frictionloss="0.3"/>
+                  <geom name="right_shoulder_yaw_collision" pos="0.0 0.0 -0.015" quat="0.0 -1.0 -0.0 -0.0" type="capsule" size="0.035 0.065" material="template" group="3"/>
+                  <geom name="right_shoulder_yaw_link_001" pos="-4e-07 -9e-07 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="right_shoulder_yaw_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+                  <geom name="right_shoulder_yaw_link_002" pos="-4e-07 -9e-07 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="right_shoulder_yaw_link_001" material="black_metal" group="2" contype="0" conaffinity="0" density="0.0"/>
+                  <body name="right_elbow_link" pos="0.0157829 -1e-07 -0.0805179" quat="0.9997781 0.0 0.0210668 -0.0">
+                    <inertial pos="0.064956 -0.004454 -0.010062" quat="0.3881292 0.3888212 0.6361323 0.5417652" mass="0.6" diaginertia="0.000443 0.0004216 0.0002594"/>
+                    <joint name="right_elbow_joint" pos="0.0 0.0 0.0" axis="-0.0 1.0 0.0" type="hinge" range="-1.0472 2.0943999" armature="0.01" frictionloss="0.3"/>
+                    <geom name="right_elbow_link_001" pos="-1e-07 -1e-07 -1e-07" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="right_elbow_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+                    <geom name="right_elbow_link_001_001" pos="-1e-07 -1e-07 -1e-07" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="right_elbow_link_001" material="black_metal" group="2" contype="0" conaffinity="0" density="0.0"/>
+                    <geom name="right_elbow_yaw_collision" pos="0.035 0.0 -0.01" quat="0.0 0.7071068 0.0 -0.7071068" type="capsule" size="0.035 0.045" material="template" group="3"/>
+                    <body name="right_wrist_roll_link" pos="0.1000002 -0.0018881 -0.01" quat="0.9205872 0.3905372 -0.0 0.0">
+                      <inertial pos="0.0171394 -0.0005376 5e-07" quat="0.4116062 0.5753819 -0.4110334 0.57495" mass="0.085445" diaginertia="5.48e-05 4.97e-05 3.58e-05"/>
+                      <joint name="right_wrist_roll_joint" pos="0.0 0.0 0.0" axis="1.0 -1e-07 -1e-07" type="hinge" range="-1.9722199 1.9722199" armature="0.01" frictionloss="0.3"/>
+                      <geom name="right_wrist_roll_link_001" pos="-1e-07 -2e-07 1e-07" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="right_wrist_roll_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+                      <body name="right_wrist_pitch_link" pos="0.038 -1e-07 0.0" quat="1.0 0.0 -0.0 0.0">
+                        <inertial pos="0.0229999 0.0011168 -0.0011166" quat="0.6436077 0.2930358 0.6613625 0.2499978" mass="0.48405" diaginertia="0.0004304 0.0004299 0.0001646"/>
+                        <joint name="right_wrist_pitch_joint" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-1.61443 1.61443" armature="0.01" frictionloss="0.3"/>
+                        <geom name="right_wrist_collision" pos="0.025 0.0 0.0" quat="0.0 0.7071068 0.0 -0.7071067" type="capsule" size="0.035 0.035" material="template" group="3"/>
+                        <geom name="right_wrist_pitch_link_001" pos="0.0 2e-07 3e-07" quat="1.0 -0.0 -1e-07 -0.0" type="mesh" mesh="right_wrist_pitch_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+                        <body name="right_wrist_yaw_link" pos="0.046 1e-07 0.0" quat="1.0 -0.0 -0.0 0.0">
+                          <inertial pos="0.0708244 -0.0001917 0.0016174" quat="0.4931879 0.4680779 0.5262949 0.5105708" mass="0.254576" diaginertia="0.0006461 0.00056 0.0001476"/>
+                          <joint name="right_wrist_yaw_joint" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-1.61443 1.61443" armature="0.01" frictionloss="0.3"/>
+                          <geom name="right_hand_collision" pos="0.11 0.01 0.0" quat="0.0863966 0.7018089 0.0863966 -0.7018088" type="capsule" size="0.035 0.0412311" material="template" group="3"/>
+                          <geom name="right_wrist_yaw_link_001" pos="-1.1e-06 -1e-07 -2e-07" quat="1.0 -0.0 1e-07 -0.0" type="mesh" mesh="right_wrist_yaw_link" material="aluminum_rough" group="2" contype="0" conaffinity="0" density="0.0"/>
+                          <site name="right_palm" pos="0.08 0.0 0.0" quat="1.0 -0.0 0.0 0.0" type="sphere" size="0.01" group="5"/>
+                          <body name="rh_right_hand_C_MC" pos="0.0169997 6e-07 0.0" quat="0.7071069 1.23e-05 0.7071066 2.41e-05">
+                            <inertial pos="-0.00216 0.00536 0.04011" quat="0.7138318 -0.0659364 0.0757239 0.6930818" mass="0.6506" diaginertia="0.000815 0.0006743 0.0002731"/>
+                            <geom name="rh_right_hand_C_MC_visual" pos="3e-07 -1e-07 0.0289999" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="right_hand_C_MC_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                            <geom name="rh_wrist_visual" pos="1e-07 -2e-07 -0.0" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="wrist" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                            <geom name="rh_right_hand_C_MC_001" pos="3e-07 -1e-07 0.0289999" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="right_hand_C_MC" group="3"/>
+                            <geom name="rh_wrist" pos="1e-07 -2e-07 -0.0" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="wrist_collision" group="3"/>
+                            <body name="rh_right_index_MCP_VL" pos="0.001 0.0303 0.1248999" quat="0.5612506 -0.5612529 -0.4301113 -0.4301131">
+                              <inertial pos="-0.0092 0.0013 0.0" quat="0.5196863 0.4795062 -0.5196862 0.4795062" mass="0.00221" diaginertia="2e-07 2e-07 1e-07"/>
+                              <joint name="rh_right_index_MCP_FE" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.1745329 1.5707999" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                              <geom name="rh_right_MCP_VL_visual" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="right_MCP_VL_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                              <geom name="rh_MCP_VL" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="MCP_VL" group="3"/>
+                              <body name="rh_right_index_PP" pos="-4e-07 -1e-07 1e-07" quat="0.7050422 -0.7050452 -0.0539759 -0.0539762">
+                                <inertial pos="0.027 0.00055 0.00068" quat="0.5125649 0.5048129 0.5027189 0.4792859" mass="0.04741" diaginertia="1.14e-05 1.1e-05 2.2e-06"/>
+                                <joint name="rh_right_index_MCP_AA" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.3491 0.3491" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                                <geom name="rh_right_index_PP_visual" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="right_PP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                <geom name="rh_right_index_PP_001" pos="-2e-07 -2e-07 -1e-07" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="right_PP" group="3"/>
+                                <body name="rh_right_index_MP" pos="0.0470001 -0.0 0.0" quat="0.5683745 0.5683771 -0.420652 0.4206541">
+                                  <inertial pos="0.01212 -0.00116 0.00058" quat="0.0266411 -0.7325578 0.018927 -0.6799199" mass="0.01824" diaginertia="2e-06 1.9e-06 6e-07"/>
+                                  <joint name="rh_right_index_PIP" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="0.0 1.7453001" armature="0.0006" damping="4.1e-06" frictionloss="0.01276"/>
+                                  <geom name="rh_right_index_MP_visual" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="right_MP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                  <geom name="rh_right_index_MP_001" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="right_MP" group="3"/>
+                                  <body name="rh_right_index_DP" pos="0.0314999 4e-07 1e-07" quat="0.8314478 -0.0 -0.0 0.5556028">
+                                    <inertial pos="0.0124885 -0.0025729 -0.0001076" quat="0.0492917 -0.7166281 0.0583642 -0.6932591" mass="0.004651" diaginertia="3e-07 3e-07 1e-07"/>
+                                    <joint name="rh_right_index_DIP" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="0.0 1.3963" armature="0.00042" damping="1.2e-06" frictionloss="0.0037874"/>
+                                    <geom name="rh_right_index_DP_visual" pos="0.0 2e-07 0.0" quat="1.0 -0.0 -0.0 0.0" type="mesh" mesh="right_DP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                    <geom name="rh_right_index_elastomer_visual" pos="0.0 2e-07 0.0" quat="0.5 0.500002 -0.499998 0.5" type="mesh" mesh="elastomer" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                    <geom name="rh_right_index_DP_001" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="right_DP" group="3"/>
+                                    <geom name="rh_right_index_elastomer" pos="0.0 2e-07 0.0" quat="0.5 0.500002 -0.499998 0.5" type="mesh" mesh="r_elastomer_001" group="3" solref="0.06 0.9"/>
+                                  </body>
+                                </body>
+                              </body>
+                            </body>
+                            <body name="rh_right_middle_MCP_VL" pos="2e-07 0.0100001 0.1279" quat="0.5526382 -0.5526406 -0.4411223 -0.4411242">
+                              <inertial pos="-0.0092 0.0013 0.0" quat="0.5196863 0.4795062 -0.5196862 0.4795062" mass="0.00221" diaginertia="2e-07 2e-07 1e-07"/>
+                              <joint name="rh_right_middle_MCP_FE" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="-0.1745329 1.5707999" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                              <geom name="rh_right_MCP_VL_visual_001" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="right_MCP_VL_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                              <geom name="rh_MCP_VL_001" pos="-2e-07 -4e-07 1e-07" quat="1.0 1e-07 -0.0 -0.0" type="mesh" mesh="MCP_VL" group="3"/>
+                              <body name="rh_right_middle_PP" pos="7e-07 0.0 -1e-07" quat="0.7071052 -0.7071084 0.0 -0.0">
+                                <inertial pos="0.027 0.00055 0.00068" quat="0.5125649 0.5048129 0.5027189 0.4792859" mass="0.04741" diaginertia="1.14e-05 1.1e-05 2.2e-06"/>
+                                <joint name="rh_right_middle_MCP_AA" pos="0.0 0.0 0.0" axis="-0.0 -0.0 1.0" type="hinge" range="-0.3491 0.3491" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                                <geom name="rh_right_middle_PP_visual" pos="0.0 0.0 0.0" quat="1.0 0.0 -0.0 -0.0" type="mesh" mesh="right_PP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                <geom name="rh_right_middle_PP_001" pos="0.0 0.0 0.0" quat="1.0 0.0 -0.0 -0.0" type="mesh" mesh="right_PP" group="3"/>
+                                <body name="rh_right_middle_MP" pos="0.0470005 1e-07 -1e-07" quat="0.5641351 0.5641377 -0.4263207 0.4263225">
+                                  <inertial pos="0.01212 -0.00116 0.00058" quat="0.0266411 -0.7325578 0.018927 -0.6799199" mass="0.01824" diaginertia="2e-06 1.9e-06 6e-07"/>
+                                  <joint name="rh_right_middle_PIP" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="0.0 1.7453001" armature="0.0006" damping="4.1e-06" frictionloss="0.01276"/>
+                                  <geom name="rh_right_middle_MP_visual" pos="-2e-07 2e-07 -1e-07" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="right_MP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                  <geom name="rh_right_middle_MP_001" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="right_MP" group="3"/>
+                                  <body name="rh_right_middle_DP" pos="0.0315003 5e-07 -0.0" quat="0.7978092 0.0 -0.0 0.60291">
+                                    <inertial pos="0.0124885 -0.0025729 -0.0001076" quat="0.0492917 -0.7166281 0.0583642 -0.6932591" mass="0.004651" diaginertia="3e-07 3e-07 1e-07"/>
+                                    <joint name="rh_right_middle_DIP" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="0.0 1.3963" armature="0.00042" damping="1.2e-06" frictionloss="0.0037874"/>
+                                    <geom name="rh_right_middle_DP_visual" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="right_DP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                    <geom name="rh_right_middle_elastomer_visual" pos="8e-07 -1e-07 1e-07" quat="0.4999999 0.5000001 -0.4999999 0.5000001" type="mesh" mesh="r_elastomer" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                    <geom name="rh_right_middle_DP_001" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="right_DP" group="3"/>
+                                    <geom name="rh_right_middle_elastomer" pos="0.0 0.0 0.0" quat="0.5 0.5 -0.5 0.5" type="mesh" mesh="r_elastomer_001" group="3" solref="0.06 0.9"/>
+                                  </body>
+                                </body>
+                              </body>
+                            </body>
+                            <body name="rh_right_pinky_MC" pos="0.0113599 -0.0263001 0.1159003" quat="3.7e-06 -1e-07 -0.0 -1.0">
+                              <inertial pos="0.0107985 0.005988 -0.0335125" quat="0.706956 -0.0008324 -0.0268047 0.706749" mass="0.12541" diaginertia="4.48e-05 3.73e-05 1.7e-05"/>
+                              <joint name="rh_right_pinky_CMC" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="0.0 0.2618" armature="0.00012" damping="4.2e-05" frictionloss="0.012"/>
+                              <geom name="rh_right_pinky_MC_visual" pos="3e-07 -1e-07 -5e-07" quat="1.0 0.0 0.0 -1e-07" type="mesh" mesh="right_pinky_MC_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                              <geom name="rh_right_pinky_MC_001" pos="3e-07 -1e-07 -5e-07" quat="1.0 0.0 0.0 -1e-07" type="mesh" mesh="right_pinky_MC" group="3"/>
+                              <body name="rh_right_pinky_MCP_VL" pos="0.0083601 0.0047999 1e-07" quat="0.4852648 0.4852668 -0.5143113 0.5143133">
+                                <inertial pos="-0.0092 0.0013 0.0" quat="0.5196863 0.4795062 -0.5196862 0.4795062" mass="0.00221" diaginertia="2e-07 2e-07 1e-07"/>
+                                <joint name="rh_right_pinky_MCP_FE" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="-0.1745329 1.5707999" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                                <geom name="rh_right_MCP_VL_visual_003" pos="-0.0 -7e-07 -1e-07" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="right_MCP_VL_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                <geom name="rh_MCP_VL_003" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="MCP_VL" group="3"/>
+                                <body name="rh_right_pinky_PP" pos="7e-07 -2e-07 -0.0" quat="0.6974917 -0.6974947 0.116203 0.1162035">
+                                  <inertial pos="0.027 0.00055 0.00068" quat="0.5125649 0.5048129 0.5027189 0.4792859" mass="0.04741" diaginertia="1.14e-05 1.1e-05 2.2e-06"/>
+                                  <joint name="rh_right_pinky_MCP_AA" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="-0.3491 0.3491" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                                  <geom name="rh_right_pinky_PP_visual" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="right_PP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                  <geom name="rh_right_pinky_PP_001" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="right_PP" group="3"/>
+                                  <body name="rh_right_pinky_MP" pos="0.0469998 -0.0 -2e-07" quat="0.6135201 0.6135228 -0.3515549 0.3515566">
+                                    <inertial pos="0.01212 -0.00116 0.00058" quat="0.0266411 -0.7325578 0.018927 -0.6799199" mass="0.01824" diaginertia="2e-06 1.9e-06 6e-07"/>
+                                    <joint name="rh_right_pinky_PIP" pos="0.0 0.0 0.0" axis="-0.0 0.0 1.0" type="hinge" range="0.0 1.7453001" armature="0.0006" damping="4.1e-06" frictionloss="0.01276"/>
+                                    <geom name="rh_right_pinky_MP_visual" pos="0.0 0.0 0.0" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="right_MP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                    <geom name="rh_right_pinky_MP_001" pos="4e-07 -1e-07 0.0" quat="1.0 0.0 -1e-07 0.0" type="mesh" mesh="right_MP" group="3"/>
+                                    <body name="rh_right_pinky_DP" pos="0.0315 5e-07 1e-07" quat="0.8983397 -0.0 -0.0 0.4393013">
+                                      <inertial pos="0.0124885 -0.0025729 -0.0001076" quat="0.0492918 -0.7166281 0.0583643 -0.6932591" mass="0.004651" diaginertia="3e-07 3e-07 1e-07"/>
+                                      <joint name="rh_right_pinky_DIP" pos="0.0 0.0 0.0" axis="-0.0 0.0 1.0" type="hinge" range="0.0 1.3963" armature="0.00042" damping="1.2e-06" frictionloss="0.0037874"/>
+                                      <geom name="rh_right_pinky_DP_visual" pos="0.0 0.0 0.0" quat="1.0 -0.0 -0.0 0.0" type="mesh" mesh="right_DP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                      <geom name="rh_right_pinky_elastomer_visual" pos="0.0 0.0 0.0" quat="0.5 0.500002 -0.499998 0.5000001" type="mesh" mesh="r_elastomer" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                      <geom name="rh_right_pinky_DP_001" pos="0.0 0.0 0.0" quat="1.0 -0.0 -0.0 0.0" type="mesh" mesh="right_DP" group="3"/>
+                                      <geom name="rh_right_pinky_elastomer" pos="0.0 0.0 0.0" quat="0.5 0.500002 -0.499998 0.5000001" type="mesh" mesh="r_elastomer_001" group="3" solref="0.06 0.9"/>
+                                    </body>
+                                  </body>
+                                </body>
+                              </body>
+                            </body>
+                            <body name="rh_right_ring_MCP_VL" pos="0.0015002 -0.0102999 0.1219" quat="0.5327992 -0.5328013 -0.4648903 -0.4648922">
+                              <inertial pos="-0.0092 0.0013 0.0" quat="0.5196863 0.4795062 -0.5196862 0.4795062" mass="0.00221" diaginertia="2e-07 2e-07 1e-07"/>
+                              <joint name="rh_right_ring_MCP_FE" pos="0.0 0.0 0.0" axis="-0.0 0.0 1.0" type="hinge" range="-0.1745329 1.5707999" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                              <geom name="rh_right_MCP_VL_visual_002" pos="0.0 0.0 0.0" quat="1.0 0.0 -0.0 -0.0" type="mesh" mesh="right_MCP_VL_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                              <geom name="rh_MCP_VL_002" pos="0.0 0.0 0.0" quat="1.0 0.0 -0.0 -0.0" type="mesh" mesh="MCP_VL" group="3"/>
+                              <body name="rh_right_ring_PP" pos="-2e-07 3e-07 -1e-07" quat="0.7036945 -0.7036977 0.0693666 0.069367">
+                                <inertial pos="0.027 0.00055 0.00068" quat="0.5125649 0.5048129 0.5027189 0.4792859" mass="0.04741" diaginertia="1.14e-05 1.1e-05 2.2e-06"/>
+                                <joint name="rh_right_ring_MCP_AA" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="-0.3491 0.3491" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                                <geom name="rh_right_ring_PP_visual" pos="-5e-07 -3e-07 3e-07" quat="1.0 0.0 -0.0 -0.0" type="mesh" mesh="right_PP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                <geom name="rh_right_ring_PP_001" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="right_PP" group="3"/>
+                                <body name="rh_right_ring_MP" pos="0.0470005 -2e-07 1e-07" quat="0.5903114 0.590314 -0.3892689 0.3892706">
+                                  <inertial pos="0.01212 -0.00116 0.00058" quat="0.0266411 -0.7325578 0.018927 -0.6799199" mass="0.01824" diaginertia="2e-06 1.9e-06 6e-07"/>
+                                  <joint name="rh_right_ring_PIP" pos="0.0 0.0 0.0" axis="-0.0 0.0 1.0" type="hinge" range="0.0 1.7453001" armature="0.0006" damping="4.1e-06" frictionloss="0.01276"/>
+                                  <geom name="rh_right_ring_MP_visual" pos="0.0 0.0 0.0" quat="1.0 -0.0 -0.0 0.0" type="mesh" mesh="right_MP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                  <geom name="rh_right_ring_MP_001" pos="0.0 0.0 0.0" quat="1.0 -0.0 -0.0 0.0" type="mesh" mesh="right_MP" group="3"/>
+                                  <body name="rh_right_ring_DP" pos="0.0314997 -5e-07 -0.0" quat="0.8505524 0.0 0.0 0.5258903">
+                                    <inertial pos="0.0124885 -0.0025729 -0.0001076" quat="0.0492917 -0.7166281 0.0583642 -0.6932591" mass="0.004651" diaginertia="3e-07 3e-07 1e-07"/>
+                                    <joint name="rh_right_ring_DIP" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="0.0 1.3963" armature="0.00042" damping="1.2e-06" frictionloss="0.0037874"/>
+                                    <geom name="rh_right_ring_DP_visual" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="right_DP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                    <geom name="rh_right_ring_elastomer_visual" pos="0.0 0.0 0.0" quat="0.5 0.500002 -0.499998 0.5000001" type="mesh" mesh="r_elastomer" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                    <geom name="rh_right_ring_DP_001" pos="-1e-06 1e-07 -1e-07" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="right_DP" group="3"/>
+                                    <geom name="rh_right_ring_elastomer" pos="-1e-07 0.0 -0.0" quat="0.4999999 0.500002 -0.499998 0.5000001" type="mesh" mesh="r_elastomer_001" group="3" solref="0.06 0.9"/>
+                                  </body>
+                                </body>
+                              </body>
+                            </body>
+                            <body name="rh_right_thumb_CMC_VL" pos="0.0100001 0.026 0.0504003" quat="3.6e-06 -0.9982464 -0.0591949 2e-07">
+                              <inertial pos="-0.00065 0.0002 0.0" quat="0.4347539 0.5576639 -0.4347539 0.5576639" mass="0.0025" diaginertia="3e-07 2e-07 1e-07"/>
+                              <joint name="rh_right_thumb_CMC_FE" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.1745 1.9198999" armature="0.0032" damping="4.2e-05" frictionloss="0.132"/>
+                              <geom name="rh_right_thumb_CMC_VL_visual" pos="-3e-07 -2e-07 -2e-07" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="right_thumb_CMC_VL_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                              <body name="rh_right_thumb_MC" pos="1e-07 -0.0050001 -2e-07" quat="0.7060569 -0.7060591 0.0384975 0.0384979">
+                                <inertial pos="0.03643 -0.01024 0.00517" quat="0.1512588 -0.6969433 0.1544623 -0.6837633" mass="0.13587" diaginertia="4.69e-05 4.29e-05 1.92e-05"/>
+                                <joint name="rh_right_thumb_CMC_AA" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.3491 0.3491" armature="0.0032" damping="4.2e-05" frictionloss="0.132"/>
+                                <geom name="rh_right_thumb_MC_visual" pos="-1e-07 7e-07 2e-07" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="right_thumb_MC_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                <geom name="rh_right_thumb_MC_001" pos="-1e-07 7e-07 2e-07" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="right_thumb_MC" group="3"/>
+                                <body name="rh_right_thumb_MCP_VL" pos="0.0649997 -0.0059996 0.010392" quat="0.9207144 0.2467061 -0.0782564 0.2920566">
+                                  <inertial pos="-0.0 -0.0 0.0" quat="0.5151628 0.4843629 -0.5151627 0.4843627" mass="0.0025" diaginertia="3e-07 2e-07 1e-07"/>
+                                  <joint name="rh_right_thumb_MCP_FE" pos="0.0 0.0 0.0" axis="0.0 -0.0 1.0" type="hinge" range="-0.5236 1.3963" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                                  <geom name="rh_right_thumb_MCP_VL_visual" pos="3e-07 1e-07 -1e-07" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="right_thumb_MCP_VL_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                  <body name="rh_right_thumb_PP" pos="-0.0 -0.0 -0.0" quat="0.707079 -0.7070822 0.0060826 0.0060826">
+                                    <inertial pos="0.021256 -0.00095 -0.00092" quat="0.4435797 0.5116127 0.4836307 0.5546087" mass="0.03078" diaginertia="6.1e-06 5.9e-06 1.2e-06"/>
+                                    <joint name="rh_right_thumb_MCP_AA" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.3491 0.3491" armature="0.00265" damping="2.38e-05" frictionloss="0.07456"/>
+                                    <geom name="rh_right_thumb_PP_visual" pos="1e-07 -2e-07 0.0" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="right_thumb_PP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                    <geom name="rh_right_thumb_PP_001" pos="1e-07 -2e-07 0.0" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="right_thumb_PP" group="3"/>
+                                    <body name="rh_right_thumb_DP" pos="0.0389998 -1e-07 0.0" quat="0.5961562 0.5961591 -0.3802569 0.3802588">
+                                      <inertial pos="0.0082182 -0.0017772 -0.0009972" quat="0.2559849 -0.7138482 0.1874412 -0.6243062" mass="0.007981" diaginertia="1.1e-06 1e-06 3e-07"/>
+                                      <joint name="rh_right_thumb_IP" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="0.0 1.7453001" armature="0.0006" damping="4.1e-06" frictionloss="0.01276"/>
+                                      <geom name="rh_right_thumb_DP_visual" pos="-4e-07 1e-07 -1e-07" quat="1.0 -0.0 1e-07 0.0" type="mesh" mesh="right_thumb_DP_visual" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                      <geom name="rh_right_thumb_elastomer_visual" pos="-4e-07 1e-07 -1e-07" quat="0.5 0.500002 -0.499998 0.5" type="mesh" mesh="thumb_elastomer" material="aluminum_rough" group="1" contype="0" conaffinity="0" density="0.0"/>
+                                      <geom name="rh_right_thumb_DP_001" pos="-4e-07 1e-07 -1e-07" quat="1.0 -0.0 1e-07 0.0" type="mesh" mesh="right_thumb_DP" group="3"/>
+                                      <geom name="rh_right_thumb_elastomer" pos="-4e-07 1e-07 -1e-07" quat="0.5 0.500002 -0.499998 0.5" type="mesh" mesh="thumb_elastomer_001_001" group="3" solref="0.06 0.9"/>
+                                    </body>
+                                  </body>
+                                </body>
+                              </body>
+                            </body>
+                          </body>
+                        </body>
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

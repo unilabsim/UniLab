@@ -1,0 +1,98 @@
+<mujoco>
+  <compiler angle="radian" assetdir="assets"/>
+  <asset>
+    <texture type="2d" colorspace="linear" name="noise_normal" file="noise_normal.png"/>
+    <texture type="2d" colorspace="sRGB" name="rubber_tiles_diff_1k" file="rubber_tiles_diff_1k.png"/>
+    <texture type="2d" colorspace="linear" name="rubber_tiles_nor_gl_1k" file="rubber_tiles_nor_gl_1k.png"/>
+    <texture type="2d" colorspace="linear" name="rubber_tiles_arm_1k" file="rubber_tiles_arm_1k.png"/>
+    <material name="aluminum_rough" rgba="0.9546872 0.9705489 1.0 1.0" reflectance="0.5" roughness="0.4" metallic="1.0" texuniform="true" texrepeat="12.0 12.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <material name="logo_edge" rgba="0.3882493 0.581148 1.0 1.0" reflectance="0.5" roughness="0.4" metallic="1.0" texuniform="true" texrepeat="12.0 12.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <material name="Floor" rgba="0.0861042 0.0861042 0.0861042 1.0" reflectance="0.5" roughness="0.25" metallic="1.0" texuniform="true" texrepeat="200.0 200.0">
+      <layer texture="rubber_tiles_diff_1k" role="rgb"/>
+      <layer texture="rubber_tiles_nor_gl_1k" role="normal"/>
+      <layer texture="rubber_tiles_arm_1k" role="orm"/>
+    </material>
+    <mesh name="logo" file="logo.obj"/>
+    <mesh name="logo_001" file="logo_001.obj"/>
+    <mesh name="Plane" file="Plane.obj"/>
+    <model name="go2w_stairss" file="./model/go2/go2w_stairs.xml"/>
+    <model name="go2_handstands" file="./model/go2/go2_handstand.xml"/>
+    <model name="g1_handstands" file="./model/g1/g1_handstand.xml"/>
+    <model name="g1_dances" file="./model/g1/g1_dance.xml"/>
+    <model name="g1_carrys" file="./model/g1/g1_carry.xml"/>
+    <model name="go2_arm_opens" file="./model/go2/go2_arm_open.xml"/>
+    <model name="g1_clamps" file="./model/g1/g1_clamp.xml"/>
+    <model name="g1_hands" file="./model/g1_hand/g1_hand.xml"/>
+    <model name="carboxs" file="./model/box/carbox.xml"/>
+    <model name="propss" file="./model/props/props.xml"/>
+    <model name="stairss" file="./model/stairs/stairs.xml"/>
+    <model name="franka_arms" file="./model/franka_arm/franka_arm.xml"/>
+    <model name="tables" file="./model/table/table.xml"/>
+    <model name="table1s" file="./model/table/table1.xml"/>
+  </asset>
+  <worldbody>
+    <camera name="Camera" pos="-1e-07 -4.651988 3.4337847" quat="0.8660254 0.5 0.0 0.0" fovy="39.0000011" mode="fixed"/>
+    <light name="LIT_Spot" pos="0.0 -0.5300041 3.1890152" dir="-0.0 0.3002296 -0.953867" type="spot" diffuse="1.0 1.0 1.0" intensity="43468.5759745" range="20.0" cutoff="89.0000013" innerangle="0.0" castshadow="true" mode="fixed"/>
+    <light name="LIT_Spot.001" pos="-3.02373 -0.3936311 2.617373" dir="0.5117707 0.25034 -0.8218398" type="spot" diffuse="1.0 1.0 1.0" intensity="43468.5759745" range="20.0" cutoff="89.0000013" innerangle="0.0" castshadow="true" mode="fixed"/>
+    <light name="LIT_Spot.002" pos="3.0237315 -0.3936311 2.617373" dir="-0.5117707 0.2503399 -0.8218398" type="spot" diffuse="1.0 1.0 1.0" intensity="43468.5759745" range="20.0" cutoff="89.0000013" innerangle="0.0" castshadow="true" mode="fixed"/>
+    <light name="LIT_Sun.002" pos="0.0 0.0 3.0" dir="-3e-07 -0.9902681 -0.1391731" type="directional" diffuse="1.0 0.6296971 0.3517622" intensity="13660.0" directional="true" castshadow="true" mode="fixed"/>
+    <light name="LIT_Spot.003" pos="2e-07 -3.5282207 3.2407222" dir="-0.0 0.6481491 -0.7615135" type="spot" diffuse="1.0 1.0 1.0" intensity="195608.5918854" range="4.0" cutoff="15.0000004" innerangle="12.0000003" castshadow="false" mode="fixed"/>
+    <light name="LIT_Spot.004" pos="-1.4892567 -3.5282207 3.2407222" dir="-0.0 0.6481491 -0.7615135" type="spot" diffuse="1.0 1.0 1.0" intensity="195608.5918854" range="4.0" cutoff="15.0000004" innerangle="12.0000003" castshadow="false" mode="fixed"/>
+    <light name="LIT_Spot.005" pos="1.4892576 -3.5282207 3.2407222" dir="-0.0 0.6481491 -0.7615135" type="spot" diffuse="1.0 1.0 1.0" intensity="195608.5918854" range="4.0" cutoff="15.0000004" innerangle="12.0000003" castshadow="false" mode="fixed"/>
+    <geom name="LOGO" pos="-0.0130663 -1.2279502 0.0397934" quat="0.8767737 0.4809033 0.0 0.0" type="mesh" mesh="logo" material="aluminum_rough" group="2" contype="0" conaffinity="0"/>
+    <geom name="LOGO_edge" pos="-0.0130663 -1.2279502 0.0397934" quat="0.8767737 0.4809033 0.0 0.0" type="mesh" mesh="logo_001" material="logo_edge" group="2" contype="0" conaffinity="0"/>
+    <geom name="GEO_Plane" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="Plane" material="Floor" group="2" contype="0" conaffinity="0"/>
+    <frame name="FRM_Frame_001" pos="1.8912572 1.7409853 -0.0" quat="0.5263364 -0.0 -0.0 -0.8502764">
+      <attach model="table1s" prefix="table1s_"/>
+    </frame>
+    <frame name="FRM_Frame_002" pos="-3.5091588 1.5621644 0.0" quat="0.9849022 0.0 0.0 -0.1731116">
+      <attach model="stairss" prefix="stairss_"/>
+    </frame>
+    <frame name="FRM_Frame_004" pos="-2.8701677 0.9608062 0.0008761" quat="0.9995236 0.0 0.0 -0.0308641">
+      <attach model="go2w_stairss" prefix="go2w_stairss_"/>
+    </frame>
+    <frame name="FRM_Frame_005" pos="-0.9283887 2.6824355 0.0" quat="0.4447103 -0.0 -0.0 -0.8956745">
+      <attach model="go2_handstands" prefix="go2_handstands_"/>
+    </frame>
+    <frame name="FRM_Frame_006" pos="-2.2320683 1.6318221 0.1797514" quat="0.8975676 0.0 0.0 -0.440877">
+      <attach model="g1_handstands" prefix="g1_handstands_"/>
+    </frame>
+    <frame name="FRM_Frame_007" pos="0.9652663 1.6762235 0.0" quat="0.7565454 0.0 0.0 -0.6539412">
+      <attach model="g1_dances" prefix="g1_dances_"/>
+    </frame>
+    <frame name="FRM_Frame_008" pos="2.3967259 0.4507827 -0.0" quat="0.2198159 -0.0 -0.0 -0.9755414">
+      <attach model="g1_carrys" prefix="g1_carrys_"/>
+    </frame>
+    <frame name="FRM_Frame" pos="-0.720692 0.5663332 0.0" quat="0.8202124 0.0 0.0 -0.572059">
+      <attach model="tables" prefix="tables_"/>
+    </frame>
+    <frame name="FRM_Frame_003" pos="0.779573 0.1210552 0.0" quat="0.8117627 0.0 0.0 -0.5839874">
+      <attach model="go2_arm_opens" prefix="go2_arm_opens_"/>
+    </frame>
+    <frame name="FRM_Frame_009" pos="1.9368157 1.6677431 -0.0" quat="0.5571537 -0.0 -0.0 -0.8304094">
+      <attach model="g1_clamps" prefix="g1_clamps_"/>
+    </frame>
+    <frame name="FRM_Frame_010" pos="-0.1046804 0.7860223 0.7145868" quat="0.7678232 0.0 0.0 -0.6406618">
+      <attach model="g1_hands" prefix="g1_hands_"/>
+    </frame>
+    <frame name="FRM_Frame_011" pos="2.2522385 0.3755884 0.637662" quat="0.2191848 -0.0738696 -0.0166448 -0.9727406">
+      <attach model="carboxs" prefix="carboxs_"/>
+    </frame>
+    <frame name="FRM_Frame_012" pos="-0.2362325 0.4443021 1.9453888" quat="0.4273235 0.5019393 -0.2899113 -0.693832">
+      <attach model="propss" body="LNK_Tetra_500" prefix="propss_"/>
+    </frame>
+    <frame name="FRM_Frame_013" pos="0.4632193 0.4868389 1.8107977" quat="0.3376326 0.3655035 -0.0916834 -0.8625576">
+      <attach model="propss" body="LNK_Cans_N330" prefix="propss_"/>
+    </frame>
+    <frame name="FRM_Frame_002.001" pos="-3.8853283 1.6994153 0.0" quat="0.1731115 0.0 0.0 0.9849023">
+      <attach model="stairss" prefix="stairss1_"/>
+    </frame>
+    <frame name="FRM_Frame_014" pos="-1.0937881 0.5340775 0.7138668" quat="0.8191521 0.0 0.0 -0.5735764">
+      <attach model="franka_arms" prefix="franka_arms_"/>
+    </frame>
+  </worldbody>
+</mujoco>

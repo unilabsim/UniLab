@@ -1,0 +1,23 @@
+<mujoco>
+  <compiler angle="radian" assetdir="assets"/>
+  <option>
+    <flag/>
+  </option>
+  <statistic/>
+  <asset>
+    <texture type="2d" colorspace="sRGB" name="rubber_tiles_diff_1k" file="rubber_tiles_diff_1k.png"/>
+    <texture type="2d" colorspace="linear" name="rubber_tiles_nor_gl_1k" file="rubber_tiles_nor_gl_1k.png"/>
+    <texture type="2d" colorspace="linear" name="rubber_tiles_arm_1k" file="rubber_tiles_arm_1k.png"/>
+    <material name="template" rgba="0.9063318 0.9063318 0.9063318 1.0" reflectance="0.5" roughness="0.5" metallic="0.0"/>
+    <material name="Floor" rgba="0.01 0.01 0.01 1.0" reflectance="0.5" roughness="0.3" metallic="0.0" texuniform="true" texrepeat="200.0 200.0">
+      <layer texture="rubber_tiles_diff_1k" role="rgb"/>
+      <layer texture="rubber_tiles_nor_gl_1k" role="normal"/>
+      <!-- <layer texture="rubber_tiles_arm_1k" role="orm"/> -->
+    </material>
+    <mesh name="Plane" file="Plane.obj"/>
+  </asset>
+  <worldbody>
+    <geom name="FLG_Plane" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="plane" size="0.0 0.0 0.01" material="template" group="3"/>
+    <geom name="GEO_Plane" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="Plane" material="Floor" group="2" contype="0" conaffinity="0"/>
+  </worldbody>
+</mujoco>

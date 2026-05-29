@@ -1,0 +1,29 @@
+<mujoco>
+  <compiler angle="radian" assetdir="assets"/>
+  <option>
+    <flag/>
+  </option>
+  <statistic/>
+  <asset>
+    <texture type="2d" colorspace="sRGB" name="V_Cans_N330" file="V_Cans_N330.png"/>
+    <texture type="2d" colorspace="linear" name="V_Cans_N330_orm" file="V_Cans_N330_orm.png"/>
+    <texture type="2d" colorspace="sRGB" name="V_Tetra_500" file="V_Tetra_500.png"/>
+    <material name="Cans_B" rgba="1.0 1.0 1.0 1.0" reflectance="0.5" roughness="1.0" metallic="1.0">
+      <layer texture="V_Cans_N330" role="rgb"/>
+      <layer texture="V_Cans_N330_orm" role="orm"/>
+    </material>
+    <material name="Tetra_D" rgba="1.0 1.0 1.0 1.0" reflectance="0.5" roughness="0.3" metallic="0.0">
+      <layer texture="V_Tetra_500" role="rgb"/>
+    </material>
+    <mesh name="V_Cans_N330" file="V_Cans_N330.obj"/>
+    <mesh name="V_Tetra_500" file="V_Tetra_500.obj"/>
+  </asset>
+  <worldbody>
+    <body name="LNK_Cans_N330" pos="-0.0 0.0001263 0.0596309" quat="1.0 0.0 0.0 0.0">
+      <geom name="V_Cans_N330" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="V_Cans_N330" material="Cans_B" group="2"/>
+    </body>
+    <body name="LNK_Tetra_500" pos="-0.0 0.0001263 0.0596309" quat="1.0 0.0 0.0 0.0">
+      <geom name="V_Tetra_500" pos="0.0 -0.0001347 0.0016961" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="V_Tetra_500" material="Tetra_D" group="2"/>
+    </body>
+  </worldbody>
+</mujoco>

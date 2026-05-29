@@ -1,0 +1,27 @@
+<mujoco>
+  <compiler angle="radian" assetdir="assets"/>
+  <option>
+    <flag/>
+  </option>
+  <statistic/>
+  <asset>
+    <texture type="2d" colorspace="sRGB" name="plywood_diff_1k" file="plywood_diff_1k.png"/>
+    <texture type="2d" colorspace="linear" name="plywood_nor_gl_1k" file="plywood_nor_gl_1k.png"/>
+    <texture type="2d" colorspace="linear" name="plywood_arm_1k" file="plywood_arm_1k.png"/>
+    <texture type="2d" colorspace="linear" name="noise_normal" file="noise_normal.png"/>
+    <material name="m_wood_counter_a01" rgba="0.735357 0.735357 0.735357 1.0" reflectance="0.5" roughness="1.0" metallic="1.0">
+      <layer texture="plywood_diff_1k" role="rgb"/>
+      <layer texture="plywood_nor_gl_1k" role="normal"/>
+      <layer texture="plywood_arm_1k" role="orm"/>
+    </material>
+    <material name="aluminum_rough" rgba="0.5349573 0.5368318 0.5370987 1.0" reflectance="0.5" roughness="0.6" metallic="1.0" texuniform="true" texrepeat="12.0 12.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <mesh name="table_surface1" file="table_surface1.obj"/>
+    <mesh name="table_column" file="table_column.obj"/>
+  </asset>
+  <worldbody>
+    <geom name="table_surface1" pos="0.0002279 -1e-07 0.5344253" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="table_surface1" material="m_wood_counter_a01" group="2"/>
+    <geom name="table_column" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="table_column" material="aluminum_rough" group="2"/>
+  </worldbody>
+</mujoco>

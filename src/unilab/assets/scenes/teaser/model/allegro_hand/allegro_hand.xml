@@ -1,0 +1,166 @@
+<mujoco>
+  <compiler angle="radian" meshdir="assets"/>
+  <option>
+    <flag/>
+  </option>
+  <statistic/>
+  <asset>
+    <texture type="2d" colorspace="linear" name="noise_normal" file="noise_normal.png.001"/>
+    <texture type="2d" colorspace="sRGB" name="texture_map" file="texture_map.png"/>
+    <material name="aluminum_rough" rgba="0.7946537 0.7973532 0.7977377 1.0" reflectance="0.5" roughness="0.5" metallic="1.0" texuniform="true" texrepeat="2.0 2.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <material name="black_metal" rgba="0.220085 0.220813 0.2209164 1.0" reflectance="0.5" roughness="0.5" metallic="1.0" texuniform="true" texrepeat="8.0 8.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <material name="black_rubber" rgba="0.8543058 0.8543058 0.8543058 1.0" reflectance="0.5" roughness="0.7" metallic="0.0" texuniform="true" texrepeat="16.0 16.0">
+      <layer texture="noise_normal" role="normal"/>
+    </material>
+    <material name="material_0" rgba="1.0 1.0 1.0 1.0" reflectance="0.5" roughness="1.0" metallic="0.0">
+      <layer texture="texture_map" role="rgb"/>
+    </material>
+    <material name="template" rgba="0.9063318 0.9063318 0.9063318 1.0" reflectance="0.5" roughness="0.5" metallic="0.0"/>
+    <mesh name="base" file="base.obj"/>
+    <mesh name="base_link" file="base_link.obj"/>
+    <mesh name="link_0_0" file="link_0_0.obj"/>
+    <mesh name="link_1_0" file="link_1_0.obj"/>
+    <mesh name="link_2_0" file="link_2_0.obj"/>
+    <mesh name="link_3_0" file="link_3_0.obj"/>
+    <mesh name="link_3_0_tip" file="link_3_0_tip.obj"/>
+    <mesh name="link_12_0_right" file="link_12_0_right.obj"/>
+    <mesh name="link_13_0" file="link_13_0.obj"/>
+    <mesh name="link_14_0" file="link_14_0.obj"/>
+    <mesh name="link_15_0" file="link_15_0.obj"/>
+    <mesh name="link_15_0_tip" file="link_15_0_tip.obj"/>
+    <mesh name="ball" file="ball.obj"/>
+  </asset>
+  <worldbody>
+    <geom name="base" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="base" material="aluminum_rough" group="2"/>
+    <body name="palm" pos="0.008 0.0 0.195" quat="1.0 0.0 0.0 0.0" gravcomp="1.0">
+      <geom name="ball" pos="-0.1172307 0.0058808 0.019121" quat="0.7071068 0.7071068 0.0 0.0" type="mesh" mesh="ball" material="material_0" group="2"/>
+      <geom name="base_link" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="base_link" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+      <geom name="GEO_Box" pos="-0.0093 0.0 -0.0475" quat="1.0 0.0 0.0 0.0" type="box" size="0.0204 0.0565 0.0475" material="template" group="3" density="800.0"/>
+      <body name="ff_base" pos="0.0 0.0435 -0.001542" quat="0.9987252 -0.0436053 -0.0011092 0.0254042">
+        <joint name="ffj0" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.47 0.47" armature="0.01" damping="0.1"/>
+        <geom name="GEO_Box_001" pos="0.0 0.0 0.0082" quat="0.9987252 0.0436053 0.0011092 -0.0254042" type="box" size="0.0098 0.01375 0.0082" material="template" group="3" density="800.0"/>
+        <geom name="link_0_0" pos="0.0 0.0 0.0" quat="1.0 0.0 -0.0 -0.0" type="mesh" mesh="link_0_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+        <body name="ff_proximal" pos="-0.0 0.0 0.0164" quat="0.9275916 0.0 -0.3735958 -0.0">
+          <joint name="ffj1" pos="0.0 0.0 0.0" axis="-0.0 1.0 1e-07" type="hinge" range="-0.196 1.61" armature="0.01" damping="0.1"/>
+          <geom name="GEO_Box_002" pos="0.0 0.0 0.027" quat="0.9259947 0.030957 0.3741484 -0.0398555" type="box" size="0.0098 0.01375 0.027" material="template" group="3" density="800.0"/>
+          <geom name="link_1_0" pos="0.0 0.0 -0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="link_1_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+          <body name="ff_medial" pos="0.0 -0.0 0.0539999" quat="0.9275985 -0.0 -0.3735787 0.0">
+            <joint name="ffj2" pos="0.0 0.0 0.0" axis="-0.0 1.0 1e-07" type="hinge" range="-0.174 1.709" armature="0.01" damping="0.1"/>
+            <geom name="GEO_Box_003" pos="0.0 0.0 0.0192" quat="0.7191774 0.0138266 0.6929914 -0.0485347" type="box" size="0.0098 0.01375 0.0192" material="template" group="3" density="800.0"/>
+            <geom name="link_2_0" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link_2_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+            <body name="ff_distal" pos="1e-07 0.0 0.0384" quat="0.9275892 0.0 -0.3736019 0.0">
+              <joint name="ffj3" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-0.227 1.618" armature="0.01" damping="0.1"/>
+              <geom name="GEO_Box_004" pos="0.0 0.0 0.008" quat="0.4081984 -0.0053074 0.9114973 -0.0501859" type="box" size="0.0098 0.01375 0.008" material="template" group="3" density="800.0"/>
+              <geom name="link_3_0" pos="-0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="link_3_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+              <body name="ff_tip" pos="-0.0 0.0 -0.0" quat="1.0 0.0 1e-07 -0.0">
+                <geom name="ff_tip_col" pos="0.0 0.0 0.019" quat="0.4081984 -0.0053074 0.9114972 -0.0501859" type="capsule" size="0.012 0.01" material="template" group="3" condim="6" friction="2.0 0.05 0.01" density="800.0"/>
+                <geom name="link_3_0_tip" pos="0.0 -0.0 0.0267" quat="1.0 0.0 -0.0 0.0" type="mesh" mesh="link_3_0_tip" material="black_rubber" group="2" contype="0" conaffinity="0" density="800.0"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="mf_base" pos="0.0 0.0 0.0007" quat="0.9995176 0.0 0.0 -0.0310589">
+        <joint name="mfj0" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.47 0.47" armature="0.01" damping="0.1"/>
+        <geom name="GEO_Box_005" pos="0.0 0.0 0.0082" quat="0.9995176 0.0 0.0 0.0310589" type="box" size="0.0098 0.01375 0.0082" material="template" group="3" density="800.0"/>
+        <geom name="link_001" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link_0_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+        <body name="mf_proximal" pos="-0.0 0.0 0.0164" quat="0.9427835 -0.0 -0.3334057 -0.0">
+          <joint name="mfj1" pos="0.0 0.0 0.0" axis="-0.0 1.0 1e-07" type="hinge" range="-0.196 1.61" armature="0.01" damping="0.1"/>
+          <geom name="GEO_Box_006" pos="0.0 0.0 0.027" quat="0.9423286 0.0103552 0.3332449 0.0292819" type="box" size="0.0098 0.01375 0.027" material="template" group="3" density="800.0"/>
+          <geom name="link_002" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="link_1_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+          <body name="mf_medial" pos="1e-07 -0.0 0.054" quat="0.9507729 -0.0 -0.3098887 0.0">
+            <joint name="mfj2" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-0.174 1.709" armature="0.01" damping="0.1"/>
+            <geom name="GEO_Box_007" pos="0.0 0.0 0.0192" quat="0.7926716 0.0189196 0.6088572 0.0246314" type="box" size="0.0098 0.01375 0.0192" material="template" group="3" density="800.0"/>
+            <geom name="link_003" pos="0.0 0.0 0.0" quat="1.0 0.0 -0.0 -0.0" type="mesh" mesh="link_2_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+            <body name="mf_distal" pos="-0.0 0.0 0.0384" quat="0.9508801 -0.0 -0.3095596 -0.0">
+              <joint name="mfj3" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-0.227 1.618" armature="0.01" damping="0.1"/>
+              <geom name="GEO_Box_008" pos="0.0 0.0 0.008" quat="0.5652581 0.0256152 0.8243292 0.0175648" type="box" size="0.0098 0.01375 0.008" material="template" group="3" density="800.0"/>
+              <geom name="link_004" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="link_3_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+              <body name="mf_tip" pos="-0.0 0.0 -0.0" quat="1.0 -0.0 0.0 -0.0">
+                <geom name="link_3_0_001" pos="0.0 0.0 0.0267" quat="1.0 0.0 0.0 -0.0" type="mesh" mesh="link_3_0_tip" material="black_rubber" group="2" contype="0" conaffinity="0" density="800.0"/>
+                <geom name="mf_tip_col" pos="0.0 0.0 0.019" quat="0.5652581 0.0256152 0.8243292 0.0175648" type="capsule" size="0.012 0.01" material="template" group="3" condim="6" friction="2.0 0.05 0.01" density="800.0"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="rf_base" pos="0.0 -0.0435 -0.001542" quat="0.9960707 0.0434894 -0.0033652 -0.0770747">
+        <joint name="rfj0" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.47 0.47" armature="0.01" damping="0.1"/>
+        <geom name="GEO_Box_009" pos="0.0 0.0 0.0082" quat="0.9960707 -0.0434894 0.0033652 0.0770747" type="box" size="0.0098 0.01375 0.0082" material="template" group="3" density="800.0"/>
+        <geom name="link_005" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="link_0_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+        <body name="rf_proximal" pos="0.0 0.0 0.0164" quat="0.9204001 -0.0 -0.3909777 0.0">
+          <joint name="rfj1" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-0.196 1.61" armature="0.01" damping="0.1"/>
+          <geom name="GEO_Box_010" pos="0.0 0.0 0.027" quat="0.9154679 -0.0098932 0.3925388 0.0879429" type="box" size="0.0098 0.01375 0.027" material="template" group="3" density="800.0"/>
+          <geom name="link_006" pos="0.0 0.0 0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="link_1_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+          <body name="rf_medial" pos="0.0 0.0 0.054" quat="0.916375 0.0 -0.400321 0.0">
+            <joint name="rfj2" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-0.174 1.709" armature="0.01" damping="0.1"/>
+            <geom name="GEO_Box_011" pos="0.0 0.0 0.0192" quat="0.6817704 0.0261396 0.7261937 0.0845491" type="box" size="0.0098 0.01375 0.0192" material="template" group="3" density="800.0"/>
+            <geom name="link_007" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link_2_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+            <body name="rf_distal" pos="0.0 0.0 0.0384" quat="0.9841714 -0.0 -0.1772194 0.0">
+              <joint name="rfj3" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-0.227 1.618" armature="0.01" damping="0.1"/>
+              <geom name="GEO_Box_012" pos="0.0 0.0 0.008" quat="0.5422834 0.0407096 0.835522 0.0785784" type="box" size="0.0098 0.01375 0.008" material="template" group="3" density="800.0"/>
+              <geom name="link_008" pos="0.0 0.0 0.0" quat="1.0 -0.0 -0.0 0.0" type="mesh" mesh="link_3_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+              <body name="rf_tip" pos="0.0 -0.0 0.0" quat="1.0 -0.0 -1e-07 -0.0">
+                <geom name="link_009" pos="0.0 0.0 0.0267" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="link_3_0_tip" material="black_rubber" group="2" contype="0" conaffinity="0" density="800.0"/>
+                <geom name="rf_tip_col" pos="0.0 0.0 0.019" quat="0.5422832 0.0407096 0.8355221 0.0785784" type="capsule" size="0.012 0.01" material="template" group="3" condim="6" friction="2.0 0.05 0.01" density="800.0"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="th_base" pos="-0.0182 0.019333 -0.045987" quat="0.674098 0.0489692 -0.7356497 0.044872">
+        <joint name="thj0" pos="0.0 0.0 0.0" axis="-1.0 -1e-07 -1e-07" type="hinge" range="0.263 1.396" armature="0.01" damping="0.1"/>
+        <geom name="GEO_Box_013" pos="-0.0179 0.009 0.0145" quat="0.6740979 -0.0489692 0.7356498 -0.044872" type="box" size="0.0179 0.017 0.02275" material="template" group="3" density="800.0"/>
+        <geom name="link_12_0_right" pos="-0.0 0.0 -0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="link_12_0_right" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+        <body name="th_proximal" pos="-0.027 0.005 0.0399" quat="1.0 -0.0 0.0 -0.0">
+          <joint name="thj1" pos="0.0 0.0 0.0" axis="0.0 0.0 1.0" type="hinge" range="-0.105 1.163" armature="0.01" damping="0.1"/>
+          <geom name="GEO_Box_014" pos="0.0 0.0 0.00885" quat="0.674098 -0.0489692 0.7356497 -0.044872" type="box" size="0.0098 0.01375 0.00885" material="template" group="3" density="800.0"/>
+          <geom name="link_13_0" pos="-0.0 -0.0 -0.0" quat="1.0 -0.0 0.0 0.0" type="mesh" mesh="link_13_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+          <body name="th_medial" pos="0.0 0.0 0.0177" quat="0.9693884 -0.0 0.2455324 0.0">
+            <joint name="thj2" pos="0.0 0.0 0.0" axis="-0.0 1.0 1e-07" type="hinge" range="-0.189 1.6440001" armature="0.01" damping="0.1"/>
+            <geom name="GEO_Box_015" pos="0.0 0.0 0.0257" quat="0.8340885 -0.0364527 0.5476175 -0.0555219" type="box" size="0.0098 0.01375 0.0257" material="template" group="3" density="800.0"/>
+            <geom name="link_14_0" pos="-0.0 -0.0 0.0" quat="1.0 -0.0 0.0 -0.0" type="mesh" mesh="link_14_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+            <body name="th_distal" pos="-0.0 0.0 0.0514" quat="0.9433336 -0.0 0.3318459 0.0">
+              <joint name="thj3" pos="0.0 0.0 0.0" axis="0.0 1.0 1e-07" type="hinge" range="-0.162 1.719" armature="0.01" damping="0.1"/>
+              <geom name="GEO_Box_016" pos="0.0 0.0 0.0157" quat="0.9685483 -0.0159623 0.2397971 -0.0644723" type="box" size="0.0098 0.01375 0.0157" material="template" group="3" density="800.0"/>
+              <geom name="link_15_0" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link_15_0" material="black_metal" group="2" contype="0" conaffinity="0" density="800.0"/>
+              <body name="th_tip" pos="-0.0 0.0 1e-07" quat="1.0 0.0 1e-07 0.0">
+                <geom name="link_15_0_tip" pos="-0.0 0.0 0.0423" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="link_15_0_tip" material="black_rubber" group="2" contype="0" conaffinity="0" density="800.0"/>
+                <geom name="th_tip_col" pos="0.0 0.0 0.035" quat="0.9685484 -0.0159623 0.2397971 -0.0644723" type="capsule" size="0.012 0.008" material="template" group="3" condim="6" friction="2.0 0.05 0.01" density="800.0"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <contact>
+    <exclude body1="palm" body2="ff_base"/>
+    <exclude body1="palm" body2="mf_base"/>
+    <exclude body1="palm" body2="rf_base"/>
+    <exclude body1="palm" body2="th_base"/>
+    <exclude body1="palm" body2="th_proximal"/>
+  </contact>
+  <actuator>
+    <position name="ffa0" joint="ffj0" ctrlrange="-0.47 0.47"/>
+    <position name="ffa1" joint="ffj1" ctrlrange="-0.196 1.61"/>
+    <position name="ffa2" joint="ffj2" ctrlrange="-0.174 1.709"/>
+    <position name="ffa3" joint="ffj3" ctrlrange="-0.227 1.618"/>
+    <position name="mfa0" joint="mfj0" ctrlrange="-0.47 0.47"/>
+    <position name="mfa1" joint="mfj1" ctrlrange="-0.196 1.61"/>
+    <position name="mfa2" joint="mfj2" ctrlrange="-0.174 1.709"/>
+    <position name="mfa3" joint="mfj3" ctrlrange="-0.227 1.618"/>
+    <position name="rfa0" joint="rfj0" ctrlrange="-0.47 0.47"/>
+    <position name="rfa1" joint="rfj1" ctrlrange="-0.196 1.61"/>
+    <position name="rfa2" joint="rfj2" ctrlrange="-0.174 1.709"/>
+    <position name="rfa3" joint="rfj3" ctrlrange="-0.227 1.618"/>
+    <position name="tha0" joint="thj0" ctrlrange="0.263 1.396"/>
+    <position name="tha1" joint="thj1" ctrlrange="-0.105 1.163"/>
+    <position name="tha2" joint="thj2" ctrlrange="-0.189 1.6440001"/>
+    <position name="tha3" joint="thj3" ctrlrange="-0.162 1.719"/>
+  </actuator>
+</mujoco>
