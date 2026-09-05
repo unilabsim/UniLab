@@ -124,10 +124,9 @@ def _check_runtime_requirements(algo: str, sim: str) -> None:
         if missing:
             joined = ", ".join(missing)
             raise SystemExit(
-                "sim=newton requires the isolated Newton extra "
+                "sim=newton requires the Newton extra "
                 f"(missing: {joined}). Install it with `uv sync --extra newton` "
-                "in a source checkout (or `pip install unilab[newton]`). Do not "
-                "combine the newton extra with mujoco or mjwarp."
+                "in a source checkout (or `pip install unilab[newton]`)."
             )
     if sim == "motrix" and find_spec("motrixsim") is None:
         raise SystemExit(
