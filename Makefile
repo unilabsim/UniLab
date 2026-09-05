@@ -2,17 +2,32 @@
 sync:
 	uv sync --extra mujoco --extra motrix
 
-# Switch the MuJoCo solver version (tested window: >=3.5,<3.11), e.g.
-#   make mujoco MJ=3.8.0
-# Repins mujoco in uv.lock, then rebuilds the mujoco-uni-runtime native
-# extension against it (the extension refuses to load on a version mismatch,
-# and uv's build cache must be cleared because it cannot see the dependency).
+# Switch the MuJoCo solver version (support window: >=3.5,<3.12), e.g.
+#   make mujoco MJ=3.10.0
+# This is the explicit sdist fallback path: the prebuilt mujoco-uni-runtime
+# wheels only bind the default mujoco==3.11.0, so any other version requires
+# recompiling the native extension from source against the requested mujoco.
+# The target repins mujoco in uv.lock, clears uv's build cache (it cannot see
+# that the extension depends on the mujoco version), and forces a source
+# rebuild via --no-binary-package. The default `make setup` path installs the
+# prebuilt wheel and needs no compiler.
+.PHONY: check-cxx-toolchain
+check-cxx-toolchain:
+	@command -v c++ >/dev/null 2>&1 || { \
+		echo "error: building mujoco-uni-runtime from source requires a C++ toolchain, but 'c++' was not found."; \
+		echo "  Debian/Ubuntu: sudo apt-get install build-essential"; \
+		echo "  macOS:         xcode-select --install"; \
+		echo "  Fedora/RHEL:   sudo dnf install gcc-c++ make"; \
+		exit 1; \
+	}
+
 .PHONY: mujoco
 mujoco:
-	@test -n "$(MJ)" || (echo "usage: make mujoco MJ=3.8.0" && exit 1)
+	@test -n "$(MJ)" || (echo "usage: make mujoco MJ=3.10.0" && exit 1)
+	@$(MAKE) --no-print-directory check-cxx-toolchain
 	uv lock --upgrade-package mujoco==$(MJ)
 	uv cache clean mujoco-uni-runtime
-	uv sync --extra mujoco --extra motrix --reinstall-package mujoco-uni-runtime
+	uv sync --extra mujoco --extra motrix --no-binary-package mujoco-uni-runtime --reinstall-package mujoco-uni-runtime
 
 .PHONY: setup
 setup:
