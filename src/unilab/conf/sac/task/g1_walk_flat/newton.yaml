@@ -1,6 +1,7 @@
 # @package _global_
 # Newton SAC owner for the in-process backend (newton==1.5.1, MuJoCo-Warp 3.11
-# / Warp 1.16 line, isolated from the historical mujoco/mjwarp extras). Keeps
+# / Warp 1.16 line, shared with the mujoco/mjwarp extras — all three extras are
+# jointly installable in one environment). Keeps
 # DENYLIST parity with the MuJoCo SAC owner (identical algo block) so
 # cross-backend play transfers 1:1. Newton owns explicit device and storage
 # capacities: a null newton_device is intentional — the process device binder

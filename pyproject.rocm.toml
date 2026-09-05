@@ -68,12 +68,17 @@ drake = [
     "drake-uni==0.1.0",
 ]
 mujoco = [
-    "mujoco>=3.5",
-    # Bound stays loose; uv.rocm.lock pins the default solver version. The
-    # tested window is >=3.5,<3.11 — switch via `make mujoco MJ=<version>`.
-    "mujoco-uni-runtime==0.4.0",
-    # pybind11/wheel are build requirements of mujoco-uni-runtime, which is
-    # compiled in this environment (see no-build-isolation-package below).
+    # MuJoCo 3.11 alignment (unilabsim/UniLab#1515): the bound is a
+    # compatible-release specifier; uv.rocm.lock pins the exact MuJoCo
+    # version, and the `mujoco-uni-runtime` pin is exact because each runtime
+    # release carries exactly one prebuilt MuJoCo binding (its 0.5.0 wheels
+    # bind mujoco==3.11.0; the runtime supports >=3.5,<3.12 via sdist
+    # rebuilds). Switch via `make mujoco MJ=<version>` (source rebuild path).
+    "mujoco~=3.11.0",
+    "mujoco-uni-runtime==0.5.0",
+    # pybind11/wheel are build requirements of the mujoco-uni-runtime sdist
+    # fallback build (see no-build-isolation-package below); the default
+    # install path uses the prebuilt wheel and never invokes them.
     "pybind11>=2.12",
     "wheel",
 ]
@@ -104,16 +109,15 @@ exclude-dependencies = [
     "nvidia-cuda-runtime-cu12",
     "nvidia-cudnn-cu12",
 ]
-# Build mujoco-uni-runtime against the mujoco version locked in this project
-# environment instead of an isolated build env (its native extension records
-# the build-time mujoco version and refuses to load on mismatch). Prebuilt
-# wheels on the index are bound to one specific mujoco build, so always
-# compile from the sdist here. After changing the mujoco version, run
-# `uv cache clean mujoco-uni-runtime && uv sync --extra mujoco
-# --reinstall-package mujoco-uni-runtime` to force a fresh in-env build
-# (uv's build cache cannot see that the extension depends on mujoco).
+# Only relevant if mujoco-uni-runtime is ever built from its sdist inside
+# this project: the native extension must be compiled against the mujoco
+# version installed in this environment rather than in an isolated build env,
+# because it records the build-time mujoco version and refuses to load on
+# mismatch. The sdist fallback path (`make mujoco MJ=<version>`) builds via
+# `uv pip install --no-build-isolation` explicitly; this setting covers any
+# other in-project build. The default install path resolves the prebuilt
+# wheel (bound to mujoco==3.11.0) and never builds anything.
 no-build-isolation-package = ["mujoco-uni-runtime"]
-no-binary-package = ["mujoco-uni-runtime"]
 required-environments = [
     "sys_platform == 'darwin' and platform_machine == 'arm64'",
     "sys_platform == 'linux' and platform_machine == 'x86_64'",

@@ -112,13 +112,21 @@ drake = [
     "mujoco>=3.5",
 ]
 mujoco = [
-    # Bound stays loose; the committed uv.lock pins the default solver version
-    # (uv prefer-locked semantics). The tested window is >=3.5,<3.11 — switch
-    # within it via `make mujoco MJ=<version>`.
-    "mujoco>=3.5",
-    "mujoco-uni-runtime==0.4.0",
-    # pybind11/wheel are build requirements of mujoco-uni-runtime, which is
-    # compiled in this environment (see no-build-isolation-package below).
+    # MuJoCo 3.11 alignment (unilabsim/UniLab#1515): the mujoco, mjwarp, and
+    # newton extras share one MuJoCo 3.11 / MuJoCo-Warp 3.11 / warp-lang 1.16.0
+    # line and are jointly installable. The `mujoco` bound is a compatible-
+    # release specifier; `uv.lock` pins the exact MuJoCo version, and the
+    # `mujoco-uni-runtime` pin is exact because each runtime release carries
+    # exactly one prebuilt MuJoCo binding (its 0.5.0 wheels bind
+    # mujoco==3.11.0; the runtime supports >=3.5,<3.12 via sdist rebuilds).
+    # Switch to a non-default MuJoCo version via `make mujoco MJ=<version>`,
+    # which forces a source rebuild of the runtime.
+    "mujoco~=3.11.0",
+    "mujoco-uni-runtime==0.5.0",
+    # pybind11/wheel are build requirements of the mujoco-uni-runtime sdist
+    # fallback build (see no-build-isolation-package below). The default
+    # install path uses the prebuilt wheel and never invokes them, but they
+    # must already be in the env when `make mujoco MJ=<version>` recompiles.
     "pybind11>=2.12",
     "wheel",
 ]
@@ -126,16 +134,17 @@ mjwarp = [
     # Keep the Warp backend on the same MuJoCo minor line as the host backend.
     # ``mujoco-warp`` imports as ``mujoco_warp`` and owns the GPU physics
     # implementation; it is deliberately a separate optional extra rather
-    # than a mode of the ``mujoco`` backend.
-    "mujoco-warp==3.10.0.3",
-    # Bound stays loose like mjlab's; the committed uv.lock pins warp-lang at
-    # the 1.14.x line mjlab validates (mujoco-warp 3.10.0.3 only requires
-    # warp-lang>=1.14). Upgrade deliberately via `uv lock --upgrade-package`.
-    "warp-lang>=1.14.0",
+    # than a mode of the ``mujoco`` backend. warp-lang stays an exact pin on
+    # the 1.16.0 line shared with the newton extra.
+    "mujoco-warp~=3.11.0",
+    "warp-lang==1.16.0",
 ]
 newton = [
-    # Newton 1.5.1 is coupled to the MuJoCo-Warp 3.11 / Warp 1.16 line.
-    # Keep this runtime isolated from the historical mjwarp and mujoco extras.
+    # Newton 1.5.1 is coupled to the MuJoCo-Warp 3.11 / Warp 1.16 line, so
+    # these stay exact pins. They sit on the same 3.11 line as the mujoco and
+    # mjwarp extras: newton 1.5.1 requires warp-lang>=1.16.0, and mujoco-warp
+    # 3.11.0 accepts warp-lang>=1.14 and mujoco>=3.9.0, so warp-lang==1.16.0
+    # satisfies all three extras in one joint environment.
     "newton==1.5.1",
     "mujoco-warp==3.11.0",
     "mujoco==3.11.0",
@@ -176,22 +185,16 @@ torch = [
 
 [tool.uv]
 exclude-dependencies = ["torchvision"]
-# Newton's MuJoCo-Warp 3.11 runtime cannot coexist with the historical
-# mjwarp 3.10 or mujoco-uni-runtime extras in one environment.
-conflicts = [
-    [{ extra = "mjwarp" }, { extra = "newton" }],
-    [{ extra = "mujoco" }, { extra = "newton" }],
-]
-# Build mujoco-uni-runtime against the mujoco version locked in this project
-# environment instead of an isolated build env (its native extension records
-# the build-time mujoco version and refuses to load on mismatch). Prebuilt
-# wheels on the index are bound to one specific mujoco build, so always
-# compile from the sdist here. After changing the mujoco version, run
-# `uv cache clean mujoco-uni-runtime && uv sync --extra mujoco
-# --reinstall-package mujoco-uni-runtime` to force a fresh in-env build
-# (uv's build cache cannot see that the extension depends on mujoco).
+# Only relevant if mujoco-uni-runtime is ever built from its sdist inside
+# this project: the native extension must be compiled against the mujoco
+# version installed in this environment rather than in an isolated build env,
+# because it records the build-time mujoco version and refuses to load on
+# mismatch. The sdist fallback path (`make mujoco MJ=<version>`) builds via
+# `uv pip install --no-build-isolation` explicitly; this setting covers any
+# other in-project build. The default install path resolves the prebuilt
+# wheel (bound to mujoco==3.11.0) and never builds anything, so no compiler
+# is needed for `make setup`.
 no-build-isolation-package = ["mujoco-uni-runtime"]
-no-binary-package = ["mujoco-uni-runtime"]
 required-environments = [
     "sys_platform == 'darwin' and platform_machine == 'arm64'",
     "sys_platform == 'linux' and platform_machine == 'x86_64'",

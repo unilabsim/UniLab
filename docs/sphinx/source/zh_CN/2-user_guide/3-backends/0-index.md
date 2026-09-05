@@ -15,8 +15,9 @@ UniLab 通过 registry/config 路径暴露后端名称，包括在对应 owner �
   仍然需要一个可用的 MuJoCo 运行时。
 - Drake 需要外部 `drake-uni` Python 包和针对本地 Drake 编译的 C++ 批量扩展；
   选择 `--sim drake` 前请先阅读 {doc}`6-drake`。
-- Newton 使用隔离的 `newton` extra（`uv sync --extra newton`），不能与
-  `mujoco` / `mjwarp` extra 装进同一环境；选择 `--sim newton` 前请先阅读
+- Newton 使用 `newton` extra（`uv sync --extra newton`），与
+  `mujoco` / `mjwarp` extra 共享同一条 MuJoCo 3.11 / MuJoCo-Warp 3.11 /
+  Warp 1.16 版本线，可以组合进同一环境；选择 `--sim newton` 前请先阅读
   {doc}`7-newton`。
 - 在 macOS 上，软件包 CLI 在需要时会通过 `mxpython` 路由 Motrix 交互式回放。
   直接打开原生 Motrix 渲染器的脚本调用应使用 `uv run mxpython`。

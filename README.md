@@ -89,8 +89,11 @@ make setup-motrix
 # make setup-drake     # Drake + native batch extension
 ```
 
-The `mujoco` extra compiles a native extension and may require the platform
-compiler and Python development headers. See the
+The `mujoco` extra installs the prebuilt `mujoco-uni-runtime` wheel (bound to
+`mujoco==3.11.0`), so no compiler is needed by default; a C++ toolchain and
+Python development headers are only required when switching the MuJoCo version
+(`make mujoco MJ=<version>`), which always rebuilds the native extension from
+source. See the
 [installation guide](https://unilabsim.github.io/UniLab-doc/en/1-getting_started/2-installation.html)
 for platform-specific setup, optional backends, and external worker runtimes.
 

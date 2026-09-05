@@ -9,12 +9,15 @@
 - Git 和 `curl`，用于克隆仓库及下载 runtime asset。
 - `cmake`，构建 Drake 原生 batch extension 时需要。Drake setup 脚本使用 CMake
   和 C++ 工具链。
-- 使用 `mujoco` extra 时：需要 C++17 工具链和 Python 开发头文件，
-  因为 `mujoco-uni-runtime` 仅以源码分发，`uv sync` 时会就地编译其原生扩展
-  （针对 lock 钉住的 mujoco 版本）。缺少这些依赖时，`make setup` 会在编译
-  `mujoco-uni-runtime` 时失败，报错 `fatal error: Python.h: No such file or directory`。
+- 使用 `mujoco` extra 时：默认安装路径使用 `mujoco-uni-runtime` 的预编译 wheel
+  （绑定 `mujoco==3.11.0`），`make setup` / `uv sync --extra mujoco` 不需要编译器。
+  只有显式的源码重建路径（切换 MuJoCo 版本，见「切换本地 MuJoCo 版本」）才需要
+  C++17 工具链和 Python 开发头文件；缺少时会以
+  `fatal error: Python.h: No such file or directory` 等错误失败（完整对照见
+  「安装错误特征对照表」）。
   - macOS：`xcode-select --install`
   - Ubuntu / Debian：`sudo apt-get install build-essential python3-dev`
+  - Fedora / RHEL：`sudo dnf install gcc-c++ make python3-devel`
   - Windows：MSVC Build Tools
   - 提示：使用 uv 托管的 Python（`uv python install`）自带头文件，
     只有系统 Python 才需要额外安装 `python3-dev`。
@@ -106,16 +109,16 @@ pip install -e .
 # 需要 Motrix 时：
 pip install motrixsim-core==0.8.2
 
-# 需要 MuJoCo 时（分两步安装 runtime）：
-pip install "mujoco>=3.5,<3.11" pybind11 wheel
-pip install --no-build-isolation "mujoco-uni-runtime==0.4.0"
+# 需要 MuJoCo 时（默认安装绑定 mujoco==3.11.0 的预编译 wheel）：
+pip install "mujoco~=3.11.0" "mujoco-uni-runtime==0.5.0"
 ```
 
 editable install 会指向源码 checkout；常规安装会把 package 和任务配置
 （`unilab/conf/`）复制进环境。两种方式都支持在任意目录运行 `train` / `eval` / `demo`，
-日志与 checkpoint 写入当前工作目录。MuJoCo runtime 必须在匹配的 `mujoco` package
-之后安装，并使用 `--no-build-isolation`；pip 默认的隔离构建看不到该依赖。MJWarp、
-Genesis、平台相关 torch index、ROCm / XPU profile 和原生扩展重建行为请优先使用上面的
+日志与 checkpoint 写入当前工作目录。MuJoCo runtime 的预编译 wheel 直接通过 pip
+安装即可，无需额外构建步骤；只有强制从 sdist 重建（绑定非默认 mujoco 版本）时
+才需要 `pybind11` / `wheel` 与 `--no-build-isolation`，见「切换本地 MuJoCo 版本」。
+MJWarp、Genesis、平台相关 torch index、ROCm / XPU profile 请优先使用上面的
 uv 路径。机器人 mesh 和纹理不会打进 wheel，而是在 cold path 从
 `unilabsim/unilab-robots` 数据集下载。请确保安装位置可写，或从源码 checkout 使用
 `uv run unilab-pull-assets` 预拉取。isaacgym / isaacsim 后端和 HORA 多卡提交路径仍假设
@@ -147,21 +150,20 @@ Hugging Face endpoint 无法访问时，可设置 `HF_ENDPOINT=https://hf-mirror
 uv sync --extra mujoco --extra motrix --extra mjwarp --extra genesis
 ```
 
-Newton 是例外：`newton` extra 钉定的 MuJoCo-Warp 3.11 版本线与历史
-`mjwarp` / `mujoco` extra 互斥（`pyproject.toml` 的 uv `conflicts` 声明），
-请为它单独建一个环境：
+`mujoco`、`mjwarp` 和 `newton` 三个 extra 共享同一条 MuJoCo 3.11 /
+MuJoCo-Warp 3.11 / Warp 1.16 版本线，可以组合进同一个环境：
 
 ```bash
-uv sync --extra newton
+uv sync --extra mujoco --extra mjwarp --extra newton
 ```
 
 | 后端 | 安装路径 | 重要前置条件 |
 | --- | --- | --- |
-| MuJoCo | `make setup-mujoco` 或 `uv sync --extra mujoco` | 原生扩展需要 C++17 编译器和 Python 开发头文件 |
+| MuJoCo | `make setup-mujoco` 或 `uv sync --extra mujoco` | 默认使用预编译 wheel（绑定 `mujoco==3.11.0`），无需编译器；仅切换版本（`make mujoco MJ=<version>`）时需要 C++17 工具链和 Python 开发头文件 |
 | Motrix | `make setup-motrix` 或 `uv sync --extra motrix` | 从固定版本 Python package 安装 Motrix runtime |
 | MJWarp | `uv sync --extra mujoco --extra mjwarp` | NVIDIA CUDA 和显式 CUDA process device |
 | Genesis | `uv sync --extra genesis` | 已验证路径使用 Linux x86_64、NVIDIA GPU 及固定版本 torch/Genesis |
-| Newton | `uv sync --extra newton` | NVIDIA CUDA；与 `mujoco` / `mjwarp` extra 互斥，需独立环境 |
+| Newton | `uv sync --extra newton` | NVIDIA CUDA；可与 `mujoco` / `mjwarp` extra 组合进同一环境 |
 | Drake | `make setup-drake` | C++20、Eigen/fmt/spdlog，以及已有 Drake prefix 或脚本下载路径 |
 | IsaacGym | `bash scripts/tools/setup_isaacgym_env.sh` | Linux x86_64、NVIDIA driver 和独立 Python 3.8 worker 环境 |
 | IsaacSim | `bash scripts/tools/setup_isaacsim_env.sh` | Linux x86_64、NVIDIA CUDA、独立 Python 3.11 worker 和 Kit EULA 接受 |
@@ -179,6 +181,52 @@ Drake、IsaacGym 和 IsaacSim 的 setup 脚本会将外部 runtime 安装到仓�
 - {doc}`IsaacGym <../2-user_guide/3-backends/3-isaacgym>`
 - {doc}`IsaacSim <../2-user_guide/3-backends/4-isaacsim>`
 
+## 切换本地 MuJoCo 版本
+
+`mujoco` extra 的默认安装路径使用 `mujoco-uni-runtime==0.5.0` 的预编译 wheel。
+每个 runtime 发布版本只携带一个预编译 MuJoCo 绑定：0.5.0 的 wheel 针对
+`mujoco==3.11.0` 编译，原生扩展会记录编译时的 mujoco 版本，加载时检测到不一致
+会拒绝工作（见「安装错误特征对照表」中的 watchdog 行）。因此 MuJoCo 默认版本的
+升级总是伴随一次新的 runtime 发布；发布协调细节见 mujoco-uni-runtime 仓库的
+`docs/release-coordination.md`。
+
+在支持窗口 `>=3.5,<3.12` 内切换 MuJoCo 版本总是走源码重建路径：
+
+```bash
+make mujoco MJ=3.10.0
+```
+
+`mujoco` extra 声明的 `mujoco~=3.11.0` 边界意味着 relock 无法选出窗口内的旧版本，
+所以该目标直接操作当前环境（`uv pip`，不改动 `uv.lock`），依次执行：
+
+1. `check-cxx-toolchain` 预检：缺少 C++ 编译器时立即失败，并打印各平台的安装命令；
+2. `uv pip install "mujoco==3.10.0" pybind11 wheel setuptools`：把请求的 mujoco
+   和 runtime 的构建依赖装进当前环境；
+3. `uv cache clean mujoco-uni-runtime`：清除构建缓存（uv 的缓存无法感知该扩展
+   依赖 mujoco 版本）；
+4. `uv pip install --force-reinstall --no-deps --no-build-isolation
+   --no-binary mujoco-uni-runtime "mujoco-uni-runtime==<当前版本>"`：从 sdist
+   针对新 mujoco 就地重新编译原生扩展。
+
+这个覆盖是**环境本地**的：`uv.lock` 不变。切回默认版本的路径是
+`uv sync --extra mujoco --reinstall-package mujoco-uni-runtime`，恢复到 lock
+钉住的默认状态（mujoco 3.11.0 + 预编译 wheel）；`--reinstall-package` 不可省略，
+因为裸 `uv sync` 只恢复 mujoco 而保留本地重编的扩展，扩展会因此无法加载。
+源码重建需要 C++17 工具链和 Python 开发头文件（见「环境要求」）。
+
+## 安装错误特征对照表
+
+按报错文本反查原因与修复方式。
+
+| 报错特征 | 触发场景 | 修复 |
+| --- | --- | --- |
+| `error: building mujoco-uni-runtime from source requires a C++ toolchain, but 'c++' was not found.` | `make mujoco MJ=<version>` 的 `check-cxx-toolchain` 预检失败 | 安装 C++ 工具链后重试：Debian/Ubuntu `sudo apt-get install build-essential`；macOS `xcode-select --install`；Fedora/RHEL `sudo dnf install gcc-c++ make` |
+| `error: [Errno 2] No such file or directory: 'c++'`（或 `c++: No such file or directory`） | 从 sdist 编译 `mujoco-uni-runtime` 时缺少编译器；只会出现在源码重建路径，默认 wheel 路径不会编译 | 同上安装工具链；或者不切换版本，直接走默认 wheel 路径 `uv sync --extra mujoco` |
+| `fatal error: Python.h: No such file or directory` | 源码重建时缺少 Python 开发头文件 | uv 托管的 Python（`uv python install`）自带头文件；系统 Python 需安装 `python3-dev`（Debian/Ubuntu）或 `python3-devel`（Fedora/RHEL） |
+| `MuJoCoUni native batch extension was built against mujoco '3.11.0', but loaded mujoco is '...'` | 版本 watchdog：扩展记录的编译期 mujoco 版本与当前加载的 mujoco 不一致 | 安装扩展绑定的 mujoco 版本（预编译 wheel 绑定 `3.11.0`：`uv sync --extra mujoco --reinstall-package mujoco-uni-runtime`）；或针对当前 mujoco 从源码重建：`make mujoco MJ=<version>` |
+| `mujoco_uni 0.5.0 supports official mujoco>=3.5,<3.12; found mujoco '...'` | 环境中的 mujoco 超出 runtime 支持窗口 | 换装窗口 `>=3.5,<3.12` 内的 mujoco 版本（`make mujoco MJ=<version>`） |
+| `MuJoCoUni native batch extension has not been built` | 原生扩展导入失败（`mujoco_uni.batch_available()` 返回 `False`）；常见诱因是版本切换后裸跑 `uv sync`：mujoco 被恢复而本地重编的扩展仍链接旧版 `libmujoco.so` | 运行 `uv run python -c "import mujoco_uni; print(mujoco_uni.batch_import_error())"` 查看底层原因；版本切换后用 `uv sync --extra mujoco --reinstall-package mujoco-uni-runtime` 恢复预编译 wheel |
+
 ## 平台配置档
 
 Linux CUDA 和 macOS 使用默认的 `pyproject.toml`。默认的 Linux torch
@@ -190,7 +238,8 @@ wheel 来源是在 `pyproject.toml` 中配置的 PyTorch `cu128` 索引。
 没有 CUDA 时，`cuda` alias 会解析到 MPS。
 
 在 Windows 上，如果没有 GNU `make` 和 Bash，请使用上面的直接 `uv sync` 命令。
-编译 MuJoCo 原生扩展需要 MSVC Build Tools 和 Python 开发头文件。如果要使用
+默认安装使用预编译 wheel；只有源码重建 MuJoCo 原生扩展（切换版本）时才需要
+MSVC Build Tools 和 Python 开发头文件。如果要使用
 Makefile，请另行安装 GNU Make 和 Bash（例如通过 Chocolatey 或 WSL）。
 
 ROCm 和 Intel XPU 有各自显式的 Makefile 目标：
