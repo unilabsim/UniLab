@@ -109,13 +109,14 @@ exclude-dependencies = [
     "nvidia-cuda-runtime-cu12",
     "nvidia-cudnn-cu12",
 ]
-# Only relevant for the sdist fallback build of mujoco-uni-runtime
-# (`make mujoco MJ=<version>` passes --no-binary-package explicitly): the
-# native extension must be compiled against the mujoco version locked in this
-# project environment rather than in an isolated build env, because it
-# records the build-time mujoco version and refuses to load on mismatch. The
-# default install path resolves the prebuilt wheel (bound to mujoco==3.11.0)
-# and never builds anything.
+# Only relevant if mujoco-uni-runtime is ever built from its sdist inside
+# this project: the native extension must be compiled against the mujoco
+# version installed in this environment rather than in an isolated build env,
+# because it records the build-time mujoco version and refuses to load on
+# mismatch. The sdist fallback path (`make mujoco MJ=<version>`) builds via
+# `uv pip install --no-build-isolation` explicitly; this setting covers any
+# other in-project build. The default install path resolves the prebuilt
+# wheel (bound to mujoco==3.11.0) and never builds anything.
 no-build-isolation-package = ["mujoco-uni-runtime"]
 required-environments = [
     "sys_platform == 'darwin' and platform_machine == 'arm64'",

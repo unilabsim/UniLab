@@ -7,10 +7,17 @@ sync:
 # This is the explicit sdist fallback path: the prebuilt mujoco-uni-runtime
 # wheels only bind the default mujoco==3.11.0, so any other version requires
 # recompiling the native extension from source against the requested mujoco.
-# The target repins mujoco in uv.lock, clears uv's build cache (it cannot see
-# that the extension depends on the mujoco version), and forces a source
-# rebuild via --no-binary-package. The default `make setup` path installs the
-# prebuilt wheel and needs no compiler.
+# The mujoco extra declares `mujoco~=3.11.0`, which a lock upgrade can never
+# leave, so the override operates on the environment directly (uv pip, no
+# re-lock): install the requested mujoco plus the runtime's build
+# requirements, then force an in-env sdist rebuild of the runtime. The
+# override is environment-local — uv.lock is untouched, and
+# `uv sync --extra mujoco --reinstall-package mujoco-uni-runtime` reverts to
+# the locked default (mujoco 3.11.0 + prebuilt wheel), which is the
+# switch-back path. The reinstall flag is required there: plain `uv sync`
+# restores mujoco but keeps the locally rebuilt extension, which then fails
+# to load against the reverted mujoco. The default `make setup` path installs
+# the prebuilt wheel and needs no compiler.
 .PHONY: check-cxx-toolchain
 check-cxx-toolchain:
 	@command -v c++ >/dev/null 2>&1 || { \
@@ -25,9 +32,11 @@ check-cxx-toolchain:
 mujoco:
 	@test -n "$(MJ)" || (echo "usage: make mujoco MJ=3.10.0" && exit 1)
 	@$(MAKE) --no-print-directory check-cxx-toolchain
-	uv lock --upgrade-package mujoco==$(MJ)
+	uv pip install "mujoco==$(MJ)" pybind11 wheel setuptools
 	uv cache clean mujoco-uni-runtime
-	uv sync --extra mujoco --extra motrix --no-binary-package mujoco-uni-runtime --reinstall-package mujoco-uni-runtime
+	ver=$$(uv pip show mujoco-uni-runtime | sed -n 's/^Version: //p') && \
+	uv pip install --force-reinstall --no-deps --no-build-isolation \
+		--no-binary mujoco-uni-runtime "mujoco-uni-runtime==$$ver"
 
 .PHONY: setup
 setup:

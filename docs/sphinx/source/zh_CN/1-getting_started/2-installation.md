@@ -196,18 +196,23 @@ Drake、IsaacGym 和 IsaacSim 的 setup 脚本会将外部 runtime 安装到仓�
 make mujoco MJ=3.10.0
 ```
 
-该目标依次执行：
+`mujoco` extra 声明的 `mujoco~=3.11.0` 边界意味着 relock 无法选出窗口内的旧版本，
+所以该目标直接操作当前环境（`uv pip`，不改动 `uv.lock`），依次执行：
 
 1. `check-cxx-toolchain` 预检：缺少 C++ 编译器时立即失败，并打印各平台的安装命令；
-2. `uv lock --upgrade-package mujoco==3.10.0`：在 `uv.lock` 中重新钉住 mujoco；
+2. `uv pip install "mujoco==3.10.0" pybind11 wheel setuptools`：把请求的 mujoco
+   和 runtime 的构建依赖装进当前环境；
 3. `uv cache clean mujoco-uni-runtime`：清除构建缓存（uv 的缓存无法感知该扩展
    依赖 mujoco 版本）；
-4. `uv sync --extra mujoco --extra motrix --no-binary-package mujoco-uni-runtime
-   --reinstall-package mujoco-uni-runtime`：针对新 mujoco 就地重新编译原生扩展。
+4. `uv pip install --force-reinstall --no-deps --no-build-isolation
+   --no-binary mujoco-uni-runtime "mujoco-uni-runtime==<当前版本>"`：从 sdist
+   针对新 mujoco 就地重新编译原生扩展。
 
-源码重建需要 C++17 工具链和 Python 开发头文件（见「环境要求」）。切回默认版本：
-`make mujoco MJ=3.11.0`；或者 `git restore -- uv.lock` 后重新运行
-`uv sync --extra mujoco`，回到预编译 wheel 路径。
+这个覆盖是**环境本地**的：`uv.lock` 不变。切回默认版本的路径是
+`uv sync --extra mujoco --reinstall-package mujoco-uni-runtime`，恢复到 lock
+钉住的默认状态（mujoco 3.11.0 + 预编译 wheel）；`--reinstall-package` 不可省略，
+因为裸 `uv sync` 只恢复 mujoco 而保留本地重编的扩展，扩展会因此无法加载。
+源码重建需要 C++17 工具链和 Python 开发头文件（见「环境要求」）。
 
 ## 安装错误特征对照表
 
@@ -218,9 +223,9 @@ make mujoco MJ=3.10.0
 | `error: building mujoco-uni-runtime from source requires a C++ toolchain, but 'c++' was not found.` | `make mujoco MJ=<version>` 的 `check-cxx-toolchain` 预检失败 | 安装 C++ 工具链后重试：Debian/Ubuntu `sudo apt-get install build-essential`；macOS `xcode-select --install`；Fedora/RHEL `sudo dnf install gcc-c++ make` |
 | `error: [Errno 2] No such file or directory: 'c++'`（或 `c++: No such file or directory`） | 从 sdist 编译 `mujoco-uni-runtime` 时缺少编译器；只会出现在源码重建路径，默认 wheel 路径不会编译 | 同上安装工具链；或者不切换版本，直接走默认 wheel 路径 `uv sync --extra mujoco` |
 | `fatal error: Python.h: No such file or directory` | 源码重建时缺少 Python 开发头文件 | uv 托管的 Python（`uv python install`）自带头文件；系统 Python 需安装 `python3-dev`（Debian/Ubuntu）或 `python3-devel`（Fedora/RHEL） |
-| `MuJoCoUni native batch extension was built against mujoco '3.11.0', but loaded mujoco is '...'` | 版本 watchdog：扩展记录的编译期 mujoco 版本与当前加载的 mujoco 不一致 | 安装扩展绑定的 mujoco 版本（预编译 wheel 绑定 `3.11.0`：`uv sync --extra mujoco`）；或针对当前 mujoco 从源码重建：`make mujoco MJ=<version>` |
+| `MuJoCoUni native batch extension was built against mujoco '3.11.0', but loaded mujoco is '...'` | 版本 watchdog：扩展记录的编译期 mujoco 版本与当前加载的 mujoco 不一致 | 安装扩展绑定的 mujoco 版本（预编译 wheel 绑定 `3.11.0`：`uv sync --extra mujoco --reinstall-package mujoco-uni-runtime`）；或针对当前 mujoco 从源码重建：`make mujoco MJ=<version>` |
 | `mujoco_uni 0.5.0 supports official mujoco>=3.5,<3.12; found mujoco '...'` | 环境中的 mujoco 超出 runtime 支持窗口 | 换装窗口 `>=3.5,<3.12` 内的 mujoco 版本（`make mujoco MJ=<version>`） |
-| `MuJoCoUni native batch extension has not been built` | 原生扩展导入失败（`mujoco_uni.batch_available()` 返回 `False`） | 运行 `uv run python -c "import mujoco_uni; print(mujoco_uni.batch_import_error())"` 查看底层原因，然后重新安装 runtime |
+| `MuJoCoUni native batch extension has not been built` | 原生扩展导入失败（`mujoco_uni.batch_available()` 返回 `False`）；常见诱因是版本切换后裸跑 `uv sync`：mujoco 被恢复而本地重编的扩展仍链接旧版 `libmujoco.so` | 运行 `uv run python -c "import mujoco_uni; print(mujoco_uni.batch_import_error())"` 查看底层原因；版本切换后用 `uv sync --extra mujoco --reinstall-package mujoco-uni-runtime` 恢复预编译 wheel |
 
 ## 平台配置档
 
