@@ -219,21 +219,28 @@ takes the source-rebuild path:
 make mujoco MJ=3.10.0
 ```
 
-The target runs, in order:
+The `mujoco` extra declares `mujoco~=3.11.0`, which a re-lock can never leave,
+so the target operates on the environment directly (`uv pip`, without touching
+`uv.lock`). It runs, in order:
 
 1. the `check-cxx-toolchain` preflight: fails fast when no C++ compiler is
    found and prints per-platform install commands;
-2. `uv lock --upgrade-package mujoco==3.10.0`: repins mujoco in `uv.lock`;
+2. `uv pip install "mujoco==3.10.0" pybind11 wheel setuptools`: installs the
+   requested mujoco plus the runtime's build requirements into the current
+   environment;
 3. `uv cache clean mujoco-uni-runtime`: drops the build cache (uv's cache
    cannot see that the extension depends on the mujoco version);
-4. `uv sync --extra mujoco --extra motrix --no-binary-package
-   mujoco-uni-runtime --reinstall-package mujoco-uni-runtime`: recompiles the
-   native extension in place against the new mujoco.
+4. `uv pip install --force-reinstall --no-deps --no-build-isolation
+   --no-binary mujoco-uni-runtime "mujoco-uni-runtime==<installed version>"`:
+   recompiles the native extension from the sdist against the new mujoco.
 
-The source rebuild requires a C++17 toolchain and Python development headers
-(see "Requirements"). To switch back to the default version, run
-`make mujoco MJ=3.11.0`; or `git restore -- uv.lock` followed by
-`uv sync --extra mujoco` to return to the prebuilt-wheel path.
+The override is **environment-local**: `uv.lock` stays unchanged. The
+switch-back path is `uv sync --extra mujoco --reinstall-package
+mujoco-uni-runtime`, which restores the locked default (mujoco 3.11.0 +
+prebuilt wheel); the `--reinstall-package` flag is required because a plain
+`uv sync` restores mujoco but keeps the locally rebuilt extension, which then
+fails to load. The source rebuild requires a C++17 toolchain and Python
+development headers (see "Requirements").
 
 ## Install Error Signatures
 
@@ -244,9 +251,9 @@ Reverse-lookup from error text to cause and fix.
 | `error: building mujoco-uni-runtime from source requires a C++ toolchain, but 'c++' was not found.` | The `check-cxx-toolchain` preflight of `make mujoco MJ=<version>` | Install a C++ toolchain and retry: Debian/Ubuntu `sudo apt-get install build-essential`; macOS `xcode-select --install`; Fedora/RHEL `sudo dnf install gcc-c++ make` |
 | `error: [Errno 2] No such file or directory: 'c++'` (or `c++: No such file or directory`) | Building `mujoco-uni-runtime` from the sdist without a compiler; only occurs on the source-rebuild path — the default wheel path never compiles | Same toolchain install as above; or do not switch versions and use the default wheel path `uv sync --extra mujoco` |
 | `fatal error: Python.h: No such file or directory` | Missing Python development headers during a source rebuild | A uv-managed Python (`uv python install`) bundles the headers; system Pythons need `python3-dev` (Debian/Ubuntu) or `python3-devel` (Fedora/RHEL) |
-| `MuJoCoUni native batch extension was built against mujoco '3.11.0', but loaded mujoco is '...'` | Version watchdog: the extension's recorded build-time mujoco version does not match the loaded mujoco | Install the mujoco version the extension binds (the prebuilt wheel binds `3.11.0`: `uv sync --extra mujoco`); or rebuild from source against the active mujoco: `make mujoco MJ=<version>` |
+| `MuJoCoUni native batch extension was built against mujoco '3.11.0', but loaded mujoco is '...'` | Version watchdog: the extension's recorded build-time mujoco version does not match the loaded mujoco | Install the mujoco version the extension binds (the prebuilt wheel binds `3.11.0`: `uv sync --extra mujoco --reinstall-package mujoco-uni-runtime`); or rebuild from source against the active mujoco: `make mujoco MJ=<version>` |
 | `mujoco_uni 0.5.0 supports official mujoco>=3.5,<3.12; found mujoco '...'` | The installed mujoco is outside the runtime's support window | Install a mujoco version inside `>=3.5,<3.12` (`make mujoco MJ=<version>`) |
-| `MuJoCoUni native batch extension has not been built` | The native extension failed to import (`mujoco_uni.batch_available()` returns `False`) | Run `uv run python -c "import mujoco_uni; print(mujoco_uni.batch_import_error())"` for the underlying cause, then reinstall the runtime |
+| `MuJoCoUni native batch extension has not been built` | The native extension failed to import (`mujoco_uni.batch_available()` returns `False`); a common cause is a plain `uv sync` after a version switch, which restores mujoco but keeps the locally rebuilt extension linked to the old `libmujoco.so` | Run `uv run python -c "import mujoco_uni; print(mujoco_uni.batch_import_error())"` for the underlying cause; after a version switch, restore the prebuilt wheel with `uv sync --extra mujoco --reinstall-package mujoco-uni-runtime` |
 
 ## Platform Profiles
 
