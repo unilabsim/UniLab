@@ -83,8 +83,10 @@ make setup-motrix
 # make setup-drake     # Drake + 原生 batch extension
 ```
 
-`mujoco` extra 会编译原生扩展；使用系统 Python 时可能需要平台编译器和 Python
-开发头文件。平台相关安装、可选后端和外部 worker 运行时请参阅
+`mujoco` extra 默认安装 `mujoco-uni-runtime` 的预编译 wheel（绑定
+`mujoco==3.11.0`），无需编译器；只有切换 MuJoCo 版本
+（`make mujoco MJ=<version>`，总是从源码重建原生扩展）时才需要 C++ 工具链和
+Python 开发头文件。平台相关安装、可选后端和外部 worker 运行时请参阅
 [安装指南](https://unilabsim.github.io/UniLab-doc/zh_CN/1-getting_started/2-installation.html)。
 
 ## 第一次成功：运行 demo
