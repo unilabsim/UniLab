@@ -22,7 +22,7 @@ runtime/import 边界，尚无训练或回放验证结论）。
 
 ## 安装
 
-Newton 运行时是**隔离的 optional extra**，钉定 Newton 1.5.1 与
+Newton 运行时是 optional extra，钉定 Newton 1.5.1 与
 MuJoCo-Warp 3.11 / Warp 1.16 系列：
 
 ```bash
@@ -34,11 +34,14 @@ pip install "unilab[newton]"
 ```
 
 该 extra 精确钉定 `newton==1.5.1`、`mujoco-warp==3.11.0`、
-`mujoco==3.11.0`、`warp-lang==1.16.0`，与历史 `mjwarp` extra
-（`mujoco-warp==3.10.0.3`）和 `mujoco` extra 使用的 MuJoCo 版本线不同，
-因此 `pyproject.toml` 通过 uv `conflicts` 声明三者**互斥**：Newton 不能
-与 `mujoco` 或 `mjwarp` extra 装进同一环境。需要对比 MuJoCo / MJWarp 与
-Newton 时，请为 Newton 单独建一个环境。
+`mujoco==3.11.0`、`warp-lang==1.16.0`，与 `mujoco` extra
+（`mujoco~=3.11.0`）和 `mjwarp` extra（`mujoco-warp~=3.11.0`、
+`warp-lang==1.16.0`）共享同一条 MuJoCo 3.11 / MuJoCo-Warp 3.11 /
+Warp 1.16 版本线，三个 extra 可以**组合进同一个环境**：
+
+```bash
+uv sync --extra mujoco --extra mjwarp --extra newton
+```
 
 前置条件：
 
