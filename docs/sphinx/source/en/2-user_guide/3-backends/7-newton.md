@@ -23,8 +23,8 @@ fail-closed runtime/import boundaries; no training or playback claim yet).
 
 ## Installation
 
-The Newton runtime is an **isolated optional extra**, pinning Newton 1.5.1
-with the MuJoCo-Warp 3.11 / Warp 1.16 line:
+The Newton runtime is an optional extra, pinning Newton 1.5.1 with the
+MuJoCo-Warp 3.11 / Warp 1.16 line:
 
 ```bash
 # In a source checkout:
@@ -35,12 +35,14 @@ pip install "unilab[newton]"
 ```
 
 The extra pins `newton==1.5.1`, `mujoco-warp==3.11.0`, `mujoco==3.11.0`, and
-`warp-lang==1.16.0` exactly. That is a different MuJoCo version line from the
-historical `mjwarp` extra (`mujoco-warp==3.10.0.3`) and the `mujoco` extra,
-so `pyproject.toml` declares them **mutually exclusive** through uv
-`conflicts`: Newton cannot share one environment with the `mujoco` or
-`mjwarp` extras. To compare MuJoCo / MJWarp against Newton, keep Newton in a
-separate environment.
+`warp-lang==1.16.0` exactly. These sit on the same MuJoCo 3.11 /
+MuJoCo-Warp 3.11 / Warp 1.16 line as the `mujoco` extra (`mujoco~=3.11.0`)
+and the `mjwarp` extra (`mujoco-warp~=3.11.0`, `warp-lang==1.16.0`), so all
+three extras are **jointly installable** in one environment:
+
+```bash
+uv sync --extra mujoco --extra mjwarp --extra newton
+```
 
 Prerequisites:
 
