@@ -43,7 +43,7 @@ dependencies = [
     "numpy",
     # Physics implementations are provided by the independently released
     # unisim-core package from the production PyPI index.
-    "unisim-core>=1.1.1",
+    "unisim-core>=1.1.2",
     # RL algorithms and async runtimes (PPO/APPO/SAC/TD3/HORA runners,
     # collectors, IPC, logging) live in the independently released uni-rl
     # package (distribution name ``unilab-rl``), consumed via the injected
@@ -153,12 +153,8 @@ newton = [
     # materialization cold path; newton does not declare it as a hard
     # dependency, so the extra carries it explicitly.
     "trimesh>=3.21.7",
-]
-newton-render = [
-    # Native ViewerGL rendering for the newton backend (offline record and
-    # interactive playback). Install together with the newton extra; bounds
-    # mirror unisim-core's newton-render extra and newton's own examples
-    # extra. Headless record still needs an OpenGL context (EGL/GLX).
+    # Native ViewerGL is Newton's default playback renderer (offline record
+    # and interactive), so keep its GUI stack in the same backend extra.
     "pyglet>=2.1.6,<3",
     "imgui-bundle>=1.92.0",
 ]

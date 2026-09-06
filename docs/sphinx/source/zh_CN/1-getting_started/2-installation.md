@@ -151,12 +151,11 @@ uv sync --extra mujoco --extra motrix --extra mjwarp --extra genesis
 ```
 
 `mujoco`、`mjwarp` 和 `newton` 三个 extra 共享同一条 MuJoCo 3.11 /
-MuJoCo-Warp 3.11 / Warp 1.16 版本线，可以组合进同一个环境；Newton 的
-原生 ViewerGL 渲染（离线 record + 交互式）另需 `newton-render` extra：
+MuJoCo-Warp 3.11 / Warp 1.16 版本线，可以组合进同一个环境。`newton`
+extra 已包含 Newton 原生 ViewerGL 渲染依赖（离线 record + 交互式）：
 
 ```bash
 uv sync --extra mujoco --extra mjwarp --extra newton
-uv sync --extra newton --extra newton-render  # 需要原生渲染时
 ```
 
 | 后端 | 安装路径 | 重要前置条件 |

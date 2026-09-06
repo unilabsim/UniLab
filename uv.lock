@@ -5053,15 +5053,13 @@ mujoco = [
     { name = "wheel" },
 ]
 newton = [
+    { name = "imgui-bundle" },
     { name = "mujoco" },
     { name = "mujoco-warp" },
     { name = "newton" },
+    { name = "pyglet" },
     { name = "trimesh" },
     { name = "warp-lang" },
-]
-newton-render = [
-    { name = "imgui-bundle" },
-    { name = "pyglet" },
 ]
 viser = [
     { name = "trimesh" },
@@ -5087,7 +5085,7 @@ requires-dist = [
     { name = "hydra-core", specifier = ">=1.3" },
     { name = "imageio" },
     { name = "imageio-ffmpeg", specifier = ">=0.6.0" },
-    { name = "imgui-bundle", marker = "extra == 'newton-render'", specifier = ">=1.92.0" },
+    { name = "imgui-bundle", marker = "extra == 'newton'", specifier = ">=1.92.0" },
     { name = "lark", specifier = ">=1.3.1" },
     { name = "mediapy" },
     { name = "motrixsim-core", marker = "extra == 'motrix'", specifier = "==0.8.2" },
@@ -5106,7 +5104,7 @@ requires-dist = [
     { name = "packaging" },
     { name = "prettytable", specifier = ">=3.10" },
     { name = "pybind11", marker = "extra == 'mujoco'", specifier = ">=2.12" },
-    { name = "pyglet", marker = "extra == 'newton-render'", specifier = ">=2.1.6,<3" },
+    { name = "pyglet", marker = "extra == 'newton'", specifier = ">=2.1.6,<3" },
     { name = "rich" },
     { name = "rsl-rl-lib", specifier = ">=5.0.0" },
     { name = "setuptools" },
@@ -5121,14 +5119,14 @@ requires-dist = [
     { name = "trimesh", marker = "extra == 'viser'", specifier = ">=3.21.7" },
     { name = "typing-extensions" },
     { name = "unilab-rl", specifier = "==1.0.0" },
-    { name = "unisim-core", specifier = ">=1.1.1" },
+    { name = "unisim-core", specifier = ">=1.1.2" },
     { name = "viser", marker = "extra == 'viser'", specifier = ">=1.0.26" },
     { name = "wandb" },
     { name = "warp-lang", marker = "extra == 'mjwarp'", specifier = "==1.16.0" },
     { name = "warp-lang", marker = "extra == 'newton'", specifier = "==1.16.0" },
     { name = "wheel", marker = "extra == 'mujoco'" },
 ]
-provides-extras = ["drake", "mujoco", "mjwarp", "newton", "newton-render", "motrix", "genesis", "viser"]
+provides-extras = ["drake", "mujoco", "mjwarp", "newton", "motrix", "genesis", "viser"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -5165,13 +5163,13 @@ wheels = [
 
 [[package]]
 name = "unisim-core"
-version = "1.1.1"
+version = "1.1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/68/43/e6bf70eccd780c8c3622e136f90f20a7075fbe027d24ab040c1fb247f36b/unisim_core-1.1.1.tar.gz", hash = "sha256:f10de8083a27cebe95dba5ec26be02de209cff05bb919b028ba9fd58d0f12188", size = 214991, upload-time = "2026-09-06T07:25:50.231Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/06/2d/f51ec524c1e414415abeff128396831612b16e93dc5d58e63e858430a82a/unisim_core-1.1.2.tar.gz", hash = "sha256:b6021cf79abcd3cc7fcbf5e23be70bf204fd21d9540af047557d724b7e0acab8", size = 214913, upload-time = "2026-09-06T08:11:42.756Z" }
 
 [[package]]
 name = "urllib3"

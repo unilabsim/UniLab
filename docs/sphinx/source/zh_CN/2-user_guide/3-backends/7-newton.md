@@ -44,16 +44,13 @@ MuJoCo-Warp 3.11 / Warp 1.16 系列：
 # 源码 checkout：
 uv sync --extra newton
 
-# 原生 ViewerGL 渲染（离线 record + 交互式 interactive）另需：
-uv sync --extra newton --extra newton-render
-
 # 从 PyPI 安装：
 pip install "unilab[newton]"
-pip install "unilab[newton,newton-render]"
 ```
 
 该 extra 精确钉定 `newton==1.5.1`、`mujoco-warp==3.11.0`、
-`mujoco==3.11.0`、`warp-lang==1.16.0`，与 `mujoco` extra
+`mujoco==3.11.0`、`warp-lang==1.16.0`，并包含原生 ViewerGL 依赖
+（`pyglet>=2.1.6,<3`、`imgui-bundle>=1.92.0`）。它与 `mujoco` extra
 （`mujoco~=3.11.0`）和 `mjwarp` extra（`mujoco-warp~=3.11.0`、
 `warp-lang==1.16.0`）共享同一条 MuJoCo 3.11 / MuJoCo-Warp 3.11 /
 Warp 1.16 版本线，三个 extra 可以**组合进同一个环境**：
@@ -101,14 +98,13 @@ Newton/MuJoCo-Warp 3.11 要求显式的设备与存储容量，对应 owner YAML
 
 ## Playback 与渲染
 
-Newton 后端通过上游 `newton.viewer.ViewerGL` 提供**原生渲染**（unisim
-`newton-render` extra，`pyglet>=2.1.6,<3` + `imgui-bundle>=1.92.0`）。
+Newton 后端通过上游 `newton.viewer.ViewerGL` 提供**原生渲染**（依赖已包含
+在 `newton` extra：`pyglet>=2.1.6,<3` + `imgui-bundle>=1.92.0`）。
 owner 继承 base 配置的 `training.play_render_mode: auto`：有显示时
 `auto` 解析为 `interactive`（ViewerGL 交互窗口），无显示时解析为
-`record`（`ViewerGL(headless=True)` 离屏渲染写 mp4）。未安装渲染依赖
-时 `record` 回退到 MuJoCo 离线快照渲染（plan 诊断中的 renderer 为
-`mujoco-snapshot`，原生路径为 `newton-viewer-gl`）；`interactive` 在
-缺依赖或无显示时 fail-closed。headless 离屏渲染仍需 OpenGL context：
+`record`（`ViewerGL(headless=True)` 离屏渲染写 mp4）。若安装不完整，
+`record` 才会回退到 MuJoCo 离线快照渲染，`interactive` 会 fail-closed；
+正常安装 `newton` 时始终选择原生渲染。headless 离屏渲染仍需 OpenGL context：
 无显示服务器的 Linux 主机设 `PYOPENGL_PLATFORM=egl`，Wayland 设
 `PYOPENGL_PLATFORM=glx`。
 

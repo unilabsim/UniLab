@@ -170,12 +170,11 @@ uv sync --extra mujoco --extra motrix --extra mjwarp --extra genesis
 
 The `mujoco`, `mjwarp`, and `newton` extras share one MuJoCo 3.11 /
 MuJoCo-Warp 3.11 / Warp 1.16 line and are jointly installable in a single
-environment; Newton's native ViewerGL rendering (offline record +
-interactive) additionally needs the `newton-render` extra:
+environment. The `newton` extra also includes Newton's native ViewerGL
+rendering dependencies (offline record + interactive):
 
 ```bash
 uv sync --extra mujoco --extra mjwarp --extra newton
-uv sync --extra newton --extra newton-render  # when native rendering is needed
 ```
 
 | Backend | Install path | Important prerequisites |
