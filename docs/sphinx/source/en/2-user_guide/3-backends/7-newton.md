@@ -47,16 +47,13 @@ MuJoCo-Warp 3.11 / Warp 1.16 line:
 # In a source checkout:
 uv sync --extra newton
 
-# Native ViewerGL rendering (offline record + interactive) additionally:
-uv sync --extra newton --extra newton-render
-
 # From PyPI:
 pip install "unilab[newton]"
-pip install "unilab[newton,newton-render]"
 ```
 
 The extra pins `newton==1.5.1`, `mujoco-warp==3.11.0`, `mujoco==3.11.0`, and
-`warp-lang==1.16.0` exactly. These sit on the same MuJoCo 3.11 /
+`warp-lang==1.16.0` exactly and includes the native ViewerGL dependencies
+(`pyglet>=2.1.6,<3`, `imgui-bundle>=1.92.0`). These sit on the same MuJoCo 3.11 /
 MuJoCo-Warp 3.11 / Warp 1.16 line as the `mujoco` extra (`mujoco~=3.11.0`)
 and the `mjwarp` extra (`mujoco-warp~=3.11.0`, `warp-lang==1.16.0`), so all
 three extras are **jointly installable** in one environment:
@@ -108,15 +105,14 @@ as `env.*` fields in the owner YAML:
 ## Playback and Rendering
 
 The Newton backend renders natively through the upstream
-`newton.viewer.ViewerGL` (unisim `newton-render` extra, `pyglet>=2.1.6,<3`
-+ `imgui-bundle>=1.92.0`). The owner inherits the base config's
+`newton.viewer.ViewerGL` (included in the `newton` extra,
+`pyglet>=2.1.6,<3` + `imgui-bundle>=1.92.0`). The owner inherits the base config's
 `training.play_render_mode: auto`: with a display, `auto` resolves to
 `interactive` (the ViewerGL window); without one it resolves to `record`
-(`ViewerGL(headless=True)` offscreen rendering to mp4). Without the render
-dependencies, `record` falls back to the MuJoCo offline snapshot renderer
-(the plan diagnostic reports `mujoco-snapshot` vs the native
-`newton-viewer-gl`), while `interactive` fails closed when dependencies or
-a display are missing. Headless offscreen rendering still needs an OpenGL
+(`ViewerGL(headless=True)` offscreen rendering to mp4). If an installation is
+incomplete, `record` falls back to the MuJoCo offline snapshot renderer while
+`interactive` fails closed; a normal `newton` install always selects the
+native renderer. Headless offscreen rendering still needs an OpenGL
 context: set `PYOPENGL_PLATFORM=egl` on display-less Linux hosts and
 `PYOPENGL_PLATFORM=glx` under Wayland.
 
