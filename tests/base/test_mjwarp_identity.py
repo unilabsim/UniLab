@@ -71,7 +71,7 @@ def test_mjwarp_dependency_version_mismatch_fails_before_import(
 
     with pytest.raises(
         dependencies.MjwarpDependencyError,
-        match=r"requires exact mujoco-warp version 3\.10\.0\.3, found 3\.10\.0\.4",
+        match=r"requires the mujoco-warp 3\.11 line, found 3\.10\.0\.4",
     ):
         dependencies.load_mjwarp_dependencies()
 
