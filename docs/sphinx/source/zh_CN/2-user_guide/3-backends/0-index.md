@@ -22,6 +22,24 @@ UniLab 通过 registry/config 路径暴露后端名称，包括在对应 owner �
 - 在 macOS 上，软件包 CLI 在需要时会通过 `mxpython` 路由 Motrix 交互式回放。
   直接打开原生 Motrix 渲染器的脚本调用应使用 `uv run mxpython`。
 
+## 操作系统与 GPU
+
+| 后端 | 操作系统 | GPU |
+| --- | --- | --- |
+| MuJoCo | Linux / macOS / Windows | 非必需：CPU 物理，离线回放可纯 CPU 渲染 |
+| Motrix | Linux / Windows / Apple Silicon macOS | 非必需：CPU 物理（Rust runtime） |
+| MJWarp | Linux（已验证路径） | 必需：NVIDIA CUDA，且需显式 CUDA process device |
+| Genesis | Linux x86_64 | 必需：NVIDIA GPU 与驱动；仅 `gs.gpu` 通道经过验证 |
+| Newton | Linux | 必需：NVIDIA GPU 与 CUDA 驱动；CPU 设备不是已验证通道 |
+| IsaacGym | Linux x86_64 | 必需：NVIDIA GPU 与驱动；物理跑在独立 Python 3.8 worker |
+| IsaacSim | Linux x86_64 | 必需：NVIDIA CUDA；原生渲染器依赖 RTX 驱动栈；独立 Python 3.11 worker |
+| Drake | Linux x86_64 / Apple Silicon macOS（arm64） | 非必需：CPU 批量物理；Intel macOS 没有官方 Drake 二进制 |
+
+物理后端的设备需求与 learner 设备相互独立：CPU 物理后端（MuJoCo /
+Motrix / Drake）同样可以把 learner 放到 CUDA、ROCm、MPS 或 XPU 上，平台
+对应的 torch 配置档见
+{doc}`../../1-getting_started/2-installation`。
+
 ## 选择后端
 
 UniLab 通过 task owner config 选择仿真器。常规用法下，使用 `--task` 和 `--sim`

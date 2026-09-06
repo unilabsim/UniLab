@@ -16,7 +16,8 @@ sd_hide_title: true
 
 UniLab 将任务语义变成可复用配置：组装 manager term、选择物理后端，并在手头的硬件
 上运行同一套训练/评估工作流。可以从这个着陆页开始：安装、运行第一次 demo、再做
-冒烟训练、选择算法/后端，或直接跳到部署与扩展文档。
+冒烟训练、选择算法/后端，或直接跳到部署与扩展文档。关于项目适用场景和替代方案，
+请阅读 {doc}`why_unilab`。
 
 ```{button-ref} 1-getting_started/1-quick_demo
 :ref-type: doc
@@ -157,6 +158,7 @@ recommendation 元数据。
 :hidden:
 :caption: 文档
 
+why_unilab
 1-getting_started/0-index
 2-user_guide/0-index
 3-deployment/0-index
