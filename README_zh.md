@@ -1,7 +1,7 @@
 <h1 align="center"> UniLab </h1>
 
 <h3 align="center">
-面向超越 GPU 主导范式的机器人 RL 异构架构
+面向跨物理后端机器人学习的契约驱动基础设施
 </h3>
 
 <p align="center">语言：简体中文 | <a href="README.md">English</a></p>
@@ -24,30 +24,19 @@
 
 <p align="center"><em>用同一套任务编排体验覆盖运动、操作与动作跟踪。</em></p>
 
-UniLab 是一个完整、可配置的机器人强化学习产品。使用 Hydra 描述任务，
+UniLab 是面向机器人强化学习的可配置基础设施。使用 Hydra 描述任务，
 通过 manager term 组装任务，选择物理后端，再用统一 CLI 完成训练与评估。
 同一套面向任务的 contract 可以把 CPU、GPU 和外部 worker 仿真连接到学习器运行时。
 
-物理适配器由独立的
-[`unisim-core`](https://github.com/unilabsim/unisim) package 提供；RL 算法及其
-runner 由 [`unilab-rl`](https://github.com/unilabsim/unilab_rl) 提供（Python
-namespace 为 `uni_rl`）。UniLab 将面向用户的 task、environment、配置和实验流程
-保持在一起。
+同一套框架已提供 Windows、Apple Silicon macOS、Linux CUDA、AMD ROCm 和 Intel XPU 的文档
+路径。不同 backend/task 的成熟度按证据分级；请选择[支持矩阵](https://unilabsim.github.io/UniLab-doc/zh_CN/5-reference/5-support_matrix.html)
+中有测试证据的组合。
 
-如果你刚接触 UniLab，请从[第一次成功](#第一次成功运行-demo)开始；如果你已经有任务，
-直接进入[训练与评估](#训练与评估)；在存在匹配 task owner 时，只需修改 `--sim` 即可尝试另一个后端。
+可以先在[项目主页](https://unilabsim.github.io/#demos)观看策略运行，或阅读
+[为什么选择 UniLab？](https://unilabsim.github.io/UniLab-doc/zh_CN/why_unilab.html)，
+了解适用场景、证据和同类方案比较。
 
 ## 亮点
-
-```text
-┌──────────────────────────────────────┐    同一套任务 contract    ┌───────────────────────────────────┐
-│                                      │ ────────────────────────▶ │          按需运行任务             │
-│            定义一次任务              │                           │ MuJoCo · Motrix · MJWarp · Drake  │
-│       Hydra · Managers · NumPy       │                           │ Genesis · IsaacGym · IsaacSim     │
-│      Terms · rewards · commands      │                           │   CUDA · ROCm · macOS · MPS · XPU │
-│                                      │                           │            训练 · 评估            │
-└──────────────────────────────────────┘                           └───────────────────────────────────┘
-```
 
 UniLab 的核心理念很简单：将任务语义定义为可复用的配置，然后独立更换仿真器、硬件或
 learner，而无需重写任务的 environment 生命周期。
@@ -55,158 +44,71 @@ learner，而无需重写任务的 environment 生命周期。
 - **配置而非编码。** action、observation、reward、termination、event、command、
   curriculum 和 metrics 都是 manager term，在 Hydra owner YAML 中组装。基于已有 term
   的任务变体无需新写 environment class，很多时候完全不需要 Python 代码。
-- **更换后端而不更换工作流。** 当前和未来的仿真器共用公开的 `SimBackend` contract。
-  使用 `--sim` 选择后端；任务编排和训练/评估工作流保持一致，后端差异由 owner YAML
-  明确表达。
-- **适配手头的硬件并持续扩展。** CPU 并行仿真或外部 worker 仿真通过注入式 env contract
-  和异步运行时向 accelerator learner 提供数据。算法和 runner 由统一 package 生态提供，
-  不绑定单一仿真器。
+- **更换后端而不更换工作流。** 已注册仿真器遵循公开的 `SimBackend` contract。
+  使用 `--sim` 选择后端；存在匹配 task owner 时，任务编排和训练/评估工作流保持一致，
+  后端差异仍然显式。
+- **让 solver 与 learner 的设备彼此独立。** CPU 并行、native 或 external-worker 仿真
+  不必先变成 CUDA-resident simulator，也可以向 accelerator learner 提供数据；learner
+  可以运行在 CUDA、ROCm、MPS 或 XPU 上。每个 backend/task 组合的证据等级请查看
+  [支持矩阵](https://unilabsim.github.io/UniLab-doc/zh_CN/5-reference/5-support_matrix.html)。
+- **加速 replay-based off-policy 训练。** FastSAC/FlashSAC 让仿真数据采集与 learner
+  update 重叠。论文在代表性配置上报告了 3–10 倍端到端收益；测量范围和限制见
+  [为什么选择 UniLab](https://unilabsim.github.io/UniLab-doc/zh_CN/why_unilab.html)。
 
-## 开始使用
+## 快速开始
 
-推荐使用 [`uv`](https://docs.astral.sh/uv/) 完成源码工作流。
+推荐使用 [`uv`](https://docs.astral.sh/uv/) 完成源码工作流。以下是运行策略 demo 的
+最短路径：
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 git clone https://github.com/unilabsim/UniLab.git
 cd UniLab
 
-# 运行 Motrix demo 的最快路径。
-make setup-motrix
-
-# 完整本地环境（MuJoCo + Motrix）：
-# make setup
-
-# 可选的平台/后端路径：
-# make sync-rocm       # AMD GPU
-# make sync-xpu        # Intel GPU
-# make setup-drake     # Drake + 原生 batch extension
-```
-
-`mujoco` extra 默认安装 `mujoco-uni-runtime` 的预编译 wheel（绑定
-`mujoco==3.11.0`），无需编译器；只有切换 MuJoCo 版本
-（`make mujoco MJ=<version>`，总是从源码重建原生扩展）时才需要 C++ 工具链和
-Python 开发头文件。平台相关安装、可选后端和外部 worker 运行时请参阅
-[安装指南](https://unilabsim.github.io/UniLab-doc/zh_CN/1-getting_started/2-installation.html)。
-
-## 第一次成功：运行 demo
-
-```bash
+make setup
 # 首次运行会从 Hugging Face 下载 checkpoint 和 asset。
 uv run demo dance
 ```
 
-可用预设为 `teaser`、`dance`、`wallflip`、`boxtracking`、`locomani` 和
-`inhandgrasp`。运行 `uv run demo --help` 查看 device 和 refresh 选项。
-[快速演示指南](https://unilabsim.github.io/UniLab-doc/zh_CN/1-getting_started/1-quick_demo.html)
-介绍渲染模式以及服务器/macOS 差异。
+Windows、macOS、CUDA、ROCm、XPU、可选后端和无头渲染的说明，请查看
+[安装指南](https://unilabsim.github.io/UniLab-doc/zh_CN/1-getting_started/2-installation.html)和
+[快速演示指南](https://unilabsim.github.io/UniLab-doc/zh_CN/1-getting_started/1-quick_demo.html)。
 
 ## 训练与评估
 
 ```bash
-# 使用 Motrix 训练并回放任务。
+# 使用 Motrix 训练并回放一个任务。
 uv run train --algo ppo --task go2_joystick_flat --sim motrix
 uv run eval --algo ppo --task go2_joystick_flat --sim motrix --load-run -1
 
-# 对同一个任务只切换仿真器。
+# 使用另一个已有配置的后端，保持同样的任务入口。
 uv run train --algo ppo --task go2_joystick_flat --sim mujoco
 
-# 或使用 off-policy learner 跑同样的工作流。
+# Replay-based off-policy 路径。
 uv run train --algo sac --task g1_walk_flat --sim mujoco
-uv run train --algo flashsac --task g1_walk_flat --sim mujoco
-
-# 无头视频导出。
-uv run eval --algo ppo --task go2_joystick_flat --sim motrix \
-  --load-run -1 --render-mode record
 ```
 
-路由选择始终清晰可见：
-
-```text
---algo + --task + --sim  →  Hydra owner YAML  →  已注册的 environment
-```
-
-在这些 flag 之后追加普通 Hydra override：
-
-```bash
-uv run train --algo ppo --task go2_joystick_flat --sim motrix \
-  algo.max_iterations=1 algo.num_envs=16 training.no_play=true
-```
-
-不要通过 override `training.sim_backend` 切换引擎；它是所选 owner YAML 提供的
-identity 字段。续训、W&B、回放和完整命令矩阵请参阅
-[训练指南](https://unilabsim.github.io/UniLab-doc/zh_CN/2-user_guide/1-training/0-index.html)。
-
-## Manager-based 配置
-
-UniLab 用 Hydra composition 和 NumPy runtime 包装了一套社区熟悉的 manager API。
-任务 owner 可以用声明式配置选择 term 并设置参数：
-
-```yaml
-env:
-  observations:
-    policy:
-      terms:
-        joint_pos:
-          func: unilab.envs.mdp.joint_pos_rel
-        command:
-          func: unilab.envs.mdp.generated_commands
-          params:
-            command_name: twist
-  actions:
-    joint_pos:
-      _target_: unilab.envs.mdp.JointPositionActionCfg
-      entity_name: robot
-      scale: 0.25
-reward:
-  tracking_lin_vel:
-    func: unilab.tasks.locomotion.common.manager_terms.track_lin_vel_xy_exp
-    weight: 1.0
-```
-
-这意味着常见的任务修改只需改配置：组装或禁用一个 term、调整参数，并在不同机器人和
-后端之间复用，无需新写 environment class。该 API 在共享 contract 范围内遵循 pinned
-mjlab manager 语义，但它是结合 NumPy、Hydra 和 `NpEnvState` 语义的 UniLab 产品。
-完整 contract 与已知差异请参阅
-[Manager-Based API 指南](https://unilabsim.github.io/UniLab-doc/zh_CN/4-developer_guide/1-architecture/6-manager_based_api.html).
-
-## 物理后端
-
-当前后端通过 `unisim-core` 和同一套 UniLab 路由提供；随着新 adapter 加入，
-这套 contract 可以持续扩展：
-
-`mujoco` · `motrix` · `mjwarp` · `drake` · `genesis` · `isaacgym` · `isaacsim`
-
-选择一条后端安装路径（需要多个后端时组合 extras）：
-
-```bash
-uv sync --extra mujoco
-# uv sync --extra mujoco --extra motrix
-# uv sync --extra mujoco --extra mjwarp
-# uv sync --extra genesis
-# make setup-drake
-```
-
-IsaacGym 和 IsaacSim 使用专用的外部 worker 环境。后端安装细节、渲染行为以及基于证据
-的 task support matrix 请参阅
-[后端指南](https://unilabsim.github.io/UniLab-doc/zh_CN/2-user_guide/3-backends/0-index.html)
-和[支持矩阵](https://unilabsim.github.io/UniLab-doc/zh_CN/5-reference/5-support_matrix.html)。
+这些 flag 会让 algorithm、task 和 simulator 选择保持可见。续训、W&B、Hydra override、
+回放、后端安装和完整命令矩阵属于
+[训练指南](https://unilabsim.github.io/UniLab-doc/zh_CN/2-user_guide/1-training/0-index.html)、
+[后端指南](https://unilabsim.github.io/UniLab-doc/zh_CN/2-user_guide/3-backends/0-index.html)和
+[支持矩阵](https://unilabsim.github.io/UniLab-doc/zh_CN/5-reference/5-support_matrix.html)。
 
 ## 生态
 
-UniLab 被设计为机器人专属仓库共享的产品界面。目前的下游示例包括
+UniLab 被设计为机器人专属仓库共享的任务与训练界面。目前的下游示例包括
 [MicroDuck RL](https://github.com/unilabsim/microduck_rl_unilab) 和
 [EngineAI RL](https://github.com/unilabsim/engineai_rl_unilab)。它们可以独立发布机器人
 recipe，同时消费同一套 task、backend 和 RL contract。
 
 ## 文档
 
-- [文档索引](https://unilabsim.github.io/UniLab-doc/zh_CN/0-index.html)
-- [统一 CLI 参考](https://unilabsim.github.io/UniLab-doc/zh_CN/2-user_guide/1-training/1-cli_reference.html)
-- [Task 与 manager 架构](https://unilabsim.github.io/UniLab-doc/zh_CN/4-developer_guide/1-architecture/0-index.html)
+- [为什么选择 UniLab？](https://unilabsim.github.io/UniLab-doc/zh_CN/why_unilab.html)
+- [安装与第一次 demo](https://unilabsim.github.io/UniLab-doc/zh_CN/1-getting_started/0-index.html)
+- [训练与评估](https://unilabsim.github.io/UniLab-doc/zh_CN/2-user_guide/1-training/0-index.html)
+- [后端支持矩阵](https://unilabsim.github.io/UniLab-doc/zh_CN/5-reference/5-support_matrix.html)
 - [Sim-to-sim 部署](https://unilabsim.github.io/UniLab-doc/zh_CN/3-deployment/2-sim_to_sim/1-backend_swap.html)
-- [算法扩展教程](https://unilabsim.github.io/UniLab-doc/zh_CN/4-developer_guide/3-extending/3-new_algorithm.html)
-- [架构决策](https://unilabsim.github.io/UniLab-doc/adr/ADR-0000-index.html)
+- [开发者指南](https://unilabsim.github.io/UniLab-doc/zh_CN/4-developer_guide/0-index.html)
 
 开发与贡献工作流请参阅[贡献指南](CONTRIBUTING.md)。
 

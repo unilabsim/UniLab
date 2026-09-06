@@ -1,7 +1,7 @@
 <h1 align="center"> UniLab </h1>
 
 <h3 align="center">
-A Heterogeneous Architecture for Robot RL Beyond GPU-Dominant Paradigms.
+Contract-driven infrastructure for robot learning across physics backends and hardware
 </h3>
 
 <p align="center">Languages: English | <a href="README_zh.md">简体中文</a></p>
@@ -24,32 +24,21 @@ A Heterogeneous Architecture for Robot RL Beyond GPU-Dominant Paradigms.
 
 <p align="center"><em>One task-authoring surface for locomotion, manipulation, and motion tracking.</em></p>
 
-UniLab is a complete, configurable product for robot reinforcement learning.
+UniLab is configurable infrastructure for robot reinforcement learning.
 Describe a task with Hydra, assemble it from manager terms, select a physics
 backend, and train or evaluate through one CLI. The same task-facing contract
 connects CPU, GPU, and external-worker simulation to the learner runtime.
 
-Physics adapters are provided by the independent
-[`unisim-core`](https://github.com/unilabsim/unisim) package. RL algorithms and
-their runners are provided by [`unilab-rl`](https://github.com/unilabsim/unilab_rl)
-(Python namespace `uni_rl`). UniLab keeps the user-facing task, environment,
-configuration, and experiment workflow together.
+The same framework has documented paths for Windows, Apple Silicon macOS, Linux
+CUDA, AMD ROCm, and Intel XPU. Backend and task maturity are evidence-graded;
+use the [support matrix](https://unilabsim.github.io/UniLab-doc/en/5-reference/5-support_matrix.html)
+to choose a tested combination.
 
-New to UniLab? Start with [First success](#first-success-run-a-demo). Already
-have a task? Jump to [Train and evaluate](#train-and-evaluate) and change only
-`--sim` to try another backend when a matching task owner is available.
+See policies in action on the [project page](https://unilabsim.github.io/#demos),
+or read [Why UniLab?](https://unilabsim.github.io/UniLab-doc/en/why_unilab.html)
+to understand the project fit, evidence, and comparison with alternatives.
 
 ## Highlights
-
-```text
-┌──────────────────────────────────────┐     Same task contract    ┌──────────────────────────────────────┐
-│                                      │ ────────────────────────▶ │       Run it where you need          │
-│       Define the task once           │                           │   MuJoCo · Motrix · MJWarp · Drake   │
-│       Hydra · Managers · NumPy       │                           │    Genesis · IsaacGym · IsaacSim     │
-│     Terms · rewards · commands       │                           │   CUDA · ROCm · macOS · MPS · XPU    │
-│                                      │                           │         train · eval                 │
-└──────────────────────────────────────┘                           └──────────────────────────────────────┘
-```
 
 UniLab's core idea is simple: define task semantics once as reusable
 configuration, then change the simulator, hardware, or learner without
@@ -59,154 +48,62 @@ rewriting the task's environment lifecycle.
   events, commands, curricula, and metrics are manager terms assembled in Hydra
   owner YAML. Variants built from existing terms need no new environment class
   — often no Python code at all.
-- **Change the backend, keep the workflow.** Current and future simulators share
-  the public `SimBackend` contract. Choose a backend with `--sim`; the same task
-  authoring and train/eval workflow remains in place while the owner YAML keeps
-  backend-specific details explicit.
-- **Scale across the hardware you have.** CPU-parallel or external-worker
-  simulation feeds accelerator learners through the injected env contract and
-  async runtime. Algorithms and runners are supplied by the unified package
-  ecosystem instead of being tied to one simulator.
+- **Change the backend, keep the workflow.** Registered simulators meet the
+  public `SimBackend` contract. Choose a backend with `--sim`; when a matching
+  task owner exists, task authoring and train/eval stay consistent while
+  backend-specific details remain explicit.
+- **Keep solver and learner devices independent.** CPU-parallel, native, or
+  external-worker simulation can feed an accelerator learner without first
+  becoming a CUDA-resident simulator. The learner can run on CUDA, ROCm, MPS,
+  or XPU; the [support matrix](https://unilabsim.github.io/UniLab-doc/en/5-reference/5-support_matrix.html)
+  records the evidence level of each backend/task combination.
+- **Accelerate replay-based off-policy training.** FastSAC/FlashSAC lets
+  simulation data collection overlap with learner updates. The paper reports
+  3–10× end-to-end gains on representative configurations; see [Why UniLab](https://unilabsim.github.io/UniLab-doc/en/why_unilab.html)
+  for scope and measurements.
 
-## Getting started
+## Quick start
 
-The supported source workflow uses [`uv`](https://docs.astral.sh/uv/).
+The supported source workflow uses [`uv`](https://docs.astral.sh/uv/). This is
+the shortest path to a policy demo:
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 git clone https://github.com/unilabsim/UniLab.git
 cd UniLab
 
-# Fastest path to the first Motrix demo.
-make setup-motrix
-
-# Full local setup (MuJoCo + Motrix):
-# make setup
-
-# Optional platform/backend paths:
-# make sync-rocm       # AMD GPU
-# make sync-xpu        # Intel GPU
-# make setup-drake     # Drake + native batch extension
-```
-
-The `mujoco` extra installs the prebuilt `mujoco-uni-runtime` wheel (bound to
-`mujoco==3.11.0`), so no compiler is needed by default; a C++ toolchain and
-Python development headers are only required when switching the MuJoCo version
-(`make mujoco MJ=<version>`), which always rebuilds the native extension from
-source. See the
-[installation guide](https://unilabsim.github.io/UniLab-doc/en/1-getting_started/2-installation.html)
-for platform-specific setup, optional backends, and external worker runtimes.
-
-## First success: run a demo
-
-```bash
+make setup
 # Downloads the checkpoint and assets from Hugging Face on first run.
 uv run demo dance
 ```
 
-Available presets are `teaser`, `dance`, `wallflip`, `boxtracking`, `locomani`,
-and `inhandgrasp`. Use `uv run demo --help` for device and refresh options.
-The [quick demo guide](https://unilabsim.github.io/UniLab-doc/en/1-getting_started/1-quick_demo.html)
-explains rendering modes and server/macOS differences.
+For Windows, macOS, CUDA, ROCm, XPU, optional backends, and headless rendering,
+use the [installation guide](https://unilabsim.github.io/UniLab-doc/en/1-getting_started/2-installation.html)
+and [quick demo guide](https://unilabsim.github.io/UniLab-doc/en/1-getting_started/1-quick_demo.html).
 
 ## Train and evaluate
 
 ```bash
-# Train and replay a task with Motrix.
+# Train and replay one task with Motrix.
 uv run train --algo ppo --task go2_joystick_flat --sim motrix
 uv run eval --algo ppo --task go2_joystick_flat --sim motrix --load-run -1
 
-# Switch only the simulator for the same task.
+# Use the same task-facing command with another configured backend.
 uv run train --algo ppo --task go2_joystick_flat --sim mujoco
 
-# Or use the same workflow with an off-policy learner.
+# Replay-based off-policy path.
 uv run train --algo sac --task g1_walk_flat --sim mujoco
-uv run train --algo flashsac --task g1_walk_flat --sim mujoco
-
-# Headless video export.
-uv run eval --algo ppo --task go2_joystick_flat --sim motrix \
-  --load-run -1 --render-mode record
 ```
 
-Route-defining choices are always visible:
-
-```text
---algo + --task + --sim  →  Hydra owner YAML  →  registered environment
-```
-
-Use normal Hydra overrides after those flags:
-
-```bash
-uv run train --algo ppo --task go2_joystick_flat --sim motrix \
-  algo.max_iterations=1 algo.num_envs=16 training.no_play=true
-```
-
-Do not override `training.sim_backend` to switch engines. It is the identity
-field supplied by the selected owner YAML. Find resume, W&B, playback, and the
-full command matrix in the
-[training guide](https://unilabsim.github.io/UniLab-doc/en/2-user_guide/1-training/0-index.html).
-
-## Manager-based configuration
-
-UniLab wraps a community-familiar manager API with Hydra composition and a
-NumPy runtime. A task owner can select and parameterize terms declaratively:
-
-```yaml
-env:
-  observations:
-    policy:
-      terms:
-        joint_pos:
-          func: unilab.envs.mdp.joint_pos_rel
-        command:
-          func: unilab.envs.mdp.generated_commands
-          params:
-            command_name: twist
-  actions:
-    joint_pos:
-      _target_: unilab.envs.mdp.JointPositionActionCfg
-      entity_name: robot
-      scale: 0.25
-reward:
-  tracking_lin_vel:
-    func: unilab.tasks.locomotion.common.manager_terms.track_lin_vel_xy_exp
-    weight: 1.0
-```
-
-This makes common task edits a config change: compose or disable a term, tune
-its parameters, and reuse it across robots and backends without writing a new
-environment class. The API follows the pinned mjlab manager semantics where
-the contracts are shared, but it is a UniLab product with NumPy, Hydra, and
-`NpEnvState` semantics. See the
-[Manager-Based API guide](https://unilabsim.github.io/UniLab-doc/en/4-developer_guide/1-architecture/6-manager_based_api.html)
-for the complete contract and known differences.
-
-## Physics backends
-
-Current backends are available through `unisim-core` and the same UniLab route;
-the contract is designed to grow as new adapters land:
-
-`mujoco` · `motrix` · `mjwarp` · `drake` · `genesis` · `isaacgym` · `isaacsim`
-
-Choose one backend setup (combine extras when needed):
-
-```bash
-uv sync --extra mujoco
-# uv sync --extra mujoco --extra motrix
-# uv sync --extra mujoco --extra mjwarp
-# uv sync --extra genesis
-# make setup-drake
-```
-
-IsaacGym and IsaacSim use dedicated external worker environments. Backend
-installation details, rendering behavior, and the evidence-based task support
-matrix live in the
-[backend guide](https://unilabsim.github.io/UniLab-doc/en/2-user_guide/3-backends/0-index.html)
+The flags keep algorithm, task, and simulator choices visible. Resume, W&B,
+Hydra overrides, playback, backend setup, and the full command matrix belong in
+the [training guide](https://unilabsim.github.io/UniLab-doc/en/2-user_guide/1-training/0-index.html),
+[backend guide](https://unilabsim.github.io/UniLab-doc/en/2-user_guide/3-backends/0-index.html),
 and [support matrix](https://unilabsim.github.io/UniLab-doc/en/5-reference/5-support_matrix.html).
 
 ## Ecosystem
 
-UniLab is designed to be the shared product surface for robot-specific
+UniLab is designed to be a shared task and training surface for robot-specific
 repositories. Current downstream examples include
 [MicroDuck RL](https://github.com/unilabsim/microduck_rl_unilab) and
 [EngineAI RL](https://github.com/unilabsim/engineai_rl_unilab). They can ship
@@ -215,12 +112,12 @@ contracts.
 
 ## Documentation
 
-- [Documentation index](https://unilabsim.github.io/UniLab-doc/en/0-index.html)
-- [Unified CLI reference](https://unilabsim.github.io/UniLab-doc/en/2-user_guide/1-training/1-cli_reference.html)
-- [Task and manager architecture](https://unilabsim.github.io/UniLab-doc/en/4-developer_guide/1-architecture/0-index.html)
+- [Why UniLab?](https://unilabsim.github.io/UniLab-doc/en/why_unilab.html)
+- [Installation and first demo](https://unilabsim.github.io/UniLab-doc/en/1-getting_started/0-index.html)
+- [Training and evaluation](https://unilabsim.github.io/UniLab-doc/en/2-user_guide/1-training/0-index.html)
+- [Backend support matrix](https://unilabsim.github.io/UniLab-doc/en/5-reference/5-support_matrix.html)
 - [Sim-to-sim deployment](https://unilabsim.github.io/UniLab-doc/en/3-deployment/2-sim_to_sim/1-backend_swap.html)
-- [Algorithm extension recipe](https://unilabsim.github.io/UniLab-doc/en/4-developer_guide/3-extending/3-new_algorithm.html)
-- [Architecture decisions](https://unilabsim.github.io/UniLab-doc/adr/ADR-0000-index.html)
+- [Developer guide](https://unilabsim.github.io/UniLab-doc/en/4-developer_guide/0-index.html)
 
 For development and contribution workflows, see the
 [contributing guide](CONTRIBUTING.md).

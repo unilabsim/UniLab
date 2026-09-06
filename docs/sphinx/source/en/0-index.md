@@ -18,7 +18,7 @@ UniLab turns task semantics into reusable configuration: assemble manager terms,
 select a physics backend, and run the same train/eval workflow on the hardware
 available to you. Use this landing page to install, run a first demo, follow it
 with a smoke job, choose an algorithm or backend, or jump into deployment and
-extension docs.
+extension docs. For project fit and alternatives, read {doc}`why_unilab`.
 
 ```{button-ref} 1-getting_started/1-quick_demo
 :ref-type: doc
@@ -165,6 +165,7 @@ committed benchmark manifest or separate recommendation metadata.
 :hidden:
 :caption: Documentation
 
+why_unilab
 1-getting_started/0-index
 2-user_guide/0-index
 3-deployment/0-index

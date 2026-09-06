@@ -29,12 +29,12 @@ for _p in _candidate_siblings:
 # produces a usable site for the prose pages. CI installs UniLab properly
 # and gets the full API reference.
 _UNILAB_AVAILABLE = False
-_UNILAB_VERSION = "1.0.0"
+_UNILAB_VERSION = "1.1.0"
 try:
     import unilab  # type: ignore
 
     _UNILAB_AVAILABLE = True
-    _UNILAB_VERSION = getattr(unilab, "__version__", "1.0.0")
+    _UNILAB_VERSION = getattr(unilab, "__version__", "1.1.0")
 except Exception as exc:  # pragma: no cover — diagnostic only
     warnings.warn(
         f"UniLab is not importable in this environment ({exc!r}); "
@@ -275,6 +275,7 @@ _LANGUAGE_ROOT_INDEX = {
 # instead of bouncing to the language index. Forward direction only — reverse
 # map is computed below.
 _LANGUAGE_PATH_FORWARD: dict[str, str] = {
+    "en/why_unilab": "zh_CN/why_unilab",
     "en/2-user_guide/3-backends/6-drake": "zh_CN/2-user_guide/3-backends/6-drake",
     "en/1-getting_started/5-faq": "zh_CN/1-getting_started/5-faq",
     "en/4-developer_guide/1-architecture/6-manager_based_api": (

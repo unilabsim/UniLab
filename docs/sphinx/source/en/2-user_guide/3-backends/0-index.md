@@ -23,6 +23,24 @@ YAML; do not switch a run by overriding `training.sim_backend` alone.
   `mxpython` when needed. Direct script calls that open the native Motrix
   renderer should use `uv run mxpython`.
 
+## OS and GPU Support
+
+| Backend | Operating system | GPU |
+| --- | --- | --- |
+| MuJoCo | Linux / macOS / Windows | Not required: CPU physics; offline playback can render on CPU |
+| Motrix | Linux / Windows / Apple Silicon macOS | Not required: CPU physics (Rust runtime) |
+| MJWarp | Linux (validated path) | Required: NVIDIA CUDA with an explicit CUDA process device |
+| Genesis | Linux x86_64 | Required: NVIDIA GPU and driver; only the `gs.gpu` channel is validated |
+| Newton | Linux | Required: NVIDIA GPU and CUDA driver; CPU devices are not a validated channel |
+| IsaacGym | Linux x86_64 | Required: NVIDIA GPU and driver; physics runs in a separate Python 3.8 worker |
+| IsaacSim | Linux x86_64 | Required: NVIDIA CUDA; native rendering depends on the RTX driver stack; separate Python 3.11 worker |
+| Drake | Linux x86_64 / Apple Silicon macOS (arm64) | Not required: CPU batch physics; Intel macOS has no official Drake binary |
+
+Backend device requirements are independent of the learner device: CPU-physics
+backends (MuJoCo / Motrix / Drake) can still train with the learner on CUDA,
+ROCm, MPS, or XPU; see the platform profiles in
+{doc}`../../1-getting_started/2-installation`.
+
 ## Select A Backend
 
 UniLab selects the simulator through the task owner config. For normal usage,
