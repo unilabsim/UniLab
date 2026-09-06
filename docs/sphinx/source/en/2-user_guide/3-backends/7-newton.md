@@ -23,10 +23,25 @@ display; PPO remains **Configured**
 (evidence limited to the owner configs, compose/contract checks, and
 fail-closed runtime/import boundaries; no training or playback claim yet).
 
+Multi-GPU data parallelism (issue
+[#1512](https://github.com/unilabsim/UniLab/issues/1512)): verified on
+2026-09-06 on 2x NVIDIA RTX 6000D (Blackwell) / torch 2.8.0+cu128 /
+newton 1.5.1 / mujoco-warp 3.11 — PPO torchrun DP=2 and SAC
+DpRankSupervisor DP=2 (`training.devices=[0,1]`) training smokes both
+complete, and `nvidia-smi` sampling confirms each rank's learner and
+collector sim processes land on their own physical GPU with no cross-GPU
+leakage; single-GPU PPO/SAC regressions pass alongside. Newton/Warp follows
+standard CUDA device semantics, so no `CUDA_VISIBLE_DEVICES` pinning (the
+Genesis quirk) is needed; the rank-local device reaches spawn collectors as
+a `newton_device="cuda:N"` env override (uni_rl 1.0.0's collector-side
+process-binding gate only covers mjwarp), and the SAC owner raises the
+collector tick-0 timeout to 180 s to cover Warp kernel compilation on the
+cold path.
+
 ## Installation
 
-The Newton runtime is an **isolated optional extra**, pinning Newton 1.5.1
-with the MuJoCo-Warp 3.11 / Warp 1.16 line:
+The Newton runtime is an optional extra, pinning Newton 1.5.1 with the
+MuJoCo-Warp 3.11 / Warp 1.16 line:
 
 ```bash
 # In a source checkout:
@@ -41,12 +56,14 @@ pip install "unilab[newton,newton-render]"
 ```
 
 The extra pins `newton==1.5.1`, `mujoco-warp==3.11.0`, `mujoco==3.11.0`, and
-`warp-lang==1.16.0` exactly. That is a different MuJoCo version line from the
-historical `mjwarp` extra (`mujoco-warp==3.10.0.3`) and the `mujoco` extra,
-so `pyproject.toml` declares them **mutually exclusive** through uv
-`conflicts`: Newton cannot share one environment with the `mujoco` or
-`mjwarp` extras. To compare MuJoCo / MJWarp against Newton, keep Newton in a
-separate environment.
+`warp-lang==1.16.0` exactly. These sit on the same MuJoCo 3.11 /
+MuJoCo-Warp 3.11 / Warp 1.16 line as the `mujoco` extra (`mujoco~=3.11.0`)
+and the `mjwarp` extra (`mujoco-warp~=3.11.0`, `warp-lang==1.16.0`), so all
+three extras are **jointly installable** in one environment:
+
+```bash
+uv sync --extra mujoco --extra mjwarp --extra newton
+```
 
 Prerequisites:
 

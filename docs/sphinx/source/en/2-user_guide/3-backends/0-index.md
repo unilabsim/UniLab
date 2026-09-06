@@ -15,8 +15,9 @@ YAML; do not switch a run by overriding `training.sim_backend` alone.
   still requires a working MuJoCo runtime.
 - Drake uses the external `drake-uni` package plus a locally built C++ batch
   extension; see {doc}`6-drake` before selecting `--sim drake`.
-- Newton uses the isolated `newton` extra (`uv sync --extra newton`), which
-  cannot share an environment with the `mujoco` / `mjwarp` extras; see
+- Newton uses the `newton` extra (`uv sync --extra newton`), which shares the
+  MuJoCo 3.11 / MuJoCo-Warp 3.11 / Warp 1.16 line with the `mujoco` / `mjwarp`
+  extras and can be combined with them in one environment; see
   {doc}`7-newton` before selecting `--sim newton`.
 - On macOS, the package CLI routes Motrix interactive playback through
   `mxpython` when needed. Direct script calls that open the native Motrix
